@@ -8,8 +8,17 @@
 
 # Run project_build script
 
-# Load variables
-variablesfile="$PWD/common/script_vars_hymenopteramine1.5.sh"
+scriptname=`basename "$0"`
+
+if [ $# -eq 0 ]; then
+    echo "Usage  : ./${scriptname} <variables_file_location>"
+    echo "Example: ./${scriptname} ~/intermine-scripts/common/script_vars_faangmine1.2.sh"
+    exit 1
+fi
+
+# variables
+variablesfile=$1
+
 . $variablesfile
 
 # Create log directory if it doesn't already exist
