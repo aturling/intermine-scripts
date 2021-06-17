@@ -1,3 +1,5 @@
-# Sync log directories but not actual logs themselves
-log
 !.gitkeep
+*.out
+*.log
+*.gz
+*.err
