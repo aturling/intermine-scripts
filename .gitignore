@@ -1,3 +1,3 @@
 # Sync log directories but not actual logs themselves
-log/**
-!log/.gitkeep
+log
+!.gitkeep
