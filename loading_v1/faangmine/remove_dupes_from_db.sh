@@ -9,7 +9,7 @@
 
 # variables and functions common to all test scripts
 variablesfile="~/intermine-scripts/common/script_vars_faangmine1.2.sh"
-functionsfile="$PWD/common/intermine_functions.sh"
+functionsfile="~/intermine-scripts/common/intermine_v1_functions.sh"
 
 
 # files/vars for this script
