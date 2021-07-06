@@ -10,6 +10,7 @@
 ########################################################
 
 scriptname=`basename "$0"`
+scriptdir=`dirname "$0"`
 
 if [ $# -eq 0 ]; then
     echo "Usage  : ./${scriptname} <variables_file_location>"
@@ -27,8 +28,4 @@ variablesfile=$1
 projectxmlfile="${interminedir}/project.xml"
 
 # call perl script that parses project.xml and gets list of source names
-perl get_source_names.pl $projectxmlfile | sed 's/^/    load_source_with_exit_on_error "/' | sed 's/$/" >> $outfile/'
-
-# old way: what if source is commented out??? need to actually parse xml 
-# one-liner that gets the source names and adds the command text
-#grep "source name=" ${projectxmlfile} | awk '{ print $2 }' | awk -F"=" '{ print $2 }' | awk -F'"' '{ print $2 }' | sed 's/^/load_source_with_exit_on_error "/' | sed 's/$/" >> $outfile/'
+perl ${scriptdir}/get_source_names.pl $projectxmlfile | sed 's/^/    load_source_with_exit_on_error "/' | sed 's/$/" >> $outfile/'
