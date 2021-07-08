@@ -7,8 +7,8 @@
 ########################################################
 
 # variables and functions common to all intermine scripts
-variablesfile="~/intermine-scripts/common/script_vars_maizemine1.3.sh"
-functionsfile="~/intermine-scripts/common/intermine_v1_functions.sh"
+variablesfile="/home/walshamy/intermine-scripts/common/script_vars_maizemine1.3.sh"
+functionsfile="/home/walshamy/intermine-scripts/common/intermine_v1_functions.sh"
 
 # files/vars for this script
 rundatetime=`date +%Y%m%d%H%M`
