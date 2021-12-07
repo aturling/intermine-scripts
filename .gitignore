@@ -1,5 +1,11 @@
 !.gitkeep
+*~
+*.swp
+*.swo
 *.out
 *.log
 *.gz
 *.err
+*.html
+.DS_Store
+*Data_Sources.csv
