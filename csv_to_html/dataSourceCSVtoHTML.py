@@ -230,7 +230,8 @@ def main():
                 tableRows[rowNum].append(colVals)
 
     # Create HTML from table
-    with open('output_html/dataSourcesTable.html', 'w') as HTMLfile:
+    outfile = 'output_html/dataSourcesTable_' + mineName + '_v' + mineVersion + '.html'
+    with open(outfile, 'w') as HTMLfile:
         # Print top of HTML file
         HTMLfile.write(getHTMLFileTop())
         # Open table tag
@@ -301,7 +302,7 @@ def main():
         # Print bottom of HTML file
         HTMLfile.write(getHTMLFileBottom())
 
-    print "Created HTML file output_html/dataSourcesTable.html"
+    print "Created HTML file " + outfile
 
 
 if __name__ == "__main__":
