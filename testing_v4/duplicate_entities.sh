@@ -19,6 +19,8 @@ run_null_query() {
     dbcount=$(psql ${dbname} -c "select count(id) from ${tablename} where ${fieldname} is null" -t -A)
     if [ ! $dbcount -eq 0 ]; then
         echo "WARNING: ${tablename} has ${dbcount} rows where ${fieldname} is null"
+    else
+        echo "No null values for ${fieldname}"
     fi
 }
 
@@ -74,18 +76,7 @@ run_duplicate_dbquery () {
     echo
 }
 
-
-
-#if [ $# -eq 0 ]; then
-#    echo "Usage  : ./${scriptname} <variables_file_location>"
-#    echo "Example: ./${scriptname} ~/intermine-scripts/common/script_vars_faangmine1.2.sh"
-#    exit 1
-#fi
-
-# variables
-#variablesfile=$1
-
-#. $variablesfile
+section_divide="----------------------------------------------------------------"
 
 # get database name from properties file
 dbname=$(grep db.production.datasource.databaseName ~/.intermine/*.properties | awk -F'=' '{print $2}')
@@ -93,22 +84,36 @@ dbname=$(grep db.production.datasource.databaseName ~/.intermine/*.properties | 
 echo "Database name is ${dbname}"
 echo
 
+#-------------------------------------
+# sequence features
+# (includes genes, chromosomes, etc.)
+#-------------------------------------
+echo "${section_divide}"
+echo "Sequence features:"
+echo
+echo "Checking for null fields..."
+
+# null IDs
+run_null_query ${dbname} "sequencefeature" "primaryidentifier"
+
+# null organism
+run_null_query ${dbname} "sequencefeature" "organismid"
+echo
+
+
 #-------------
 # chromosomes
 #-------------
 
+echo "${section_divide}"
 echo "Chromosomes:"
 echo
 echo "Checking for null fields..."
 
 # null IDs
-run_null_query ${dbname} "chromosome" "primaryidentifier"
 run_null_query ${dbname} "chromosome" "secondaryidentifier"
 run_null_query ${dbname} "chromosome" "tertiaryidentifier"
 run_null_query ${dbname} "chromosome" "name"
-
-# null organism
-run_null_query ${dbname} "chromosome" "organismid"
 
 # null assembly
 run_null_query ${dbname} "chromosome" "assembly"
@@ -120,43 +125,67 @@ run_duplicate_dbquery ${dbname} "chromosome" "primaryidentifier" 1
 #-------
 # genes
 #-------
-
+echo "${section_divide}"
 echo "Genes:"
-echo
-echo "Checking for null fields..."
-
-# null IDs
-run_null_query ${dbname} "gene" "primaryidentifier"
-
-# null organism
-run_null_query ${dbname} "gene" "organismid"
 
 # duplicates
 run_duplicate_dbquery ${dbname} "gene" "primaryidentifier" 0
 
-
 #-------------
 # pseudogenes
 #-------------
-
+echo "${section_divide}"
 echo "Pseudogenes:"
-echo
-echo "Checking for null fields..."
-
-# null IDs
-run_null_query ${dbname} "pseudogene" "primaryidentifier"
-
-# null organism
-run_null_query ${dbname} "pseudogene" "organismid"
 
 # duplicates
 run_duplicate_dbquery ${dbname} "pseudogene" "primaryidentifier" 0
 
 
-#----------
-# proteins
-#----------
+#-------
+# mRNAs
+#-------
+echo "${section_divide}"
+echo "mRNAs:"
+echo
+echo "Checking for null fields..."
 
+# null IDs
+run_null_query ${dbname} "mrna" "primaryidentifier"
+
+# null organism
+run_null_query ${dbname} "mrna" "organismid"
+
+# duplicates
+run_duplicate_dbquery ${dbname} "mrna" "primaryidentifier" 0
+
+
+#------------------
+# coding sequences
+#------------------
+echo "${section_divide}"
+echo "Coding sequences:"
+echo
+echo "Checking for null fields..."
+
+# null IDs
+run_null_query ${dbname} "codingsequence" "proteinidentifier"
+echo
+
+#--------------
+# polypeptides
+#--------------
+echo "${section_divide}"
+echo "Polypeptides:"
+echo
+
+# duplicates
+run_duplicate_dbquery ${dbname} "polypeptide" "primaryidentifier" 0
+
+
+#----------------------------------
+# proteins (not a sequencefeature)
+#----------------------------------
+echo "${section_divide}"
 echo "Proteins:"
 echo
 echo "Checking for null fields..."
@@ -172,41 +201,3 @@ run_null_query ${dbname} "protein" "md5checksum"
 
 # duplicates:
 run_duplicate_dbquery ${dbname} "protein" "primaryaccession" 0
-
-
-#-------
-# mRNAs
-#-------
-
-echo "mRNAs:"
-echo
-echo "Checking for null fields..."
-
-# null IDs
-run_null_query ${dbname} "mrna" "primaryidentifier"
-
-# null organism
-run_null_query ${dbname} "mrna" "organismid"
-
-# duplicates
-run_duplicate_dbquery ${dbname} "mrna" "primaryidentifier" 0
-
-
-#--------------
-# polypeptides
-#--------------
-
-echo "Polypeptides:"
-echo
-echo "Checking for null fields..."
-
-# null IDs
-run_null_query ${dbname} "polypeptide" "primaryidentifier"
-
-# null organism
-run_null_query ${dbname} "polypeptide" "organismid"
-
-# duplicates
-run_duplicate_dbquery ${dbname} "polypeptide" "primaryidentifier" 0
-
-
