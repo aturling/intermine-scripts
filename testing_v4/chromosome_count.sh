@@ -12,6 +12,7 @@ dbname=$(grep db.production.datasource.databaseName ~/.intermine/*.properties | 
 echo "Database name is ${dbname}"
 echo
 
+all_counts_correct=1
 fasta_files=$(find /db/*/datasets/genome -name *.fa)
 
 for fasta_file in $fasta_files; do
@@ -25,6 +26,16 @@ for fasta_file in $fasta_files; do
         echo "Chromosome count correct ($filecount)"
     else
         echo "WARNING: database has $dbcount chromosomes but fasta file has $filecount chromosomes!"
+        all_counts_correct=0
     fi
     echo
 done
+
+echo
+echo "SUMMARY:"
+if [ $all_counts_correct -eq 0 ]; then
+    echo "Some counts were incorrect!"
+else
+    echo "All counts were correct."
+fi
+echo
