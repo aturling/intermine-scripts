@@ -40,7 +40,7 @@ dataset_name="KEGG pathways data set"
 dataset_id=$(psql ${dbname} -c "select id from dataset where dataset.name='${dataset_name}'" -t -A)
 
 # Get *_gene_map.tab input filenames
-kegg_gene_map_files=$(find /db/*/datasets/KEGG_genes -name *map.tab)
+kegg_gene_map_files=$(find /db/*/datasets/KEGG_genes -maxdepth 1 -type f -name *map.tab)
 
 # Iterate through KEGG input file list
 for gene_map_file in $kegg_gene_map_files; do
