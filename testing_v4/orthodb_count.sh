@@ -5,6 +5,11 @@
 #
 # Check database for correct number of OrthoDB genes
 # and homologues.
+#
+# Note: this script stores homologue counts from input
+# files in an output file in the local temp directory.
+# If the input files change, this output file will need
+# to be deleted in order to have the counts recomputed.
 #######################################################
 
 all_counts_correct=1
