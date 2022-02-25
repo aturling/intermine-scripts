@@ -209,6 +209,25 @@ run_null_query ${dbname} "protein" "md5checksum"
 # duplicates:
 run_duplicate_dbquery ${dbname} "protein" "primaryaccession" 0
 
+
+#--------------------------------
+# datasource names (special case)
+#--------------------------------
+echo "${section_divide}"
+echo "Checking for duplicate (case-insensitive) DataSource names..."
+
+# Merging is case-sensitive so check for duplicates ignoring case (e.g., "uniprot" and "UniProt"
+# would be different rows in table, but really should be one)
+dbcount=$(psql ${dbname} -c "select count(name) from datasource d1 where (select count(*) from datasource d2 where lower(d1.name)=lower(d2.name)) > 1" -t -A)
+
+if [ -z $dbcount ]; then
+    echo "WARNING: duplicate data source names:"
+    psql ${dbname} -c "select name from datasource d1 where (select count(*) from datasource d2 where lower(d1.name)=lower(d2.name)) > 1" -t -A
+    no_dupes_found=0
+else
+    echo "No duplicate data source names found"
+fi
+
 echo
 echo "SUMMARY:"
 if [ $no_null_fields -eq 0 ]; then
