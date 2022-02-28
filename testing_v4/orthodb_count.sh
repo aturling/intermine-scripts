@@ -24,6 +24,11 @@ echo
 dataset_name="OrthoDB data set"
 dataset_id=$(psql ${dbname} -c "select id from dataset where dataset.name='${dataset_name}'" -t -A)
 
+if [ -z $dataset_id ]; then
+    echo "OrthoDB data set not found in database"
+    exit 1;
+fi
+
 # Use script to count total number of expected homologues
 this_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 cd "$this_path"
