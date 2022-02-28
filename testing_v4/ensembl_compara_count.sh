@@ -13,6 +13,13 @@ dbname=$(grep db.production.datasource.databaseName ~/.intermine/*.properties | 
 echo "Database name is ${dbname}"
 echo
 
+# Check if data set exists
+ensembl_comp_dir=$(find /db/*/datasets -maxdepth 1 -type d -name EnsemblCompara)
+if [ -z $ensembl_comp_dir ]; then
+    echo "Ensembl Compara data set does not exist"
+    exit 1
+fi
+
 all_counts_correct=1
 
 # Get list of taxon IDs from input files

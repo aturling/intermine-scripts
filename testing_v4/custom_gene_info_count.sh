@@ -13,6 +13,13 @@ dbname=$(grep db.production.datasource.databaseName ~/.intermine/*.properties | 
 echo "Database name is ${dbname}"
 echo
 
+# Check that data set exists
+custom_gene_dir=$(find /db/*/datasets -maxdepth 1 -type d -name custom-gene-info)
+if [ -z $custom_gene_dir ]; then
+    echo "Custom gene info dataset does not exist"
+    exit 1
+fi
+
 all_counts_correct=1
 # Get source names from directory structure
 sources=$(find /db/*/datasets/custom-gene-info/ -mindepth 1 -maxdepth 1 -type d | awk -F'/' '{print $(NF)}')
