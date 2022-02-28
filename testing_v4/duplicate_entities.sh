@@ -211,6 +211,27 @@ run_duplicate_dbquery ${dbname} "protein" "primaryaccession" 0
 
 
 #--------------------------------
+# organism names (special case)
+#--------------------------------
+echo "${section_divide}"
+echo "Checking organism names...."
+
+# Sometimes species and sub-species are both included when it should be one or the other.
+# Check for two different species where one is contained in the other.
+dbcount=$(psql ${dbname} -c "select count(*) from organism o1 where (select count(*) from organism o2 where o2.species like '%' || o1.species || '%') > 1" -t -A)
+
+if [ ! $dbcount -eq 0 ]; then
+    echo "WARNING: organism species and sub-species present in database!"
+    species=$(psql ${dbname} -c "select o1.species from organism o1 where (select count(*) from organism o2 where o2.species like '%' || o1.species || '%') > 1" -t -A)
+    echo "organisms:"
+    psql ${dbname} -c "select name from organism where species like '%${species}%'" -t -A
+    no_dupes_found=0
+else
+    echo "No duplicate organisms found."
+fi
+echo
+
+#--------------------------------
 # datasource names (special case)
 #--------------------------------
 echo "${section_divide}"
@@ -220,7 +241,7 @@ echo "Checking for duplicate (case-insensitive) DataSource names..."
 # would be different rows in table, but really should be one)
 dbcount=$(psql ${dbname} -c "select count(name) from datasource d1 where (select count(*) from datasource d2 where lower(d1.name)=lower(d2.name)) > 1" -t -A)
 
-if [ -z $dbcount ]; then
+if [ ! $dbcount -eq 0 ]; then
     echo "WARNING: duplicate data source names:"
     psql ${dbname} -c "select name from datasource d1 where (select count(*) from datasource d2 where lower(d1.name)=lower(d2.name)) > 1" -t -A
     no_dupes_found=0
