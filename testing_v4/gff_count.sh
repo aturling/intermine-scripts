@@ -15,7 +15,7 @@ echo
 
 all_counts_correct=1
 
-sources=("RefSeq" "Ensembl")
+sources=("RefSeq" "Ensembl", "MaizeGDB", "Genbank")
 echo "Checking gff counts..."
 for source in "${sources[@]}" ; do
     echo "Source: $source"

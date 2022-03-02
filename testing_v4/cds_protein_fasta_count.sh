@@ -17,7 +17,7 @@ all_counts_correct=1
 
 # CodingSequences:
 echo "Checking CodingSequence counts..."
-sources=("RefSeq" "Ensembl" "MaizeGDB")
+sources=("RefSeq" "Ensembl" "MaizeGDB", "Genbank")
 for source in "${sources[@]}" ; do
     # First check if source exists for this mine
     srcdir=$(find /db/*/datasets/ -maxdepth 1 -type d -name "$source")
