@@ -23,7 +23,7 @@ fi
 all_counts_correct=1
 
 # Get list of taxon IDs from input files
-taxon_ids=$(find /db/*/datasets/EnsemblCompara -type f -printf '%f\n' | awk -F'_' '{printf "%s\\n\n%s\\n\n", $1, $2}' | sed 's/\\n//g' | sort | uniq)
+taxon_ids=$(find /db/*/datasets/EnsemblCompara -maxdepth 1 -type f -printf '%f\n' | awk -F'_' '{printf "%s\\n\n%s\\n\n", $1, $2}' | sed 's/\\n//g' | sort | uniq)
 
 # Get number of homologues from Ensembl Compara per taxon ID
 echo "Querying database for Ensembl Compara homologues..."
@@ -32,8 +32,14 @@ dataset_id=$(psql ${dbname} -c "select id from dataset where dataset.name='${dat
 
 
 for taxon_id in $taxon_ids; do
+    # Get number of homologues for this organism in database
     dbcount=$(psql ${dbname} -c "select count(h.id) from homologue h join datasetshomologue dh on dh.homologue=h.id join gene g on g.id=h.geneid join organism o on o.id=g.organismid where dh.datasets='${dataset_id}' and o.taxonid='${taxon_id}'" -t -A)
+    # Get number of homologues for this organism by counting lines of files with taxon id in filename
     file_count=$(wc -l /db/*/datasets/EnsemblCompara/*${taxon_id}* | grep total | awk '{print $1}')
+    if [ -z $file_count ]; then
+        # Only one file with this taxon id:
+        file_count=$(wc -l /db/*/datasets/EnsemblCompara/*${taxon_id}* | awk '{print $1}')
+    fi
     if [ $dbcount -eq $file_count ]; then
         echo "Homologue count correct for organism with taxon id $taxon_id ($file_count homologues)"
     else
