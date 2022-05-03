@@ -23,7 +23,7 @@ def getHeaderWidths(mineName):
     # return ['15%', '25%', '10%', '15%', '20%', '15%'] # should add up to 100%
     # So far these don't vary much by version, so just use Mine name:
     headerWidthsForMine = {
-        'AquaMine': ['15%', '25%', '10%', '15%', '20%', '15%'],
+        'AquaMine': ['10%', '15%', '22%', '23%', '20%', '10%'],
         'FAANGMine': ['15%', '15%', '10%', '25%', '25%', '10%'],
         'HymenopteraMine': ['15%', '15%', '15%', '25%', '20%', '10%'],
         'MaizeMine': ['15%', '25%', '10%', '15%', '20%', '15%']
