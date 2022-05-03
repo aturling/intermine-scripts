@@ -54,7 +54,7 @@ def checkVersionNumber(inputStr):
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Convert Data sources table CSV to HTML.')
-    parser.add_argument('mine', choices=['FAANGMine', 'HymenopteraMine', 'MaizeMine'], help='Name of mine (required)')
+    parser.add_argument('mine', choices=['AquaMine', 'FAANGMine', 'HymenopteraMine', 'MaizeMine'], help='Name of mine (required)')
     parser.add_argument('version', type=checkVersionNumber, help='Mine version, e.g., 1.6 (required)')
     args = parser.parse_args()
     return args
