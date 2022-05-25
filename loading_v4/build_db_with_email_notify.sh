@@ -9,6 +9,8 @@
 # Run project_build script
 
 scriptname=`basename "$0"`
+scriptpath=`dirname $(readlink -f $0)`
+log_dir="${scriptpath}/log"
 
 if [ $# -eq 0 ]; then
     echo "Usage  : ./${scriptname} <variables_file_location>"
@@ -26,6 +28,7 @@ if [ ! -d "${log_dir}" ]; then
     mkdir ${log_dir}
 fi
 
+script_outfile="${log_dir}/${script_outfilename}"
 echo "Script output will be stored in file $script_outfile"
 
 cd ${mine_home_dir}
