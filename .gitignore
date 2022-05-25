@@ -10,3 +10,4 @@
 .DS_Store
 *Data_Sources.csv
 temp
+project*.xml
