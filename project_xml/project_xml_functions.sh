@@ -1,5 +1,11 @@
 #!/bin/bash  
 
+# Get mine name and version
+
+function get_mine_name {
+    grep "db.production.datasource.databaseName" ~/.intermine/*.properties | tail -n 1 | awk -F'=' '{print $2}'
+}
+
 # Get /db/<mine_dir> directory name
 function get_mine_dir {
     find /db -mindepth 1 -maxdepth 1 -type d -name "*mine*"
@@ -181,7 +187,7 @@ function add_genome_fasta {
         fullname=$(echo "$dir" | sed 's/_/ /'g)
         genus=$(echo $dir | cut -d_ -f1)
         species=$(echo $dir | rev | cut -d_ -f1 | rev)
-        taxon_id=$(grep -i "$fullname" ../taxon_ids.tab | cut -f2)
+        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
         abbr=$(get_abbr "$dir")
         data_source=$(find ${mine_dir}/datasets/genome/${dir}/ -type f -name "*.fa" -printf "%f\n" | grep -oE ".+_genom" | sed 's/_genom//')
         assembly=$(find ${mine_dir}/datasets/genome/${dir}/ -mindepth 1 -maxdepth 1 -type d -printf "%f\n")
@@ -212,7 +218,7 @@ function add_refseq_gff {
     dirs=$(find /db/*/datasets/RefSeq/annotations -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
     for dir in $dirs; do
         fullname=$(echo "$dir" | sed 's/_/ /'g)
-        taxon_id=$(grep -i "$fullname" ../taxon_ids.tab | cut -f2)
+        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
         abbr=$(get_abbr "$dir")
         assembly=$(find ${mine_dir}/datasets/RefSeq/annotations/${dir} -mindepth 1 -maxdepth 1 -type d -printf "%f\n")
 
@@ -260,7 +266,7 @@ function add_ensembl_gff {
     dirs=$(find /db/*/datasets/Ensembl/annotations -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
     for dir in $dirs; do
         fullname=$(echo "$dir" | sed 's/_/ /'g)
-        taxon_id=$(grep -i "$fullname" ../taxon_ids.tab | cut -f2)
+        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
         abbr=$(get_abbr "$dir")
         assembly=$(find ${mine_dir}/datasets/Ensembl/annotations/${dir} -mindepth 1 -maxdepth 1 -type d -printf "%f\n")
 
@@ -302,7 +308,7 @@ function add_custom_gene_info_source {
     dirs=$(find /db/*/datasets/custom-gene-info/$source -mindepth 1 -maxdepth 1 -type d -printf "%f\n")
     for dir in $dirs; do
         fullname=$(echo "$dir" | sed 's/_/ /'g)
-        taxon_id=$(grep -i "$fullname" ../taxon_ids.tab | cut -f2)
+        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
         abbr=$(get_abbr "$dir")
 
         echo "    <source name=\"${abbr}-gene-info-${source,,}\" type=\"custom-gene-info\" version=\"${source_version}\">" >> $outfile
@@ -341,7 +347,7 @@ function add_cds_protein_fasta_source {
     dirs=$(find /db/*/datasets/${source}/annotations -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
     for dir in $dirs; do
         fullname=$(echo "$dir" | sed 's/_/ /'g)
-        taxon_id=$(grep -i "$fullname" ../taxon_ids.tab | cut -f2)
+        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
         abbr=$(get_abbr "$dir")
         assembly=$(find ${mine_dir}/datasets/${source}/annotations/${dir} -mindepth 1 -maxdepth 1 -type d -printf "%f\n")
 
@@ -396,7 +402,7 @@ function add_xrefs {
     dirs=$(find /db/*/datasets/xref -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
     for dir in $dirs; do
         fullname=$(echo "$dir" | sed 's/_/ /'g)
-        taxon_id=$(grep -i "$fullname" ../taxon_ids.tab | cut -f2)
+        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
         abbr=$(get_abbr "$dir")
 
         echo "    <source name=\"${abbr}-xref\" type=\"cross-references\" version=\"${source_version}\">" >> $outfile

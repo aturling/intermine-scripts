@@ -6,8 +6,12 @@
 # Run project_build script and send e-mail when done.
 ######################################################
 
-#next_source="summarise-objectstore"
-source_list="'so,go,*fasta,*gff,*gene-info*,*refseq-cds,*refseq-protein,*ensembl-cds,*ensembl-protein,*xref,kegg'"
+next_source="entrez-organism"
+#source_list="'so,go,*fasta,*gff,*gene-info*,*refseq-cds,*refseq-protein,*ensembl-cds,*ensembl-protein,*xref,kegg'"
+
+scriptname=`basename "$0"`
+scriptpath=`dirname $(readlink -f $0)`
+log_dir="${scriptpath}/log"
 
 # Run project_build script
 
@@ -29,11 +33,12 @@ if [ ! -d "${log_dir}" ]; then
     mkdir ${log_dir}
 fi
 
+script_outfile="${log_dir}/${script_outfilename}"
 echo "Script output will be stored in file $script_outfile"
 
 cd ${mine_home_dir}
-#./project_build -a ${next_source}- localhost ${build_dir} >> ${script_outfile} 2>&1
-./project_build -b -a "${source_list}" localhost ${build_dir} >> ${script_outfile} 2>&1
+./project_build -a ${next_source}- localhost ${build_dir} >> ${script_outfile} 2>&1
+#./project_build -b -a "${source_list}" localhost ${build_dir} >> ${script_outfile} 2>&1
 
 # Get exit code
 ec=$?

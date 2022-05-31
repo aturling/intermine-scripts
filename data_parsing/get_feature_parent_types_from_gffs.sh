@@ -62,8 +62,8 @@ for source in "${sources[@]}" ; do
 
             let "line_count++"
             #if [ "$line_count" -eq 5 ]; then
-            if (( $line_count % 100000 == 0)); then
-                echo "Processed $line_count lines of $total_line_count"
+            if (( $line_count % 10000 == 0)); then
+                echo "Processed $line_count lines"
                 #break 1;
             fi
         done
