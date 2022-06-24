@@ -149,7 +149,48 @@ function add_snp {
     echo "Adding SNP"
 
     echo "    <!--SNP-->" >> $outfile
-    # TODO
+
+    # parts given with roman numerals, max 20
+    declare -a parts=("part_I" "part_II" "part_III" "part_IV" "part_V" "part_VI" "part_VII" "part_VIII" "part_IX" "part_X"
+                      "part_XI" "part_XII" "part_XIII" "part_XIV" "part_XV" "part_XVI" "part_XVII" "part_XVIII" "part_XIX" "part_XX")
+    numparts=${#parts[@]}
+
+    # Iterate over organisms
+    orgs=$(find ${mine_dir}/datasets/SNP -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
+    for org in $orgs; do
+        abbr=$(get_abbr "$org")
+        fullname=$(echo "$org" | sed 's/_/ /'g)
+        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        data_source=$(grep -i "$fullname" snp_sources.tab | cut -f2)
+        # Iterate over assemblies (usually just one)
+        assemblies=$(find ${mine_dir}/datasets/SNP/${org} -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
+        for assembly in $assemblies; do
+            # Get number of parts
+            actual_numparts=$(ls ${mine_dir}/datasets/SNP/${org}/${assembly} | wc -l)
+            if [ "$actual_numparts" -ge "$numparts" ]; then
+                echo
+                echo "WARNING: More than 20 SNP parts found! Organism: $org, assembly: $assembly"
+                echo
+            fi
+            # Iterate over parts
+            for (( i=0; i<${actual_numparts}; i++ )); do
+                this_part=${parts[i]}
+                # Check that there are .vcf files first
+                files=$(ls ${mine_dir}/datasets/SNP/${org}/${assembly}/${this_part} 2>/dev/null)
+                if [ ! -z "$files" ]; then
+                    echo "    <source name=\"${abbr}-snp-variation-${this_part}\" type=\"snp-variation\" version=\"${source_version}\">" >> $outfile
+                    echo "      <property name=\"snp-variation.dataSetTitle\" value=\"Variants and Variant Effects from ${data_source}\"/>" >> $outfile
+                    echo "      <property name=\"snp-variation.dataSourceName\" value=\"${data_source}\"/>" >> $outfile
+                    echo "      <property name=\"snp-variation.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
+                    echo "      <property name=\"snp-variation.assemblyVersion\" value=\"${assembly}\"/>" >> $outfile
+                    echo "      <property name=\"snp-variation.geneSource\" value=\"Ensembl\"/>" >> $outfile
+                    echo "      <property name=\"snp-variation.includes\" value=\"*.vcf\"/>" >> $outfile
+                    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/SNP/${org}/${assembly}/${this_part}\"/>" >> $outfile
+                    echo "    </source>" >> $outfile
+                fi
+            done
+        done
+    done
 
     echo >> $outfile
     echo >> $outfile
@@ -420,12 +461,12 @@ function add_kegg {
 
     echo "    <!--KEGG-->" >> $outfile
 
-    taxon_id_list=$(cut -f1 /db/*/datasets/KEGG/map_title.tab | sort -n | uniq | xargs)
+    taxon_id_list=$(cut -f1 /db/*/datasets/KEGG_genes/map_title.tab | sort -n | uniq | xargs)
 
     echo "    <source name=\"kegg\" type=\"kegg-pathway-url\" version=\"${source_version}\">" >> $outfile
     echo "      <property name=\"pathway.organisms\" value=\"${taxon_id_list}\"/>" >> $outfile
     echo "      <property name=\"urlPrefix\" value=\"https://www.genome.jp/pathway/\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/KEGG\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/KEGG_genes\"/>" >> $outfile
     echo "    </source>" >> $outfile
 
     echo >> $outfile
