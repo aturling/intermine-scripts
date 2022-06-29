@@ -66,7 +66,7 @@ function add_ontologies_sources {
 
     # Next GO.obo
     # Check that it exists first
-    go_file=$(find /db/*/datasets/ontologies/GO -maxdepth 1 -type f -name "*.obo" -printf "%f\n")
+    go_file=$(find ${mine_dir}/datasets/ontologies/GO -maxdepth 1 -type f -name "*.obo" -printf "%f\n")
     if [ ! -z $go_file ]; then
         echo "    <source name=\"go\" type=\"go\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"src.data.file\" location=\"${mine_dir}/datasets/ontologies/GO/${go_file}\"/>" >> $outfile
@@ -77,7 +77,7 @@ function add_ontologies_sources {
 
     # Next ECO.obo
     # Check that it exists first
-    eco_file=$(find /db/*/datasets/ontologies/ECO -maxdepth 1 -type f -name "*.obo" -printf "%f\n")
+    eco_file=$(find ${mine_dir}/datasets/ontologies/ECO -maxdepth 1 -type f -name "*.obo" -printf "%f\n")
     if [ ! -z $eco_file ]; then
         echo "    <source name=\"evidence-ontology\" type=\"go\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"src.data.file\" location=\"${mine_dir}/datasets/ontologies/ECO/${eco_file}\"/>" >> $outfile
@@ -85,7 +85,7 @@ function add_ontologies_sources {
     fi
 
     # Rest of ontologies: iterate over all datasets/ontologies dirs
-    dirs=$(find /db/*/datasets/ontologies -mindepth 1 -maxdepth 1 -type d -printf "%f\n")
+    dirs=$(find ${mine_dir}/datasets/ontologies -mindepth 1 -maxdepth 1 -type d -printf "%f\n")
     for dir in $dirs; do
         make_source=0
         ontology_name=""
@@ -132,7 +132,7 @@ function add_ontologies_sources {
         # Make source if applicable
         if [ "$make_source" -eq "1" ]; then
             # Check that it exists first
-            obo_file=$(find /db/*/datasets/ontologies/${dir} -maxdepth 1 -type f -name "*.obo" -printf "%f\n")
+            obo_file=$(find ${mine_dir}/datasets/ontologies/${dir} -maxdepth 1 -type f -name "*.obo" -printf "%f\n")
             if [ ! -z $obo_file ]; then
                 echo "    <source name=\"${ontology_name}\" type=\"${ontology_name}\" version=\"${source_version}\">" >> $outfile
                 echo "      <property name=\"src.data.file\" location=\"${mine_dir}/datasets/ontologies/${dir}/${obo_file}\"/>" >> $outfile
@@ -223,7 +223,7 @@ function add_genome_fasta {
 
     # Iterate over species dirs
     
-    dirs=$(find /db/*/datasets/genome -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
+    dirs=$(find ${mine_dir}/datasets/genome -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
     for dir in $dirs; do
         fullname=$(echo "$dir" | sed 's/_/ /'g)
         genus=$(echo $dir | cut -d_ -f1)
@@ -256,7 +256,7 @@ function add_refseq_gff {
     echo "    <!--RefSeq GFF-->" >> $outfile
 
     # Iterate over species dirs
-    dirs=$(find /db/*/datasets/RefSeq/annotations -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
+    dirs=$(find ${mine_dir}/datasets/RefSeq/annotations -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
     for dir in $dirs; do
         fullname=$(echo "$dir" | sed 's/_/ /'g)
         taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
@@ -304,7 +304,7 @@ function add_ensembl_gff {
     echo "    <!--Ensembl GFF-->" >> $outfile
 
     # Iterate over species dirs
-    dirs=$(find /db/*/datasets/Ensembl/annotations -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
+    dirs=$(find ${mine_dir}/datasets/Ensembl/annotations -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
     for dir in $dirs; do
         fullname=$(echo "$dir" | sed 's/_/ /'g)
         taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
@@ -346,7 +346,7 @@ function add_custom_gene_info_source {
     echo "    <!--${source}-->" >> $outfile
 
     # Iterate over species
-    dirs=$(find /db/*/datasets/custom-gene-info/$source -mindepth 1 -maxdepth 1 -type d -printf "%f\n")
+    dirs=$(find ${mine_dir}/datasets/custom-gene-info/$source -mindepth 1 -maxdepth 1 -type d -printf "%f\n")
     for dir in $dirs; do
         fullname=$(echo "$dir" | sed 's/_/ /'g)
         taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
@@ -385,7 +385,7 @@ function add_cds_protein_fasta_source {
     echo "    <!--${source} CDS and Protein Fasta-->" >> $outfile
 
     # Iterate over species dirs
-    dirs=$(find /db/*/datasets/${source}/annotations -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
+    dirs=$(find ${mine_dir}/datasets/${source}/annotations -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
     for dir in $dirs; do
         fullname=$(echo "$dir" | sed 's/_/ /'g)
         taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
@@ -440,7 +440,7 @@ function add_xrefs {
     echo "    <!--xRefs-->" >> $outfile
 
     # Iterate over species dirs
-    dirs=$(find /db/*/datasets/xref -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
+    dirs=$(find ${mine_dir}/datasets/xref -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
     for dir in $dirs; do
         fullname=$(echo "$dir" | sed 's/_/ /'g)
         taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
@@ -461,7 +461,7 @@ function add_kegg {
 
     echo "    <!--KEGG-->" >> $outfile
 
-    taxon_id_list=$(cut -f1 /db/*/datasets/KEGG_genes/map_title.tab | sort -n | uniq | xargs)
+    taxon_id_list=$(cut -f1 ${mine_dir}/datasets/KEGG_genes/map_title.tab | sort -n | uniq | xargs)
 
     echo "    <source name=\"kegg\" type=\"kegg-pathway-url\" version=\"${source_version}\">" >> $outfile
     echo "      <property name=\"pathway.organisms\" value=\"${taxon_id_list}\"/>" >> $outfile
@@ -493,12 +493,12 @@ function add_merge_key_note {
 
 function get_uniprot_dir_name {
     # Folder name could be UniProt or uniprot
-    find /db/*/datasets -mindepth 1 -maxdepth 1 -type d -name "*ni*rot" -printf "%f\n"
+    find ${mine_dir}/datasets -mindepth 1 -maxdepth 1 -type d -name "*ni*rot" -printf "%f\n"
 }
 
 function get_uniprot_taxon_id_list {
     dirname=$1
-    find /db/*/datasets/${dirname} -type f -name "*uniprot*.xml" -printf "%f\n" | grep -Eo '[0-9]*' | sort -n | uniq | xargs
+    find ${mine_dir}/datasets/${dirname} -type f -name "*uniprot*.xml" -printf "%f\n" | grep -Eo '[0-9]*' | sort -n | uniq | xargs
 }
 
 function add_uniprot_source {
@@ -590,7 +590,23 @@ function add_qtl_gff {
     echo "    <!--QTL GFF-->" >> $outfile
     echo "    <!--No Gene.source so load these here (not with rest of GFFs)-->" >> $outfile
 
-    # TODO
+    # Iterate over species dirs
+    dirs=$(find ${mine_dir}/datasets/QTL -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
+    for dir in $dirs; do
+        fullname=$(echo "$dir" | sed 's/_/ /'g)
+        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        abbr=$(get_abbr "$dir")
+        assembly=$(find ${mine_dir}/datasets/QTL/${dir} -mindepth 1 -maxdepth 1 -type d -printf "%f\n")
+
+        echo "    <source name=\"${abbr}-qtl-gff\" type=\"qtl-gff\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
+        echo "      <property name=\"gff3.dataSourceName\" value=\"Animal QTLdb\"/>" >> $outfile
+        echo "      <property name=\"gff3.dataSetTitle\" value=\"${fullname^} QTL from Animal QTLdb data set\"/>" >> $outfile
+        echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
+        echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/QTL/${dir}/${assembly}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    done
 
     echo >> $outfile
     echo >> $outfile
@@ -598,7 +614,7 @@ function add_qtl_gff {
 
 function get_interpro_dir_name {
     # Folder name could be InterPro or interpro
-    find /db/*/datasets -mindepth 1 -maxdepth 1 -type d -name "*nter*ro" -printf "%f\n"
+    find ${mine_dir}/datasets -mindepth 1 -maxdepth 1 -type d -name "*nter*ro" -printf "%f\n"
 }
 
 function add_interpro {
