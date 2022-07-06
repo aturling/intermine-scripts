@@ -463,7 +463,7 @@ function add_kegg {
 
     taxon_id_list=$(cut -f1 ${mine_dir}/datasets/KEGG_genes/map_title.tab | sort -n | uniq | xargs)
 
-    echo "    <source name=\"kegg\" type=\"kegg-pathway-url\" version=\"${source_version}\">" >> $outfile
+    echo "    <source name=\"kegg\" type=\"kegg-pathway\" version=\"${source_version}\">" >> $outfile
     echo "      <property name=\"pathway.organisms\" value=\"${taxon_id_list}\"/>" >> $outfile
     echo "      <property name=\"urlPrefix\" value=\"https://www.genome.jp/pathway/\"/>" >> $outfile
     echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/KEGG_genes\"/>" >> $outfile
@@ -515,7 +515,7 @@ function add_uniprot_source {
 
     echo "    <!--${cardinal} iteration UniProt: ${source}-->" >> $outfile
 
-    echo "    <source name=\"uniprot-to-${source,,}\" type=\"uniprot-evidence\" version=\"${source_version}\">" >> $outfile
+    echo "    <source name=\"uniprot-to-${source,,}\" type=\"uniprot\" version=\"${source_version}\">" >> $outfile
     echo "      <property name=\"uniprot.organisms\" value=\"${taxon_id_list}\"/>" >> $outfile
     echo "      <property name=\"creatego\" value=\"true\"/>" >> $outfile
     echo "      <property name=\"creategenes\" value=\"true\"/>" >> $outfile
