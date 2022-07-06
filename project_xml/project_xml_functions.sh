@@ -702,12 +702,12 @@ function add_ncbi_entrez {
 
     echo "    <!--NCBI Entrez-->" >> $outfile
 
-    echo "    <source name=\"update-publications\" type=\"update-publications-key\" version=\"${source_version}\">" >> $outfile
+    echo "    <source name=\"update-publications\" type=\"update-publications\" version=\"${source_version}\">" >> $outfile
     echo "      <property name=\"src.data.file\" location=\"publications.xml\"/>" >> $outfile
     echo "      <property name=\"loadFullRecord\" value=\"true\"/>" >> $outfile
     echo "    </source>" >> $outfile
 
-    echo "    <source name=\"entrez-organism\" type=\"entrez-organism-key\" version=\"${source_version}\">" >> $outfile
+    echo "    <source name=\"entrez-organism\" type=\"entrez-organism\" version=\"${source_version}\">" >> $outfile
     echo "      <property name=\"src.data.file\" location=\"organisms.xml\"/>" >> $outfile
     echo "    </source>" >> $outfile
 
