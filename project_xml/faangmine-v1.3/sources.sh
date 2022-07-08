@@ -4,7 +4,7 @@ function add_mine_sources {
     # Ontologies
     add_ontologies_sources
 
-    # SNP (TODO)
+    # SNP
     add_snp
 
     # BioProject, BioSample, and Analysis data
@@ -40,7 +40,7 @@ function add_mine_sources {
     # UniProt
     add_uniprot "RefSeq" "Ensembl"
 
-    # Add QTL GFF (TODO)
+    # Add QTL GFF
     add_qtl_gff
 
     # InterPro
@@ -60,6 +60,9 @@ function add_mine_sources {
 
     # OMIM (TODO)
     add_omim
+
+    # Update data sources
+    add_update_data_sources
 
     # Update pubs and organisms (NCBI Entrez)
     add_ncbi_entrez

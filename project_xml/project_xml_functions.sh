@@ -692,13 +692,33 @@ function add_omim {
     echo >> $outfile
 }
 
-function add_ncbi_entrez {
-    echo "Adding NCBI Entrez"
+function add_update_data_sources {
+    echo "Adding Update Data Sources"
 
     echo "    <!--Load these last sources at the end, after all other sources-->" >> $outfile
 
     echo >> $outfile
     echo >> $outfile
+
+    echo "    <!--Update data sources-->" >> $outfile
+
+    echo "    <source name=\"update-data-sources\" type=\"update-data-sources\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"src.data.file\" location=\"datasources.xml\"/>" >> $outfile
+    echo "      <property name=\"dataSourceFile\" value=\"${mine_dir}/datasets/UniProt/xrefs/dbxref.txt\"/>" >> $outfile
+    echo "    </source>" >> $outfile
+
+    echo "    <!--Custom data source info not in UniProt file-->" >> $outfile
+    echo "    <source name=\"update-data-sources-custom\" type=\"update-data-sources\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"src.data.file\" location=\"datasources-custom.xml\"/>" >> $outfile
+    echo "      <property name=\"dataSourceFile\" value=\"${mine_dir}/datasets/datasource-info/customsources.txt\"/>" >> $outfile
+    echo "    </source>" >> $outfile
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
+function add_ncbi_entrez {
+    echo "Adding NCBI Entrez"
 
     echo "    <!--NCBI Entrez-->" >> $outfile
 
@@ -717,7 +737,7 @@ function add_ncbi_entrez {
 function add_post_processes_no_snp {
     echo "    <post-process name=\"create-chromosome-locations-and-lengths\"/>" >> $outfile
     echo "    <post-process name=\"create-references\"/>" >> $outfile
-    echo "    <post-process name=\"transfer-sequences-cds\"/>" >> $outfile
+    echo "    <post-process name=\"transfer-sequences\"/>" >> $outfile
     echo "    <post-process name=\"create-overlap-view\"/>" >> $outfile
     echo "    <post-process name=\"create-location-overlap-index\"/>" >> $outfile
     echo "    <post-process name=\"do-sources\"/>" >> $outfile
