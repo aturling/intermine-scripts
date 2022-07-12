@@ -473,12 +473,36 @@ function add_kegg {
     echo >> $outfile
 }
 
+function add_pubmed_source {
+    source=$1
+
+    pubmed_dir="ncbi-pubmed-gene"
+    if [ "$source" == "Ensembl" ]; then
+        pubmed_dir="ensembl-pubmed-gene"
+    fi
+
+    pubmed_file=$(find ${mine_dir}/datasets/${pubmed_dir} -mindepth 1 -maxdepth 1 -type f)
+    if [ ! -z $pubmed_file ]; then
+        taxon_ids=$(cut -f1 ${pubmed_file} | sort -n | uniq | xargs)
+
+        echo "    <source name=\"${pubmed_dir,,}\" type=\"pubmed-gene\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"geneSource\" value=\"${source}\"/>" >> $outfile
+        echo "      <property name=\"pubmed.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${pubmed_dir}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    else
+        echo "Warning: no pubmed gene data file in ${pubmed_dir}"
+    fi
+}
+
 function add_pubmed {
     echo "Adding PubMed"
 
     echo "    <!--PubMed-->" >> $outfile
 
-    #TODO
+    for source_name in "$@"; do
+        add_pubmed_source $source_name
+    done
 
     echo >> $outfile
     echo >> $outfile
@@ -652,7 +676,29 @@ function add_reactome {
 
     echo "    <!--Reactome-->" >> $outfile
 
-    # TODO
+    taxon_ids="$1"
+    echo "    <source name=\"reactome\" type=\"reactome\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/Reactome\"/>" >> $outfile
+    echo "      <property name=\"reactome.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+    echo "    </source>" >> $outfile
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
+function add_biogrid {
+    echo "Adding BioGRID"
+
+    echo "    <!--BioGRID-->" >> $outfile
+
+    taxon_label="NCBITax:"
+    taxon_ids=$(grep -rsoE "${taxon_label}\s+[0-9]+" ${mine_dir}/datasets/BioGRID/ | awk -F"${taxon_label}" '{print $2}' | sort -n | xargs)
+
+    echo "    <source name=\"biogrid\" type=\"biogrid\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/BioGRID\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir.includes\" value=\"*.xml\"/>" >> $outfile
+    echo "      <property name=\"biogrid.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+    echo "    </source>" >> $outfile
 
     echo >> $outfile
     echo >> $outfile

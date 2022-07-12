@@ -28,11 +28,8 @@ function add_mine_sources {
     # xrefs
     add_xrefs
 
-    # KEGG
-    add_kegg
-
-    # PubMed (TODO)
-    add_pubmed
+    # PubMed
+    add_pubmed "RefSeq" "Ensembl"
 
     #---Gene.source merge key line---
     add_merge_key_note
@@ -40,17 +37,18 @@ function add_mine_sources {
     # UniProt
     add_uniprot "RefSeq" "Ensembl"
 
-    # Add QTL GFF
-    add_qtl_gff
-
     # InterPro
     add_interpro
 
     # Add InterPro to protein (protein2ipr)
     add_protein2ipr
 
-    # Reactome (TODO)
-    add_reactome
+    # KEGG
+    add_kegg
+
+    # Reactome
+    # Manually specify organisms by taxon id list (depends on mine)
+    add_reactome "9031 9606 9615 9685 9796 9823 9913 9925 9940 10090 10116 89462"
 
     # OrthoDB (TODO)
     add_orthodb
@@ -60,6 +58,12 @@ function add_mine_sources {
 
     # OMIM (TODO)
     add_omim
+
+    # Add QTL GFF
+    add_qtl_gff
+
+    # Add BioGRID
+    add_biogrid
 
     # Update data sources
     add_update_data_sources
