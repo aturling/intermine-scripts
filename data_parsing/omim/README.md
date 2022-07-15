@@ -6,13 +6,13 @@ Original script here:
 https://github.com/intermine/intermine-scripts/blob/master/bio/humanmine/get_omim_pubmed.py
 
 Updated to parse returned JSON correctly and add more pauses to avoid hitting rate limit,
-be compatible with Python v3, and process mim2gene.txt in chunks to allow restarting 
+be compatible with Python 3, and process mim2gene.txt in chunks to allow restarting 
 without losing progress.
 
 To run:
 
 1. Register for download and API access at https://www.omim.org and download all files
-   including mim2gene.txt; place mim2gene.txt in the current/ subdirectory.
+   including mim2gene.txt; place mim2gene.txt in the `current/` subdirectory.
 
 2. Split mim2gene.txt into multiple files, each with the filename mim2gene_NN where NN is
    a two-digit number (with leading zero for 00-09), e.g.,
@@ -40,5 +40,5 @@ $ cd run/
 $ ./get_omim_pubmed.py
 ```
 
-Output will be multiple pubmed_cited_NN files (in current/ subdirectory) which can be combined 
+Output will be multiple pubmed_cited_NN files (in `current/` subdirectory) which can be combined 
 into a single pubmed_cited.txt file.
