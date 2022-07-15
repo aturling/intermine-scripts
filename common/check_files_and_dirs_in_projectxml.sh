@@ -10,17 +10,8 @@
 
 scriptname=`basename "$0"`
 
-if [ $# -eq 0 ]; then
-    echo "Usage  : ./${scriptname} <variables_file_location>"
-    echo "Example: ./${scriptname} ~/intermine-scripts/common/script_vars_faangmine1.2.sh"
-    exit 1
-fi
-
 # variables
-variablesfile=$1
-
-# Source variables file
-. $variablesfile
+. ~/intermine-scripts/common/script_vars_common.sh
 
 # location of project.xml file
 projectxmlfile="${mine_home_dir}/project.xml"
