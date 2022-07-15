@@ -7,6 +7,7 @@
 *.gz
 *.err
 *.html
+.env
 .DS_Store
 *Data_Sources.csv
 temp
