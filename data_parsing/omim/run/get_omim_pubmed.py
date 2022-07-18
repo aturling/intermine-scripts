@@ -109,11 +109,13 @@ def process_mim_file(file_idx):
 	log.flush()
 	## send http requests to OMIM API (limit 4 requests/sec)		
 	for mim_number in mim_number_set:
-		time.sleep(4) # thread sleeps in sec
+		time.sleep(5) # thread sleeps in sec
 
 		try:
 			pubmed_cited_list = get_omim_pubmed(mim_number, log)
-			pubmed_cited_file.write('\n'.join(pubmed_cited_list) + '\n')
+			if pubmed_cited_list:
+				# Only write to file if not empty
+				pubmed_cited_file.write('\n'.join(pubmed_cited_list) + '\n')
 		except OMIMQueryError as e:
 			print("An API error occurred.")
 
@@ -124,14 +126,14 @@ def process_mim_file(file_idx):
 def main():
 	# Start index is numerical suffix of first file (usually 0 unless restarting from a previous run)
 	# End index is numerical suffix of last file, e.g. 27 if last file is mim2gene_27
-	idx_start = 0
-	idx_end = 27
+	idx_start = 2
+	idx_end = 2
 	for idx in range(idx_start, idx_end+1):
 		file_idx = str(idx)
 		if (idx < 10):
 			file_idx = "0" + file_idx
 		process_mim_file(file_idx)
-		time.sleep(180) # sleep 3 minutes before processing next file
+		time.sleep(300) # sleep 5 minutes before processing next file
 		
 if __name__ == "__main__":
 	main()
