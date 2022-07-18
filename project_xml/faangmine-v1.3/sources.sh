@@ -56,7 +56,7 @@ function add_mine_sources {
     # EnsemblCompara (TODO)
     add_ensembl_compara
 
-    # OMIM (TODO)
+    # OMIM
     add_omim
 
     # Add QTL GFF

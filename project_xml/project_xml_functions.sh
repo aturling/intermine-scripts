@@ -732,7 +732,9 @@ function add_omim {
 
     echo "    <!--OMIM-->" >> $outfile
 
-    # TODO
+    echo "    <source name=\"omim\" type=\"omim\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/omim\"/>" >> $outfile
+    echo "    </source>" >> $outfile
 
     echo >> $outfile
     echo >> $outfile
