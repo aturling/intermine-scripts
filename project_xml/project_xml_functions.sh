@@ -721,7 +721,14 @@ function add_ensembl_compara {
 
     echo "    <!--EnsemblCompara-->" >> $outfile
 
-    # TODO
+    # Get taxon ID list
+    taxon_ids=$(find ${mine_dir}/datasets/EnsemblCompara/ -type f -printf '%f\n' | awk -F'_' '{printf "%s\\n\n%s\\n\n", $1, $2}' | sed 's/\\n//g' | sort -n | uniq | xargs)
+
+    echo "    <source name=\"ensembl-compara\" type=\"ensembl-compara\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"ensemblcompara.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+    echo "      <property name=\"ensemblcompara.homologues\" value=\"${taxon_ids}\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/EnsemblCompara\"/>" >> $outfile
+    echo "    </source>" >> $outfile
 
     echo >> $outfile
     echo >> $outfile

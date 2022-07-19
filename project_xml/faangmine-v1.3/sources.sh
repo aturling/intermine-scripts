@@ -53,7 +53,7 @@ function add_mine_sources {
     # OrthoDB (TODO)
     add_orthodb
 
-    # EnsemblCompara (TODO)
+    # EnsemblCompara
     add_ensembl_compara
 
     # OMIM
