@@ -5,6 +5,8 @@
 #
 # Check database for correct number of entities loaded
 # from gff files (genes, exons, transcripts, etc.)
+#
+# TODO: add pseudogenes
 #######################################################
 
 # get database name from properties file
