@@ -8,7 +8,8 @@
 ######################################################
 
 next_source="create-chromosome-locations-and-lengths"
-#source_list="'so,evidence-ontology,*fasta,*qtl-gff,uniprot*,kegg,entrez-organism,do-sources,create-attribute-indexes'"
+#source_list="evidence-ontology,*fasta,*qtl-gff,uniprot*,kegg,entrez-organism,do-sources,create-attribute-indexes"
+source_list="so,evidence-ontology,ensembl-compara"
 
 scriptname=`basename "$0"`
 scriptpath=`dirname $(readlink -f $0)`
@@ -30,8 +31,8 @@ script_outfile="${log_dir}/${script_outfilename}"
 echo "Script output will be stored in file $script_outfile"
 
 cd ${mine_home_dir}
-./project_build -a ${next_source}- localhost ${build_dir} >> ${script_outfile} 2>&1
-#./project_build -b -a "${source_list}" localhost ${build_dir} >> ${script_outfile} 2>&1
+#./project_build -a ${next_source}- localhost ${build_dir} >> ${script_outfile} 2>&1
+./project_build -b -a "${source_list}" localhost ${build_dir} >> ${script_outfile} 2>&1
 
 # Get exit code
 ec=$?
