@@ -707,10 +707,17 @@ function add_biogrid {
 function add_orthodb {
     echo "Adding OrthoDB"
 
+    taxon_ids=$(awk -F'\t' '{print $6}' ${mine_dir}/datasets/OrthoDB/*.tab  | sort -n | uniq | xargs)
+
     echo "    <!--OrthoDB-->" >> $outfile
     echo "    <!--Data file(s) must be sorted on column 2 before loading!-->" >> $outfile
 
-    # TODO
+    echo "    <source name=\"orthodb\" type=\"orthodb-clusters\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"dataSourceName\" value=\"OrthoDB\"/>" >> $outfile
+    echo "      <property name=\"dataSetTitle\" value=\"OrthoDB data set\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/OrthoDB\"/>" >> $outfile
+    echo "      <property name=\"orthodb.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+    echo "    </source>" >> $outfile
 
     echo >> $outfile
     echo >> $outfile
