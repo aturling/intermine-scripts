@@ -201,13 +201,13 @@ function add_bioproject_data {
 
     echo "    <!--BioProject, BioSample, and Analysis metadata-->" >> $outfile
     echo "    <source name=\"faang-bioproject\" type=\"faang-bioproject\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/faang-bioproject\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/FAANG-bioproject\"/>" >> $outfile
     echo "    </source>" >> $outfile
     echo "    <source name=\"faang-biosample\" type=\"faang-biosample\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/faang-biosample\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/FAANG-biosample\"/>" >> $outfile
     echo "    </source>" >> $outfile
     echo "    <source name=\"faang-analysis\" type=\"faang-analysis\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/faang-analysis\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/FAANG-analysis\"/>" >> $outfile
     echo "    </source>" >> $outfile
 
     echo >> $outfile
