@@ -35,9 +35,23 @@ function add_post_processes {
 functionsfile="project_xml_functions.sh"
 . $functionsfile
 
+# Get basic variables (mine name, etc.)
+# Exit script early if these fail - cannot create project.xml
 mine_name=$(get_mine_name)
+ec=$?
+if [ $ec -ne 0 ]; then
+    exit 1
+fi
 mine_dir=$(get_mine_dir)
+ec=$?
+if [ $ec -ne 0 ]; then
+    exit 1
+fi
 source_version=$(get_bio_source_version)
+ec=$?
+if [ $ec -ne 0 ]; then
+    exit 1
+fi
 
 sourcesfile="${mine_name}/sources.sh"
 . $sourcesfile
@@ -50,6 +64,7 @@ if [ ! -d "${outdir}" ]; then
     mkdir ${outdir}
 fi
 
+echo
 echo "Output will be stored in $outfile"
 
 # Init outfile
