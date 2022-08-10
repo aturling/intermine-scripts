@@ -59,6 +59,9 @@ function add_mine_sources {
     # OMIM
     add_omim
 
+    # Add FAANG GFF
+    add_faang_gff
+
     # Add QTL GFF
     add_qtl_gff
 

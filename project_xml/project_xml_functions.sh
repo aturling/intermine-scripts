@@ -608,6 +608,34 @@ function add_uniprot {
     add_uniprot_keywords
 }
 
+function add_faang_gff {
+    echo "Adding FAANG GFF"
+
+    echo "    <!--FAANG GFF-->" >> $outfile
+    echo "    <!--No Gene.source so load these here (not with rest of GFFs)-->" >> $outfile
+
+    # Iterate over species dirs
+    dirs=$(find ${mine_dir}/datasets/FAANG-gff -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
+    for dir in $dirs; do
+        fullname=$(echo "$dir" | sed 's/_/ /'g)
+        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        abbr=$(get_abbr "$dir")
+        assembly=$(find ${mine_dir}/datasets/FAANG-gff/${dir} -mindepth 1 -maxdepth 1 -type d -printf "%f\n")
+
+        echo "    <source name=\"${abbr}-faang-gff\" type=\"faang-gff\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
+        echo "      <property name=\"gff3.dataSourceName\" value=\"FAANG\"/>" >> $outfile
+        echo "      <property name=\"gff3.dataSetTitle\" value=\"${fullname^} FAANG data from FAANG.org data set\"/>" >> $outfile
+        echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
+        echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/FAANG-gff/${dir}/${assembly}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    done
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
 function add_qtl_gff {
     echo "Adding QTL GFF"
 
