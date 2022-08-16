@@ -39,6 +39,12 @@ echo
 dataset_name="KEGG pathways data set"
 dataset_id=$(psql ${dbname} -c "select id from dataset where dataset.name='${dataset_name}'" -t -A)
 
+if [ -z $dataset_id ]; then
+    echo "ERROR: Data set '$dataset_name' not in database!"
+    # Exit early, nothing to do
+    exit 1
+fi
+
 # Get *_gene_map.tab input filenames
 kegg_gene_map_files=$(find /db/*/datasets/KEGG_genes -maxdepth 1 -type f -name *map.tab)
 
