@@ -22,7 +22,7 @@ echo "Checking gff counts..."
 for source in "${sources[@]}" ; do
     echo "Source: $source"
     # Iterate over all organisms/assemblies
-    files=$(find /db/*/datasets/${source}/annotation*/*/*/genes -type f -name *.gff3)
+    files=$(find /db/*/datasets/${source}/annotation*/*/*/genes -type f -name *.gff3 2>/dev/null)
     for file in $files; do
         org_name=$(echo "${file}" | awk -F'/' '{print $7}' | sed 's/_/ /g')
         assembly=$(echo "${file}" | awk -F'/' '{print $8}')
@@ -31,8 +31,14 @@ for source in "${sources[@]}" ; do
         # Get org id in database
         org_id=$(psql ${dbname} -c "select o.id from organism o where lower(o.name)='${org_name}'" -t -A)
         if [ -z $org_id ]; then
-           # Try using assembly version instead
-           org_id=$(psql ${dbname} -c "select o.id from chromosome c join organism o on o.id=c.organismid where c.assembly='${assembly}' limit 1" -t -A)
+            # Try using assembly version instead
+            org_id=$(psql ${dbname} -c "select o.id from chromosome c join organism o on o.id=c.organismid where c.assembly='${assembly}' limit 1" -t -A)
+        fi
+        if [ -z $org_id ]; then
+            # If still can't find it, skip to next organism
+            echo "WARNING: organism $org_name not in database!"
+            echo
+            break
         fi
 
         # Get all possible class names (transcripts, genes, etc.)
