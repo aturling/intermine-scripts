@@ -18,6 +18,12 @@ dbname=$(grep db.production.datasource.databaseName ~/.intermine/*.properties | 
 dataset_name="Swiss-Prot data set"
 dataset_id=$(psql ${dbname} -c "select id from dataset where dataset.name='${dataset_name}'" -t -A)
 
+if [ -z $dataset_id ]; then
+    echo "Data set '$dataset_name' not in database!"
+    # Exit early, nothing to do
+    exit 1
+fi
+
 # Get taxon ID list from filenames
 filenames=$(find /db/*/datasets/*ni*rot -maxdepth 1 -type f -name *uniprot*sprot.xml)
 

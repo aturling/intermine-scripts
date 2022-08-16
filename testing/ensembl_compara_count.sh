@@ -30,6 +30,11 @@ echo "Querying database for Ensembl Compara homologues..."
 dataset_name="Ensembl Compara data set"
 dataset_id=$(psql ${dbname} -c "select id from dataset where dataset.name='${dataset_name}'" -t -A)
 
+if [ -z $dataset_id ]; then
+    echo "Data set '$dataset_name' not in database!"
+    # Exit early, nothing to do
+    exit 1
+fi
 
 for taxon_id in $taxon_ids; do
     # Get number of homologues for this organism in database

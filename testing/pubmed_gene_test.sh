@@ -37,6 +37,10 @@ for pubmed_file in $files; do
         pubmed_id=$(echo "$one_line" | cut -f 3)
         echo "Querying database for gene id $gene_id, taxon id $taxon_id, PubMed id ${pubmed_id}..."
         org_id=$(psql ${dbname} -c "select id from organism where taxonid='${taxon_id}'" -t -A)
+        if [ -z $org_id ]; then
+            echo "WARNING: organism with taxon id $taxon_id not in database!"
+            continue
+        fi
         dbrow=$(psql ${dbname} -c "select g.id from gene g join entitiespublications ep on ep.entities=g.id join publication p on ep.publications=p.id where g.primaryidentifier='${gene_id}' and g.organismid=${org_id} and p.pubmedid='${pubmed_id}'" -t -A)
         if [ -z "$dbrow" ]; then
             echo "WARNING: expected gene/publication not in database!"

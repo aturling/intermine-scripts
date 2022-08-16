@@ -40,7 +40,7 @@ dataset_name="KEGG pathways data set"
 dataset_id=$(psql ${dbname} -c "select id from dataset where dataset.name='${dataset_name}'" -t -A)
 
 if [ -z $dataset_id ]; then
-    echo "ERROR: Data set '$dataset_name' not in database!"
+    echo "Data set '$dataset_name' not in database!"
     # Exit early, nothing to do
     exit 1
 fi
