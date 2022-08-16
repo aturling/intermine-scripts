@@ -36,12 +36,17 @@ for source in "${sources[@]}" ; do
                # Try using assembly version instead
                org_id=$(psql ${dbname} -c "select o.id from chromosome c join organism o on o.id=c.organismid where c.assembly='${assembly}' limit 1" -t -A)
             fi
+            if [ -z $org_id ]; then
+                # If still can't find it, skip to next organism
+                echo "WARNING: organism $org_name not in database!"
+                continue
+            fi
             dbcount=$(psql ${dbname} -c "select count(c.id) from codingsequence c where c.source='$source' and c.organismid=${org_id}" -t -A)
             filecount=$(grep ">" $fasta_file | wc -l)
             if [ $dbcount -eq $filecount ]; then
-                echo "Codingsequence count correct ($filecount)"
+                echo "CodingSequence count correct ($filecount)"
             else
-                echo "WARNING: database has $dbcount codingsequences but fasta file has $filecount!"
+                echo "WARNING: database has $dbcount CodingSequences but fasta file has $filecount!"
                 all_counts_correct=0
             fi
         done
@@ -70,6 +75,11 @@ for source in "${sources[@]}" ; do
             if [ -z $org_id ]; then
                # Try using assembly version instead
                org_id=$(psql ${dbname} -c "select o.id from chromosome c join organism o on o.id=c.organismid where c.assembly='${assembly}' limit 1" -t -A)
+            fi
+            if [ -z $org_id ]; then
+                # If still can't find it, skip to next organism
+                echo "WARNING: organism $org_name not in database!"
+                continue
             fi
             dbcount=$(psql ${dbname} -c "select count(p.id) from polypeptide p where p.source='$source' and p.organismid=${org_id}" -t -A)
             filecount=$(grep ">" $fasta_file | wc -l)

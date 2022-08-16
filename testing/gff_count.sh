@@ -38,7 +38,7 @@ for source in "${sources[@]}" ; do
             # If still can't find it, skip to next organism
             echo "WARNING: organism $org_name not in database!"
             echo
-            break
+            continue
         fi
 
         # Get all possible class names (transcripts, genes, etc.)
