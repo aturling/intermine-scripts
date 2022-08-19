@@ -134,40 +134,53 @@ function add_ontologies_sources {
         echo "    <source name=\"go\" type=\"go\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"src.data.file\" location=\"${mine_dir}/datasets/ontologies/GO/${go_file}\"/>" >> $outfile
         echo "      <property name=\"createrelations\" value=\"true\"/>" >> $outfile
-        echo "      <property name="licence" value="${license}"/>" >> $outfile
+        echo "      <property name=\"licence\" value=\"${license}\"/>" >> $outfile
         echo "    </source>" >> $outfile
     else
         echo "WARNING: go.obo not found" 1>&2
     fi
 
-    # Next ECO.obo
-    # Check that it exists first
-    eco_file=$(find ${mine_dir}/datasets/ontologies/ECO -maxdepth 1 -type f -name "*.obo" -printf "%f\n" 2>/dev/null)
-    if [ ! -z $eco_file ]; then
-        echo "  + Adding ontology: evidence-ontology"
-        echo "    <source name=\"evidence-ontology\" type=\"go\" version=\"${source_version}\">" >> $outfile
-        echo "      <property name=\"src.data.file\" location=\"${mine_dir}/datasets/ontologies/ECO/${eco_file}\"/>" >> $outfile
-        echo "    </source>" >> $outfile
-    else
-        echo "WARNING: eco.obo not found" 1>&2
-    fi
-
     # Rest of ontologies: iterate over all datasets/ontologies dirs
-    dirs=$(find ${mine_dir}/datasets/ontologies -mindepth 1 -maxdepth 1 -type d -printf "%f\n")
+    dirs=$(find ${mine_dir}/datasets/ontologies -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
     for dir in $dirs; do
         make_source=0
         ontology_name=""
+        ontology_license=""
         if [ $dir == "SO" ]; then
             true
         elif [ $dir == "GO" ]; then
             true
-        elif [ $dir == "ECO" ]; then
-            true
+        elif [ $dir == "ATOL" ]; then
+            ontology_name="animal-trait-ontology-for-livestock"
+            make_source=1
         elif [ $dir == "BTO" ]; then
             ontology_name="brenda-tissue-ontology"
+            ontology_license="https://creativecommons.org/licenses/by/4.0/"
+            make_source=1
+        elif [ $dir == "CL" ]; then
+            ontology_name="cell-ontology"
+            ontology_license="https://creativecommons.org/licenses/by/4.0/"
             make_source=1
         elif [ $dir == "CMO" ]; then
             ontology_name="clinical-measurement-ontology"
+            make_source=1
+        elif [ $dir == "ECO" ]; then
+            ontology_name="evidence-ontology"
+            ontology_license="https://creativecommons.org/publicdomain/zero/1.0/"
+            make_source=1
+        elif [ $dir == "EFO" ]; then
+            ontology_name="experimental-factor-ontology"
+            ontology_license="https://www.apache.org/licenses/LICENSE-2.0"
+            make_source=1
+        elif [ $dir == "EOL" ]; then
+            ontology_name="environment-ontology-for-livestock"
+            make_source=1
+        elif [ $dir == "HsapDv" ]; then
+            ontology_name="human-developmental-stage-ontology"
+            make_source=1
+        elif [ $dir == "HP" ]; then
+            ontology_name="human-phenotype-ontology"
+            ontology_license="https://hpo.jax.org/app/license"
             make_source=1
         elif [ $dir == "LBO" ]; then
             ontology_name="livestock-breed-ontology"
@@ -178,11 +191,28 @@ function add_ontologies_sources {
         elif [ $dir == "MAO" ]; then
             ontology_name="mouse-anatomy-ontology"
             make_source=1
+        elif [ $dir == "MONDO" ]; then
+            ontology_name="mondo-disease-ontology"
+            ontology_license="https://creativecommons.org/licenses/by/4.0/"
+            make_source=1
+        elif [ $dir == "OBI" ]; then
+            ontology_name="ontology-for-biomedical-investigations"
+            ontology_license="http://creativecommons.org/licenses/by/4.0/"
+            make_source=1
+        elif [ $dir == "Orphanet" ]; then
+            ontology_name="orphanet-rare-disease-ontology"
+            ontology_license="https://creativecommons.org/licenses/by/4.0/"
+            make_source=1
+        elif [ $dir == "PATO" ]; then
+            ontology_name="phenotype-and-trait-ontology"
+            ontology_license="https://creativecommons.org/licenses/by/3.0/"
+            make_source=1
         elif [ $dir == "PMO" ]; then
             ontology_name="psi-mi-ontology"
             make_source=1
-        elif [ $dir == "UAO" ]; then
+        elif [ $dir == "UBERON" ]; then
             ontology_name="uber-anatomy-ontology"
+            ontology_license="http://creativecommons.org/licenses/by/3.0/"
             make_source=1
         elif [ $dir == "VTO" ]; then
             ontology_name="vertebrate-trait-ontology"
@@ -200,11 +230,14 @@ function add_ontologies_sources {
         # Make source if applicable
         if [ "$make_source" -eq "1" ]; then
             # Check that it exists first
-            obo_file=$(find ${mine_dir}/datasets/ontologies/${dir} -maxdepth 1 -type f -name "*.obo" -printf "%f\n")
+            obo_file=$(find ${mine_dir}/datasets/ontologies/${dir} -maxdepth 1 -type l -name "*.obo" -printf "%f\n")
             if [ ! -z $obo_file ]; then
                 echo "  + Adding ontology: ${ontology_name}"
                 echo "    <source name=\"${ontology_name}\" type=\"${ontology_name}\" version=\"${source_version}\">" >> $outfile
                 echo "      <property name=\"src.data.file\" location=\"${mine_dir}/datasets/ontologies/${dir}/${obo_file}\"/>" >> $outfile
+                if [ ! -z $ontology_license ]; then
+                    echo "      <property name=\"licence\" value=\"${ontology_license}\"/>" >> $outfile
+                fi
                 echo "    </source>" >> $outfile
             else
                 echo "WARNING: ${mine_dir}/datasets/ontologies/${dir} exists but is empty" 1>&2
