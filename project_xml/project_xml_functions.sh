@@ -333,6 +333,14 @@ function add_faang_analysis {
     echo "    </source>" >> $outfile
 }
 
+function add_faang_experiment {
+    experiment_dir="${mine_dir}/datasets/experiment"
+    check_dir "experiment_dir"
+    echo "    <source name=\"faang-experiment\" type=\"faang-experiment\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${experiment_dir}\"/>" >> $outfile
+    echo "    </source>" >> $outfile
+}
+
 function add_bioproject_data {
     echo "+ Adding bioproject/biosample/analysis sources"
 
@@ -341,6 +349,7 @@ function add_bioproject_data {
     add_faang_bioproject
     add_faang_biosample
     add_faang_analysis
+    add_faang_experiment
 
     echo >> $outfile
     echo >> $outfile
