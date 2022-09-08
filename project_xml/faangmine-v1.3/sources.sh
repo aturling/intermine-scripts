@@ -68,6 +68,9 @@ function add_mine_sources {
     # Add BioGRID
     add_biogrid
 
+    # Add IntAct
+    add_intact "9606 9796 9823 9913 9925 9940 10090 10116"
+
     # Update data sources
     add_update_data_sources
 

@@ -145,7 +145,6 @@ function add_ontologies_sources {
     for dir in $dirs; do
         make_source=0
         ontology_name=""
-        ontology_license=""
         if [ $dir == "SO" ]; then
             true
         elif [ $dir == "GO" ]; then
@@ -155,64 +154,54 @@ function add_ontologies_sources {
             make_source=1
         elif [ $dir == "BTO" ]; then
             ontology_name="brenda-tissue-ontology"
-            ontology_license="https://creativecommons.org/licenses/by/4.0/"
             make_source=1
         elif [ $dir == "CL" ]; then
             ontology_name="cell-ontology"
-            ontology_license="https://creativecommons.org/licenses/by/4.0/"
             make_source=1
         elif [ $dir == "CMO" ]; then
             ontology_name="clinical-measurement-ontology"
             make_source=1
         elif [ $dir == "ECO" ]; then
             ontology_name="evidence-ontology"
-            ontology_license="https://creativecommons.org/publicdomain/zero/1.0/"
             make_source=1
         elif [ $dir == "EFO" ]; then
             ontology_name="experimental-factor-ontology"
-            ontology_license="https://www.apache.org/licenses/LICENSE-2.0"
             make_source=1
         elif [ $dir == "EOL" ]; then
             ontology_name="environment-ontology-for-livestock"
             make_source=1
-        elif [ $dir == "HsapDv" ]; then
-            ontology_name="human-developmental-stage-ontology"
-            make_source=1
         elif [ $dir == "HP" ]; then
             ontology_name="human-phenotype-ontology"
-            ontology_license="https://hpo.jax.org/app/license"
+            make_source=1
+        elif [ $dir == "HsapDv" ]; then
+            ontology_name="human-developmental-stage-ontology"
             make_source=1
         elif [ $dir == "LBO" ]; then
             ontology_name="livestock-breed-ontology"
             make_source=1
-        elif [ $dir == "LPTO" ]; then
+        elif [ $dir == "LPT" ]; then
             ontology_name="livestock-product-trait-ontology"
             make_source=1
-        elif [ $dir == "MAO" ]; then
-            ontology_name="mouse-anatomy-ontology"
+        elif [ $dir == "MA" ]; then
+            ontology_name="mouse-adult-gross-anatomy-ontology"
             make_source=1
         elif [ $dir == "MONDO" ]; then
             ontology_name="mondo-disease-ontology"
-            ontology_license="https://creativecommons.org/licenses/by/4.0/"
             make_source=1
         elif [ $dir == "OBI" ]; then
             ontology_name="ontology-for-biomedical-investigations"
-            ontology_license="http://creativecommons.org/licenses/by/4.0/"
             make_source=1
         elif [ $dir == "Orphanet" ]; then
             ontology_name="orphanet-rare-disease-ontology"
-            ontology_license="https://creativecommons.org/licenses/by/4.0/"
             make_source=1
         elif [ $dir == "PATO" ]; then
             ontology_name="phenotype-and-trait-ontology"
-            ontology_license="https://creativecommons.org/licenses/by/3.0/"
             make_source=1
-        elif [ $dir == "PMO" ]; then
+        elif [ $dir == "PSI-MI" ]; then
             ontology_name="psi-mi-ontology"
             make_source=1
         elif [ $dir == "UBERON" ]; then
             ontology_name="uber-anatomy-ontology"
-            ontology_license="http://creativecommons.org/licenses/by/3.0/"
             make_source=1
         elif [ $dir == "VTO" ]; then
             ontology_name="vertebrate-trait-ontology"
@@ -235,9 +224,6 @@ function add_ontologies_sources {
                 echo "  + Adding ontology: ${ontology_name}"
                 echo "    <source name=\"${ontology_name}\" type=\"${ontology_name}\" version=\"${source_version}\">" >> $outfile
                 echo "      <property name=\"src.data.file\" location=\"${mine_dir}/datasets/ontologies/${dir}/${obo_file}\"/>" >> $outfile
-                if [ ! -z $ontology_license ]; then
-                    echo "      <property name=\"licence\" value=\"${ontology_license}\"/>" >> $outfile
-                fi
                 echo "    </source>" >> $outfile
             else
                 echo "WARNING: ${mine_dir}/datasets/ontologies/${dir} exists but is empty" 1>&2
@@ -335,7 +321,7 @@ function add_faang_analysis {
 
 function add_faang_experiment {
     experiment_dir="${mine_dir}/datasets/experiment"
-    check_dir "experiment_dir"
+    check_dir "$experiment_dir"
     echo "    <source name=\"faang-experiment\" type=\"faang-experiment\" version=\"${source_version}\">" >> $outfile
     echo "      <property name=\"src.data.dir\" location=\"${experiment_dir}\"/>" >> $outfile
     echo "    </source>" >> $outfile
@@ -959,6 +945,25 @@ function add_biogrid {
     echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
     echo "      <property name=\"src.data.dir.includes\" value=\"*.xml\"/>" >> $outfile
     echo "      <property name=\"biogrid.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+    echo "    </source>" >> $outfile
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
+function add_intact {
+    taxon_ids=$1
+
+    echo "+ Adding IntAct"
+
+    echo "    <!--IntAct-->" >> $outfile
+
+    dirname="${mine_dir}/datasets/IntAct"
+    check_dir "$dirname"
+
+    echo "    <source name=\"psi-intact\" type=\"psi\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+    echo "      <property name=\"intact.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
     echo "    </source>" >> $outfile
 
     echo >> $outfile
