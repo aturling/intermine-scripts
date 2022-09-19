@@ -1189,7 +1189,7 @@ function add_ensembl_compara {
     check_dir "$dirname"
 
     # Get taxon ID list
-    taxon_ids=$(find ${dir_name} -type f -printf '%f\n' | awk -F'_' '{printf "%s\\n\n%s\\n\n", $1, $2}' 2>/dev/null | sed 's/\\n//g' | sort -n | uniq | xargs)
+    taxon_ids=$(find ${dirname} -type f -printf '%f\n' | awk -F'_' '{printf "%s\\n\n%s\\n\n", $1, $2}' 2>/dev/null | sed 's/\\n//g' | sort -n | uniq | xargs)
     if [ -z "$taxon_ids" ] ; then
         echo "WARNING: EnsemblCompara taxon id list is empty" 1>&2
         return 1
