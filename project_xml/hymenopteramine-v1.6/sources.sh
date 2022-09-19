@@ -7,9 +7,6 @@ function add_mine_sources {
     # SNP
     add_snp
 
-    # BioProject, BioSample, and Analysis data
-    add_bioproject_data
-
     # Genome FASTA
     add_genome_fasta
 
@@ -19,23 +16,34 @@ function add_mine_sources {
     # Ensembl gff
     add_ensembl_gff
 
+    # OGS gff
+    # TODO
+    #add_ogs_gff
+
+    # Genbank gff
+    # TODO
+    #add_genbank_gff
+
     # Custom gene info
     add_custom_gene_info "RefSeq" "Ensembl"
 
     # CDS/Protein FASTA
+    # TODO
+    #add_cds_protein_fasta "RefSeq" "Ensembl" "OGS" "Genbank"
     add_cds_protein_fasta "RefSeq" "Ensembl"
 
     # xrefs
     add_xrefs
 
     # PubMed
-    add_pubmed "RefSeq" "Ensembl"
+    # TODO - not sure which source(s)
+    #add_pubmed "RefSeq" "Ensembl"
 
     #---Gene.source merge key line---
     add_merge_key_note
 
     # UniProt
-    add_uniprot "RefSeq" "Ensembl"
+    add_uniprot "RefSeq" "Ensembl" "OGS"
 
     # InterPro
     add_interpro
@@ -48,7 +56,7 @@ function add_mine_sources {
 
     # Reactome
     # Manually specify organisms by taxon id list (depends on mine)
-    add_reactome "9031 9606 9615 9685 9796 9823 9913 9925 9940 10090 10116 89462"
+    add_reactome "7227"
 
     # OrthoDB
     add_orthodb
@@ -56,20 +64,15 @@ function add_mine_sources {
     # EnsemblCompara
     add_ensembl_compara
 
-    # OMIM
-    add_omim
-
-    # Add FAANG GFF
-    add_faang_gff
-
-    # Add QTL GFF
-    add_qtl_gff
+    # GO-Annotation
+    # TODO
+    #add_go_annotation
 
     # Add BioGRID
     add_biogrid
 
     # Add IntAct
-    add_intact "9606 9796 9823 9913 9925 9940 10090 10116"
+    add_intact "7227"
 
     # Update data sources
     add_update_data_sources

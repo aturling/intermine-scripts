@@ -385,6 +385,15 @@ function add_genome_fasta {
     echo >> $outfile
 }
 
+function add_ogs_gff {
+    echo "+ Adding OGS GFF"
+
+    echo "    <!--OGS GFF-->" >> $outfile
+
+# TODO
+
+}
+
 function add_refseq_gff {
     echo "+ Adding RefSeq GFF"
 
@@ -1082,7 +1091,7 @@ function add_ncbi_entrez {
     echo >> $outfile
 }
 
-function add_post_processes_no_snp {
+function add_post_processes {
     echo "+ Adding Post-processing"
 
     echo "    <post-process name=\"create-chromosome-locations-and-lengths\"/>" >> $outfile
