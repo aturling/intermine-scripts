@@ -83,7 +83,7 @@ function check_dir {
 function check_file {
     local filename=$1
     if [ ! -f "$filename" ]; then
-        echo "WARNING: $file_name does not exist" 1>&2
+        echo "WARNING: $filename does not exist" 1>&2
         return 1
     fi
 }
@@ -236,6 +236,8 @@ function add_ontologies_sources {
 }
 
 function add_snp {
+    genesource=$1
+
     echo "+ Adding SNP"
 
     echo "    <!--SNP-->" >> $outfile
@@ -255,7 +257,7 @@ function add_snp {
         data_source=$(grep -i "$fullname" snp_sources.tab | cut -f2)
         # Iterate over assemblies (usually just one)
         assemblies=$(get_assemblies "${data_subdir}/${org}")
-        num_assemblies=$(echo $assemblies | wc -l)
+        num_assemblies=$(echo "$assemblies" | wc -l)
         for assembly in $assemblies; do
             # If multiple assemblies, append assembly version to source name
             append_assembly=""
@@ -280,7 +282,7 @@ function add_snp {
                     echo "      <property name=\"snp-variation.dataSourceName\" value=\"${data_source}\"/>" >> $outfile
                     echo "      <property name=\"snp-variation.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
                     echo "      <property name=\"snp-variation.assemblyVersion\" value=\"${assembly}\"/>" >> $outfile
-                    echo "      <property name=\"snp-variation.geneSource\" value=\"Ensembl\"/>" >> $outfile
+                    echo "      <property name=\"snp-variation.geneSource\" value=\"${genesource}\"/>" >> $outfile
                     echo "      <property name=\"snp-variation.includes\" value=\"*.vcf\"/>" >> $outfile
                     echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/${this_part}\"/>" >> $outfile
                     echo "    </source>" >> $outfile
@@ -341,6 +343,31 @@ function add_bioproject_data {
     echo >> $outfile
 }
 
+function add_maize_expression {
+    echo "+ Adding Maize expression"
+
+    echo "    <!--Expression-->" >> $outfile
+
+    expression_dir="${mine_dir}/datasets/expression"
+    check_dir "$expression_dir"
+
+    echo "    <source name=\"expression-metadata\" type=\"maize-expression-metadata\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"taxonId\" value=\"4577\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${expression_dir}/metadata\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir.includes\" value=\".tab\"/>" >> $outfile
+    echo "    </source>" >> $outfile
+    echo "    <source name=\"expression-gene\" type=\"maize-expression-gene\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"taxonId\" value=\"4577\"/>" >> $outfile
+    echo "      <property name=\"entityType\" value=\"Sample\"/>" >> $outfile
+    echo "      <property name=\"type\" value=\"mean\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${expression_dir}/expression\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir.includes\" value=\".tab\"/>" >> $outfile
+    echo "    </source>" >> $outfile
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
 function add_genome_fasta {
     echo "+ Adding genome FASTA"
 
@@ -360,7 +387,7 @@ function add_genome_fasta {
         data_source=$(find ${mine_dir}/datasets/${data_subdir}/${org}/ -type f -name "*.fa" -printf "%f\n" | grep -oE ".+_genom" | sed 's/_genom//')
         # Iterate over assemblies (usually just one)
         assemblies=$(get_assemblies "${data_subdir}/${org}")
-        num_assemblies=$(echo $assemblies | wc -l)
+        num_assemblies=$(echo "$assemblies" | wc -l)
         for assembly in $assemblies; do
             # If multiple assemblies, append assembly version to source name
             append_assembly=""
@@ -394,6 +421,103 @@ function add_ogs_gff {
 
 }
 
+function add_maize_gff {
+    echo "+ Adding Maize GFF"
+
+    echo "    <!--Maize GFF-->" >> $outfile
+
+    # Iterate over organisms
+    data_subdir="MaizeGDB/annotations"
+    orgs=$(get_orgs "$data_subdir")
+    for org in $orgs; do
+        fullname=$(echo "$org" | sed 's/_/ /'g)
+        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        abbr=$(get_abbr "$org")
+        assemblies=$(get_assemblies "${data_subdir}/${org}")
+        num_assemblies=$(echo "$assemblies" | wc -l)
+        for assembly in $assemblies; do
+            # If multiple assemblies, append assembly version to source name
+            append_assembly=""
+            if [ $num_assemblies -gt 1 ]; then
+                append_assembly="-$assembly"
+            fi
+            echo "    <source name=\"${abbr}${append_assembly}-maize-gff\" type=\"maize-gff\" version=\"${source_version}\">" >> $outfile
+            echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
+            echo "      <property name=\"gff3.dataSourceName\" value=\"Gramene/MaizeGDB\"/>" >> $outfile
+            echo "      <property name=\"gff3.dataSetTitle\" value=\"Zm00001eb.1 gene set for ${assembly}\"/>" >> $outfile
+            echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
+            echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}\"/>" >> $outfile
+            echo "    </source>" >> $outfile
+        done
+    done
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
+function add_community_gff_source {
+    data_subdir=$1
+    datasource=$2
+    datasettitle=$3
+    echo "  + Adding community data set: $datasettitle"
+
+    dataset_dir="${mine_dir}/datasets/${data_subdir}"
+    check_dir "$dataset_dir"
+
+    source_abbr=$(echo "${datasource}" | tr " " "-")
+
+    echo "    <source name=\"${source_abbr,,}-gff\" type=\"gff\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"gff3.taxonId\" value=\"4577\"/>" >> $outfile
+    echo "      <property name=\"gff3.dataSourceName\" value=\"${datasource}\"/>" >> $outfile
+    echo "      <property name=\"gff3.dataSetTitle\" value=\"${datasettitle}\"/>" >> $outfile
+    echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
+    echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"Zm-B73-REFERENCE-NAM-5.0\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${dataset_dir}\"/>" >> $outfile
+    echo "    </source>" >> $outfile
+}
+
+function add_community_qtl_source {
+    data_subdir=$1
+    datasource=$2
+    datasettitle=$3
+    echo "  + Adding community data set: $datasettitle"
+
+    dataset_dir="${mine_dir}/datasets/${data_subdir}"
+    check_dir "$dataset_dir"
+
+    echo "    <!--QTL GFF-->" >> $outfile
+    echo "    <source name=\"{data_subdir}-qtl-gff\" type=\"qtl-gff\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"gff3.taxonId\" value=\"4577\"/>" >> $outfile
+    echo "      <property name=\"gff3.dataSourceName\" value=\"${datasource}\"/>" >> $outfile
+    echo "      <property name=\"gff3.dataSetTitle\" value=\"${datasettitle}\"/>" >> $outfile
+    echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
+    echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"Zm-B73-REFERENCE-NAM-5.0\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${dataset_dir}\"/>" >> $outfile
+    echo "    </source>" >> $outfile
+}
+
+function add_community_gff {
+    echo "+ Adding Maize Community GFF"
+
+    echo "    <!--Community GFF-->" >> $outfile
+    echo "    <!--No Gene.source so load these here (not with rest of GFFs)-->" >> $outfile
+
+    data_dir="community_datasets"
+
+    add_community_gff_source "$data_dir/Vollbrecht" "Vollbrecht" "Vollbrecht AcDs insertions data set"
+    add_community_gff_source "$data_dir/MaizeGDB_UniformMu" "MaizeGDB_UniformMu" "MaizeGDB UniformMu insertions data set"
+    add_community_gff_source "$data_dir/Grotewold_root" "Grotewold CAGE Tag Count Root" "Grotewold root transcription start sites data set"
+    add_community_gff_source "$data_dir/Grotewold_shoot" "Grotewold CAGE Tag Count Shoot" "Grotewold shoot transcription start sites data set"
+    add_community_gff_source "$data_dir/Stam_Enhancers/Husk" "Stam 2017 Husk H3K9ac Enhancer" "Stam 2017 Husk H3K9ac Enhancers data set"
+    add_community_gff_source "$data_dir/Stam_Enhancers/Seedling" "Stam 2017 Seedling H3K9ac Enhancer" "Stam 2017 Seedling H3K9ac Enhancers data set"
+    add_community_qtl_source "$data_dir/GWAS_Atlas" "GWAS Atlas" "Curated GWAS Atlas data set"
+    add_community_qtl_source "$data_dir/Wallace_2014_GWAS" "Wallace 2014 GWAS" "Wallace GWAS data set"
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
 function add_refseq_gff {
     echo "+ Adding RefSeq GFF"
 
@@ -407,7 +531,7 @@ function add_refseq_gff {
         taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
         abbr=$(get_abbr "$org")
         assemblies=$(get_assemblies "${data_subdir}/${org}")
-        num_assemblies=$(echo $assemblies | wc -l)
+        num_assemblies=$(echo "$assemblies" | wc -l)
         for assembly in $assemblies; do
             # If multiple assemblies, append assembly version to source name
             append_assembly=""
@@ -464,7 +588,7 @@ function add_ensembl_gff {
         abbr=$(get_abbr "$org")
         # Iterate over assemblies (usually just one)
         assemblies=$(get_assemblies "${data_subdir}/${org}")
-        num_assemblies=$(echo $assemblies | wc -l)
+        num_assemblies=$(echo "$assemblies" | wc -l)
         for assembly in $assemblies; do
             # If multiple assemblies, append assembly version to source name
             append_assembly=""
@@ -544,11 +668,16 @@ function add_cds_protein_fasta_source {
     source_name=$1
     source_type="fasta-assembly"
 
+    dirname="$source_name"
+    if [ "$source_name" == "Gramene/MaizeGDB" ]; then
+        dirname="MaizeGDB"
+    fi
+
     echo "    <!--${source_name} CDS and Protein Fasta-->" >> $outfile
 
     # Iterate over organisms
     # Assumes all organisms with annotations have cds and protein FASTA data
-    data_subdir="${source_name}/annotations"
+    data_subdir="${dirname}/annotations"
     orgs=$(get_orgs "$data_subdir")
     for org in $orgs; do
         fullname=$(echo "$org" | sed 's/_/ /'g)
@@ -556,7 +685,7 @@ function add_cds_protein_fasta_source {
         abbr=$(get_abbr "$org")
         # Iterate over assemblies (usually just one)
         assemblies=$(get_assemblies "${data_subdir}/${org}")
-        num_assemblies=$(echo $assemblies | wc -l)
+        num_assemblies=$(echo "$assemblies" | wc -l)
         for assembly in $assemblies; do
             # If multiple assemblies, append assembly version to source name
             append_assembly=""
@@ -564,10 +693,10 @@ function add_cds_protein_fasta_source {
                 append_assembly="-$assembly"
             fi
             # CDS
-            echo "    <source name=\"${abbr}${append_assembly}-${source_name,,}-cds\" type=\"${source_type}\" version=\"${source_version}\">" >> $outfile
+            echo "    <source name=\"${abbr}${append_assembly}-${dirname,,}-cds\" type=\"${source_type}\" version=\"${source_version}\">" >> $outfile
             echo "      <property name=\"${source_type}.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
             echo "      <property name=\"${source_type}.dataSourceName\" value=\"${source_name}\"/>" >> $outfile
-            echo "      <property name=\"${source_type}.dataSetTitle\" value=\"${fullname^} ${source_name} Coding Sequence\"/>" >> $outfile 
+            echo "      <property name=\"${source_type}.dataSetTitle\" value=\"${fullname^} ${source_name} Coding Sequences\"/>" >> $outfile 
             echo "      <property name=\"${source_type}.className\" value=\"org.intermine.model.bio.CodingSequence\"/>" >> $outfile
             echo "      <property name=\"${source_type}.classAttribute\" value=\"primaryIdentifier\"/>" >> $outfile
             echo "      <property name=\"${source_type}.geneSource\" value=\"${source_name}\"/>" >> $outfile
@@ -575,14 +704,14 @@ function add_cds_protein_fasta_source {
             echo "      <property name=\"${source_type}.includes\" value=\"*.fa\"/>" >> $outfile
             echo "      <property name=\"${source_type}.idSuffix\" value=\"-CDS\"/>" >> $outfile
             echo "      <property name=\"${source_type}.loaderClassName\" value=\"org.intermine.bio.dataconversion.CDSFastaAssemblyLoaderTask\"/>" >> $outfile
-            echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${source_name}/cds_fasta/${org}/${assembly}\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${dirname}/cds_fasta/${org}/${assembly}\"/>" >> $outfile
             echo "    </source>" >> $outfile
 
             # Protein
             echo "    <source name=\"${abbr}${append_assembly}-${source_name,,}-protein\" type=\"${source_type}\" version=\"${source_version}\">" >> $outfile
             echo "      <property name=\"${source_type}.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
             echo "      <property name=\"${source_type}.dataSourceName\" value=\"${source_name}\"/>" >> $outfile
-            echo "      <property name=\"${source_type}.dataSetTitle\" value=\"${fullname^} ${source_name} Protein Sequence\"/>" >> $outfile
+            echo "      <property name=\"${source_type}.dataSetTitle\" value=\"${fullname^} ${source_name} Protein Sequences\"/>" >> $outfile
             echo "      <property name=\"${source_type}.className\" value=\"org.intermine.model.bio.Polypeptide\"/>" >> $outfile
             echo "      <property name=\"${source_type}.classAttribute\" value=\"primaryIdentifier\"/>" >> $outfile
             echo "      <property name=\"${source_type}.geneSource\" value=\"${source_name}\"/>" >> $outfile
@@ -604,6 +733,35 @@ function add_cds_protein_fasta {
     for source_name in "$@"; do
         add_cds_protein_fasta_source $source_name
     done
+}
+
+function add_aliases {
+    echo "+ Adding aliases"
+
+    echo "    <!--Aliases-->" >> $outfile
+
+    # Iterate over organisms
+    data_subdir="alias"
+    orgs=$(get_orgs "$data_subdir")
+    for org in $orgs; do
+        fullname=$(echo "$org" | sed 's/_/ /'g)
+        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        abbr=$(get_abbr "$org")
+	classname="org.intermine.model.bio.Transcript"
+        num_transcripts=$(find ${mine_dir}/datasets/${data_subdir}/${org}/ -mindepth 1 -maxdepth 1 -type f -name "*map*" 2>/dev/null | wc -l)
+	if [ "$num_transcripts" -eq 0 ]; then
+	    classname="org.intermine.model.bio.Gene"
+	fi
+
+        echo "    <source name=\"${abbr}-aliases\" type=\"aliases\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"taxonId\" value=\"${taxon_id}\"/>" >> $outfile
+	echo "      <property name=\"className\" value=\"${classname}\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    done
+
+    echo >> $outfile
+    echo >> $outfile
 }
 
 function add_xrefs {
@@ -644,6 +802,27 @@ function add_kegg {
     echo "      <property name=\"pathway.organisms\" value=\"${taxon_id_list}\"/>" >> $outfile
     echo "      <property name=\"urlPrefix\" value=\"https://www.genome.jp/pathway/\"/>" >> $outfile
     echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${kegg_genes_dir}\"/>" >> $outfile
+    echo "    </source>" >> $outfile
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
+function add_reactome_gramene {
+    echo "+ Adding Reactome-Gramene"
+
+    echo "    <!--Reactome-Gramene-->" >> $outfile
+
+    reactome_gramene_dir="reactome_pathways"
+    map_title_file="${mine_dir}/datasets/${reactome_gramene_dir}/map_title.tab"
+    check_file "$map_title_file"
+
+    taxon_id_list=$(cut -f1 ${map_title_file} | sort -n | uniq | xargs)
+
+    echo "    <source name=\"reactome-gramene-pathway\" type=\"reactome-gramene\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"pathway.organisms\" value=\"${taxon_id_list}\"/>" >> $outfile
+    echo "      <property name=\"urlPrefix\" value=\"https://plantreactome.gramene.org/PathwayBrowser/#/\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${reactome_gramene_dir}\"/>" >> $outfile
     echo "    </source>" >> $outfile
 
     echo >> $outfile
@@ -817,7 +996,7 @@ function add_faang_gff {
         abbr=$(get_abbr "$org")
         # Iterate over assemblies (usually just one)
         assemblies=$(get_assemblies "${data_subdir}/${org}")
-        num_assemblies=$(echo $assemblies | wc -l)
+        num_assemblies=$(echo "$assemblies" | wc -l)
         for assembly in $assemblies; do
             # If multiple assemblies, append assembly version to source name
             append_assembly=""
@@ -854,7 +1033,7 @@ function add_qtl_gff {
         abbr=$(get_abbr "$org")
         # Iterate over assemblies (usually just one)
         assemblies=$(get_assemblies "${data_subdir}/${org}")
-        num_assemblies=$(echo $assemblies | wc -l)
+        num_assemblies=$(echo "$assemblies" | wc -l)
         for assembly in $assemblies; do
             # If multiple assemblies, append assembly version to source name
             append_assembly=""
@@ -1010,7 +1189,7 @@ function add_ensembl_compara {
     check_dir "$dirname"
 
     # Get taxon ID list
-    taxon_ids=$(find ${mine_dir}/datasets/EnsemblCompara/ -type f -printf '%f\n' | awk -F'_' '{printf "%s\\n\n%s\\n\n", $1, $2}' 2>/dev/null | sed 's/\\n//g' | sort -n | uniq | xargs)
+    taxon_ids=$(find ${dir_name} -type f -printf '%f\n' | awk -F'_' '{printf "%s\\n\n%s\\n\n", $1, $2}' 2>/dev/null | sed 's/\\n//g' | sort -n | uniq | xargs)
     if [ -z "$taxon_ids" ] ; then
         echo "WARNING: EnsemblCompara taxon id list is empty" 1>&2
         return 1
@@ -1020,6 +1199,48 @@ function add_ensembl_compara {
     echo "      <property name=\"ensemblcompara.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
     echo "      <property name=\"ensemblcompara.homologues\" value=\"${taxon_ids}\"/>" >> $outfile
     echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+    echo "    </source>" >> $outfile
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
+function add_biomart {
+    echo "+ Adding Ensembl Plant BioMart"
+
+    echo "    <!--Ensembl Plant BioMart-->" >> $outfile
+
+    dirname="${mine_dir}/datasets/ensembl-plant-biomart"
+    check_dir "$dirname"
+
+    # Get taxon ID list
+    homologues_dir="$dirname/homologues"
+    taxon_ids=$(find ${homologues_dir} -type f -printf '%f\n' | awk -F'_' '{printf "%s\\n\n%s\\n\n", $1, $2}' 2>/dev/null | sed 's/\\n//g' | sort -n | uniq | xargs)
+    if [ -z "$taxon_ids" ] ; then
+        echo "WARNING: Ensembl Plant BioMart taxon id list is empty" 1>&2
+        return 1
+    fi
+
+    echo "    <source name=\"biomart\" type=\"ensembl-compara\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"ensemblcompara.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+    echo "      <property name=\"ensemblcompara.homologues\" value=\"${taxon_ids}\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${dirname}/homologues\"/>" >> $outfile
+    echo "    </source>" >> $outfile
+    echo "    <!--Symbols-->" >> $outfile
+    echo "    <source name=\"gene-symbols\" type=\"additional-gene-attributes\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"attributeName\" value=\"symbol\"/>" >> $outfile
+    echo "      <property name=\"dataSourceName\" value=\"Ensembl\"/>" >> $outfile
+    echo "      <property name=\"dataSetTitle\" value=\"Ensembl Plant BioMart symbols data set\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${dirname}/symbols\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir.includes\" value=\".tab\"/>" >> $outfile
+    echo "    </source>" >> $outfile
+    echo "    <!--Descriptions-->" >> $outfile
+    echo "    <source name=\"gene-descriptions\" type=\"additional-gene-attributes\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"attributeName\" value=\"description\"/>" >> $outfile
+    echo "      <property name=\"dataSourceName\" value=\"Ensembl\"/>" >> $outfile
+    echo "      <property name=\"dataSetTitle\" value=\"Ensembl Plant BioMart descriptions data set\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${dirname}/descriptions\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir.includes\" value=\".tab\"/>" >> $outfile
     echo "    </source>" >> $outfile
 
     echo >> $outfile

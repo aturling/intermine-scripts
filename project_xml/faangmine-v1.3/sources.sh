@@ -5,7 +5,7 @@ function add_mine_sources {
     add_ontologies_sources
 
     # SNP
-    add_snp
+    add_snp "Ensembl"
 
     # BioProject, BioSample, and Analysis data
     add_bioproject_data
