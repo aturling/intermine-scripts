@@ -4,9 +4,6 @@ function add_mine_sources {
     # Ontologies
     add_ontologies_sources
 
-    # SNP
-    add_snp
-
     # Genome FASTA
     add_genome_fasta
 
@@ -16,16 +13,13 @@ function add_mine_sources {
     # Ensembl gff
     add_ensembl_gff
 
-    # OGS gff
-    # TODO
-    #add_ogs_gff
-
     # Genbank gff
     # TODO
     #add_genbank_gff
 
-    # Custom gene info
-    add_custom_gene_info "RefSeq" "Ensembl"
+    # OGS gff
+    # TODO
+    #add_ogs_gff
 
     # CDS/Protein FASTA
     # TODO
@@ -35,6 +29,9 @@ function add_mine_sources {
     # xrefs
     add_xrefs
 
+    # aliases
+    add_aliases
+
     # PubMed
     # TODO - not sure which source(s)
     #add_pubmed "RefSeq" "Ensembl"
@@ -43,7 +40,9 @@ function add_mine_sources {
     add_merge_key_note
 
     # UniProt
-    add_uniprot "RefSeq" "Ensembl" "OGS"
+    # TODO
+    #add_uniprot "RefSeq" "Ensembl" "OGS"
+    add_uniprot "RefSeq" "Ensembl"
 
     # InterPro
     add_interpro
@@ -53,6 +52,7 @@ function add_mine_sources {
 
     # KEGG
     add_kegg
+    # TODO - kegg metadata
 
     # Reactome
     # Manually specify organisms by taxon id list (depends on mine)
@@ -61,8 +61,8 @@ function add_mine_sources {
     # OrthoDB
     add_orthodb
 
-    # EnsemblCompara
-    add_ensembl_compara
+    # HGD-ortho
+    # TODO
 
     # GO-Annotation
     # TODO

@@ -1166,17 +1166,39 @@ function add_intact {
 function add_orthodb {
     echo "+ Adding OrthoDB"
 
-    taxon_ids=$(awk -F'\t' '{print $6}' ${mine_dir}/datasets/OrthoDB/*.tab  | sort -n | uniq | xargs)
+    dirname="${mine_dir}/datasets/OrthoDB"
+    check_dir "$dirname"
+
+    taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/*.tab  | sort -n | uniq | xargs)
 
     echo "    <!--OrthoDB-->" >> $outfile
     echo "    <!--Data file(s) must be sorted on column 2 before loading!-->" >> $outfile
 
-    dirname="${mine_dir}/datasets/OrthoDB"
-    check_dir "$dirname"
-
     echo "    <source name=\"orthodb\" type=\"orthodb-clusters\" version=\"${source_version}\">" >> $outfile
     echo "      <property name=\"dataSourceName\" value=\"OrthoDB\"/>" >> $outfile
     echo "      <property name=\"dataSetTitle\" value=\"OrthoDB data set\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+    echo "      <property name=\"orthodb.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+    echo "    </source>" >> $outfile
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
+function add_hgd_ortho {
+    echo "+ Adding HGD-Ortho"
+
+    dirname="${mine_dir}/datasets/HGD-Ortho"
+    check_dir "$dirname"
+
+    taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/*.tab  | sort -n | uniq | xargs)
+
+    echo "    <!--HGD-Ortho-->" >> $outfile
+    echo "    <!--Data file(s) must be sorted on column 2 before loading!-->" >> $outfile
+
+    echo "    <source name=\"hgd-ortho\" type=\"orthodb-clusters\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"dataSourceName\" value=\"HGD\"/>" >> $outfile
+    echo "      <property name=\"dataSetTitle\" value=\"HGD-Ortho data set\"/>" >> $outfile
     echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
     echo "      <property name=\"orthodb.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
     echo "    </source>" >> $outfile
