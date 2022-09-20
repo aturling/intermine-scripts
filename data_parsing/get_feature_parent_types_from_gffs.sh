@@ -43,10 +43,15 @@ for source in "${sources[@]}" ; do
         outfile="${tmpdir}/${dir}_${source}.out"
         touch $outfile
         line_count=0
-        total_line_count=$(wc -l ${minedir}/datasets/RefSeq/annotations/${dir}/*/genes/*.gff3 | tail -n 1 | awk '{print $1}')
+	gff_dir="${minedir}/datasets/${source}/annotations/${dir}/*"
+	if [ "$source" == "RefSeq" ] || [ "$source" == "Ensembl" ]; then
+	    gff_dir="${gff_dir}/genes"
+	fi
+	echo "gff dir is $gff_dir"
+        #total_line_count=$(wc -l ${gff_dir}/*.gff3 | tail -n 1 | awk '{print $1}')
         no_parent_count=0
         #echo "Total number of lines: $total_line_count"
-        grep -rsP "\t${feature_type}\t" ${minedir}/datasets/${source}/annotations/${dir}/*/genes/ | while read -r line ; do
+        grep -rsP "\t${feature_type}\t" ${gff_dir} | while read -r line ; do
             # Get parent ID
             parent_id=$(echo "$line" | grep -oE "Parent=[^;]*" | awk -F'=' '{print $2}')
             #echo "Parent ID is: $parent_id"
@@ -55,7 +60,7 @@ for source in "${sources[@]}" ; do
                 no_parent_count=$((no_parent_count+1))
             else
                 # Get parent type
-                parent_type=$(grep -rs "ID=${parent_id};" ${minedir}/datasets/${source}/annotations/${dir}/*/genes | awk '{print $3}')
+                parent_type=$(grep -rs "ID=${parent_id};" ${gff_dir} | awk '{print $3}')
                 #echo "Parent type is: $parent_type"
                 echo "$parent_type" >> $outfile
             fi
