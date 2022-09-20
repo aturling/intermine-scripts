@@ -360,7 +360,7 @@ function add_maize_expression {
     echo "      <property name=\"taxonId\" value=\"4577\"/>" >> $outfile
     echo "      <property name=\"entityType\" value=\"Sample\"/>" >> $outfile
     echo "      <property name=\"type\" value=\"mean\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${expression_dir}/expression\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${expression_dir}\"/>" >> $outfile
     echo "      <property name=\"src.data.dir.includes\" value=\".tab\"/>" >> $outfile
     echo "    </source>" >> $outfile
 
@@ -465,7 +465,7 @@ function add_community_gff_source {
     dataset_dir="${mine_dir}/datasets/${data_subdir}"
     check_dir "$dataset_dir"
 
-    source_abbr=$(echo "${datasource}" | tr " " "-")
+    source_abbr=$(echo "${datasource}" | tr " " "-" | tr "_" "-")
 
     echo "    <source name=\"${source_abbr,,}-gff\" type=\"gff\" version=\"${source_version}\">" >> $outfile
     echo "      <property name=\"gff3.taxonId\" value=\"4577\"/>" >> $outfile
@@ -486,8 +486,10 @@ function add_community_qtl_source {
     dataset_dir="${mine_dir}/datasets/${data_subdir}"
     check_dir "$dataset_dir"
 
+    source_abbr=$(echo "${datasource}" | tr " " "-" | tr "_" "-")
+
     echo "    <!--QTL GFF-->" >> $outfile
-    echo "    <source name=\"{data_subdir}-qtl-gff\" type=\"qtl-gff\" version=\"${source_version}\">" >> $outfile
+    echo "    <source name=\"${source_abbr,,}-qtl-gff\" type=\"qtl-gff\" version=\"${source_version}\">" >> $outfile
     echo "      <property name=\"gff3.taxonId\" value=\"4577\"/>" >> $outfile
     echo "      <property name=\"gff3.dataSourceName\" value=\"${datasource}\"/>" >> $outfile
     echo "      <property name=\"gff3.dataSetTitle\" value=\"${datasettitle}\"/>" >> $outfile
@@ -668,12 +670,15 @@ function add_cds_protein_fasta_source {
     source_name=$1
     source_type="fasta-assembly"
 
+    echo "    <!--${source_name} CDS and Protein Fasta-->" >> $outfile
+
     dirname="$source_name"
+    gene_source="$source_name"
+    # Special case for MaizeGDB:
     if [ "$source_name" == "Gramene/MaizeGDB" ]; then
         dirname="MaizeGDB"
+	gene_source="Zm00001eb.1"
     fi
-
-    echo "    <!--${source_name} CDS and Protein Fasta-->" >> $outfile
 
     # Iterate over organisms
     # Assumes all organisms with annotations have cds and protein FASTA data
@@ -696,10 +701,10 @@ function add_cds_protein_fasta_source {
             echo "    <source name=\"${abbr}${append_assembly}-${dirname,,}-cds\" type=\"${source_type}\" version=\"${source_version}\">" >> $outfile
             echo "      <property name=\"${source_type}.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
             echo "      <property name=\"${source_type}.dataSourceName\" value=\"${source_name}\"/>" >> $outfile
-            echo "      <property name=\"${source_type}.dataSetTitle\" value=\"${fullname^} ${source_name} Coding Sequences\"/>" >> $outfile 
+            echo "      <property name=\"${source_type}.dataSetTitle\" value=\"${fullname^} ${gene_source} Coding Sequences\"/>" >> $outfile 
             echo "      <property name=\"${source_type}.className\" value=\"org.intermine.model.bio.CodingSequence\"/>" >> $outfile
             echo "      <property name=\"${source_type}.classAttribute\" value=\"primaryIdentifier\"/>" >> $outfile
-            echo "      <property name=\"${source_type}.geneSource\" value=\"${source_name}\"/>" >> $outfile
+            echo "      <property name=\"${source_type}.geneSource\" value=\"${gene_source}\"/>" >> $outfile
             echo "      <property name=\"${source_type}.sequenceType\" value=\"dna\"/>" >> $outfile
             echo "      <property name=\"${source_type}.includes\" value=\"*.fa\"/>" >> $outfile
             echo "      <property name=\"${source_type}.idSuffix\" value=\"-CDS\"/>" >> $outfile
@@ -708,13 +713,13 @@ function add_cds_protein_fasta_source {
             echo "    </source>" >> $outfile
 
             # Protein
-            echo "    <source name=\"${abbr}${append_assembly}-${source_name,,}-protein\" type=\"${source_type}\" version=\"${source_version}\">" >> $outfile
+            echo "    <source name=\"${abbr}${append_assembly}-${dirname,,}-protein\" type=\"${source_type}\" version=\"${source_version}\">" >> $outfile
             echo "      <property name=\"${source_type}.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
             echo "      <property name=\"${source_type}.dataSourceName\" value=\"${source_name}\"/>" >> $outfile
-            echo "      <property name=\"${source_type}.dataSetTitle\" value=\"${fullname^} ${source_name} Protein Sequences\"/>" >> $outfile
+            echo "      <property name=\"${source_type}.dataSetTitle\" value=\"${fullname^} ${gene_source} Protein Sequences\"/>" >> $outfile
             echo "      <property name=\"${source_type}.className\" value=\"org.intermine.model.bio.Polypeptide\"/>" >> $outfile
             echo "      <property name=\"${source_type}.classAttribute\" value=\"primaryIdentifier\"/>" >> $outfile
-            echo "      <property name=\"${source_type}.geneSource\" value=\"${source_name}\"/>" >> $outfile
+            echo "      <property name=\"${source_type}.geneSource\" value=\"${gene_source}\"/>" >> $outfile
             echo "      <property name=\"${source_type}.sequenceType\" value=\"protein\"/>" >> $outfile
             echo "      <property name=\"${source_type}.includes\" value=\"*.fa\"/>" >> $outfile
             echo "      <property name=\"${source_type}.loaderClassName\" value=\"org.intermine.bio.dataconversion.ProteinFastaAssemblyLoaderTask\"/>" >> $outfile
@@ -1285,11 +1290,14 @@ function add_update_data_sources {
     filename="${mine_dir}/datasets/datasource-info/customsources.txt"
     check_file "$filename"
 
-    echo "    <!--Custom data source info not in UniProt file-->" >> $outfile
-    echo "    <source name=\"update-data-sources-custom\" type=\"update-data-sources\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"src.data.file\" location=\"datasources-custom.xml\"/>" >> $outfile
-    echo "      <property name=\"dataSourceFile\" value=\"${filename}\"/>" >> $outfile
-    echo "    </source>" >> $outfile
+    # If directory not present then don't add to project.xml:
+    if [ -f "$filename" ]; then
+        echo "    <!--Custom data source info not in UniProt file-->" >> $outfile
+        echo "    <source name=\"update-data-sources-custom\" type=\"update-data-sources\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"src.data.file\" location=\"datasources-custom.xml\"/>" >> $outfile
+        echo "      <property name=\"dataSourceFile\" value=\"${filename}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
 
     echo >> $outfile
     echo >> $outfile
