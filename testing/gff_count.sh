@@ -22,7 +22,7 @@ echo "Checking gff counts..."
 for source in "${sources[@]}" ; do
     echo "Source: $source"
     # Iterate over all organisms/assemblies
-    files=$(find /db/*/datasets/${source}/annotation*/*/*/genes -type f -name *.gff3 2>/dev/null)
+    files=$(find /db/*/datasets/${source}/annotations/*/*/genes -type f -name *.gff3 2>/dev/null)
     for file in $files; do
         org_name=$(echo "${file}" | awk -F'/' '{print $7}' | sed 's/_/ /g')
         assembly=$(echo "${file}" | awk -F'/' '{print $8}')
@@ -43,7 +43,7 @@ for source in "${sources[@]}" ; do
 
         # Get all possible class names (transcripts, genes, etc.)
         echo "Getting all class names in input file..."
-        classes=$(cat /db/*/datasets/${source}/annotation*/*/${assembly}/genes/*.gff3 | grep -v "#" | cut -f 3 | sort | uniq)
+        classes=$(cat /db/*/datasets/${source}/annotations/*/${assembly}/genes/*.gff3 | grep -v "#" | cut -f 3 | sort | uniq)
         echo $classes
         class_count_correct=1
         for class in $classes; do
@@ -57,7 +57,7 @@ for source in "${sources[@]}" ; do
             else
                 dbcount=$(psql ${dbname} -c "select count(t.id) from $tablename t where t.organismid=${org_id} and t.source='${source}' and t.class='org.intermine.model.bio.${tablename}'" -t -A)
             fi
-            filecount=$(cat /db/*/datasets/${source}/annotation*/*/${assembly}/genes/*.gff3 | grep -v "#" | cut -f 3 | grep -E "^${class}" | wc -l)
+            filecount=$(cat /db/*/datasets/${source}/annotations/*/${assembly}/genes/*.gff3 | grep -v "#" | cut -f 3 | grep -E "^${class}" | wc -l)
             if [ ! $dbcount -eq $filecount ]; then
                 echo "WARNING: $dbcount ${class}s in database, but $filecount in input file!"
                 class_count_correct=0
