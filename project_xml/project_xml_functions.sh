@@ -541,34 +541,52 @@ function add_refseq_gff {
                 append_assembly="-$assembly"
             fi
             # RefSeq-genes
-            echo "    <source name=\"${abbr}${append_assembly}-refseq-gff\" type=\"refseq-gff\" version=\"${source_version}\">" >> $outfile
-            echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
-            echo "      <property name=\"gff3.dataSourceName\" value=\"RefSeq\"/>" >> $outfile
-            echo "      <property name=\"gff3.dataSetTitle\" value=\"NCBI RefSeq gene set for ${assembly}\"/>" >> $outfile
-            echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile 
-            echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
-            echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/genes\"/>" >> $outfile
-            echo "    </source>" >> $outfile      
+            # Check that directory not empty:
+            num_gff_files=$(find "${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/genes" -mindepth 1 -maxdepth 1 -type f -name "*.gff3" 2>/dev/null | wc -l)
+            if [ "$num_gff_files" -ne 0 ]; then
+                echo "    <source name=\"${abbr}${append_assembly}-refseq-gff\" type=\"refseq-gff\" version=\"${source_version}\">" >> $outfile
+                echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
+                echo "      <property name=\"gff3.dataSourceName\" value=\"RefSeq\"/>" >> $outfile
+                echo "      <property name=\"gff3.dataSetTitle\" value=\"NCBI RefSeq gene set for ${assembly}\"/>" >> $outfile
+                echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile 
+                echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
+                echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/genes\"/>" >> $outfile
+                echo "    </source>" >> $outfile
+            else
+                echo "WARNING: ${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/genes is empty" 
+            fi
 
             # RefSeq-pseudogenes-transcribed
-            echo "    <source name=\"${abbr}${append_assembly}-pseudogene-refseq-gff\" type=\"pseudogene-refseq-gff\" version=\"${source_version}\">" >> $outfile
-            echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
-            echo "      <property name=\"gff3.dataSourceName\" value=\"RefSeq\"/>" >> $outfile
-            echo "      <property name=\"gff3.dataSetTitle\" value=\"NCBI RefSeq pseudogene (transcribed) set for ${assembly}\"/>" >> $outfile
-            echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
-            echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
-            echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/pseudogenes_transcribed\"/>" >> $outfile
-            echo "    </source>" >> $outfile
+            # Check that directory not empty:
+            num_gff_files=$(find "${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/pseudogenes_transcribed" -mindepth 1 -maxdepth 1 -type f -name "*.gff3" 2>/dev/null | wc -l)
+            if [ "$num_gff_files" -ne 0 ]; then
+                echo "    <source name=\"${abbr}${append_assembly}-pseudogene-refseq-gff\" type=\"pseudogene-refseq-gff\" version=\"${source_version}\">" >> $outfile
+                echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
+                echo "      <property name=\"gff3.dataSourceName\" value=\"RefSeq\"/>" >> $outfile
+                echo "      <property name=\"gff3.dataSetTitle\" value=\"NCBI RefSeq pseudogene (transcribed) set for ${assembly}\"/>" >> $outfile
+                echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
+                echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
+                echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/pseudogenes_transcribed\"/>" >> $outfile
+                echo "    </source>" >> $outfile
+            else
+                echo "WARNING: ${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/pseudogenes_transcribed is empty"
+            fi
 
             # RefSeq-pseudogenes-not-transcribed
-            echo "    <source name=\"${abbr}${append_assembly}-pseudogene-refseq-nottranscribed-gff\" type=\"pseudogene-refseq-nottranscribed-gff\" version=\"${source_version}\">" >> $outfile
-            echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
-            echo "      <property name=\"gff3.dataSourceName\" value=\"RefSeq\"/>" >> $outfile
-            echo "      <property name=\"gff3.dataSetTitle\" value=\"NCBI RefSeq pseudogene (not transcribed) set for ${assembly}\"/>" >> $outfile
-            echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
-            echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
-            echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/pseudogenes_nottranscribed\"/>" >> $outfile
-            echo "    </source>" >> $outfile
+            # Check that directory not empty:
+            num_gff_files=$(find "${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/pseudogenes_nottranscribed" -mindepth 1 -maxdepth 1 -type f -name "*.gff3" 2>/dev/null | wc -l)
+            if [ "$num_gff_files" -ne 0 ]; then
+                echo "    <source name=\"${abbr}${append_assembly}-pseudogene-refseq-nottranscribed-gff\" type=\"pseudogene-refseq-nottranscribed-gff\" version=\"${source_version}\">" >> $outfile
+                echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
+                echo "      <property name=\"gff3.dataSourceName\" value=\"RefSeq\"/>" >> $outfile
+                echo "      <property name=\"gff3.dataSetTitle\" value=\"NCBI RefSeq pseudogene (not transcribed) set for ${assembly}\"/>" >> $outfile
+                echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
+                echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
+                echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/pseudogenes_nottranscribed\"/>" >> $outfile
+                echo "    </source>" >> $outfile
+            else
+                echo "WARNING: ${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/pseudogenes_nottranscribed is empty"
+            fi
         done
     done
 
@@ -597,25 +615,38 @@ function add_ensembl_gff {
             if [ $num_assemblies -gt 1 ]; then
                 append_assembly="-$assembly"
             fi
+
             # Ensembl-genes
-            echo "    <source name=\"${abbr}${append_assembly}-ensembl-gff\" type=\"ensembl-gff\" version=\"${source_version}\">" >> $outfile
-            echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
-            echo "      <property name=\"gff3.dataSourceName\" value=\"Ensembl\"/>" >> $outfile
-            echo "      <property name=\"gff3.dataSetTitle\" value=\"Ensembl gene set for ${assembly}\"/>" >> $outfile
-            echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
-            echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
-            echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/genes\"/>" >> $outfile
-            echo "    </source>" >> $outfile 
+	    # Check that directory not empty:
+	    num_gff_files=$(find "${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/genes" -mindepth 1 -maxdepth 1 -type f -name "*.gff3" 2>/dev/null | wc -l)
+	    if [ "$num_gff_files" -ne 0 ]; then
+                echo "    <source name=\"${abbr}${append_assembly}-ensembl-gff\" type=\"ensembl-gff\" version=\"${source_version}\">" >> $outfile
+                echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
+                echo "      <property name=\"gff3.dataSourceName\" value=\"Ensembl\"/>" >> $outfile
+                echo "      <property name=\"gff3.dataSetTitle\" value=\"Ensembl gene set for ${assembly}\"/>" >> $outfile
+                echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
+                echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
+                echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/genes\"/>" >> $outfile
+                echo "    </source>" >> $outfile
+            else
+                echo "WARNING: ${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/genes is empty"
+	    fi
 
             # Ensembl-pseudogenes
-            echo "    <source name=\"${abbr}${append_assembly}-pseudogene-ensembl-gff\" type=\"pseudogene-ensembl-gff\" version=\"${source_version}\">" >> $outfile
-            echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
-            echo "      <property name=\"gff3.dataSourceName\" value=\"Ensembl\"/>" >> $outfile
-            echo "      <property name=\"gff3.dataSetTitle\" value=\"Ensembl pseudogene set for ${assembly}\"/>" >> $outfile
-            echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
-            echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
-            echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/pseudogenes\"/>" >> $outfile
-            echo "    </source>" >> $outfile
+	    # Check that directory not empty:
+	    num_gff_files=$(find "${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/pseudogenes" -mindepth 1 -maxdepth 1 -type f -name "*.gff3" 2>/dev/null | wc -l)
+	    if [ "$num_gff_files" -ne 0 ]; then
+                echo "    <source name=\"${abbr}${append_assembly}-pseudogene-ensembl-gff\" type=\"pseudogene-ensembl-gff\" version=\"${source_version}\">" >> $outfile
+                echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
+                echo "      <property name=\"gff3.dataSourceName\" value=\"Ensembl\"/>" >> $outfile
+                echo "      <property name=\"gff3.dataSetTitle\" value=\"Ensembl pseudogene set for ${assembly}\"/>" >> $outfile
+                echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
+                echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
+                echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/pseudogenes\"/>" >> $outfile
+                echo "    </source>" >> $outfile
+            else
+                echo "WARNING: ${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/pseudogenes is empty"
+            fi
         done
     done
 
