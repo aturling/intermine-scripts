@@ -62,7 +62,7 @@ function add_mine_sources {
     add_orthodb
 
     # HGD-ortho
-    # TODO
+    add_hgd_ortho
 
     # GO-Annotation
     # TODO

@@ -68,6 +68,32 @@ function get_abbr {
     echo "$abbr"
 }
 
+function get_append_assembly {
+    num_assemblies=$2
+    assembly=$1
+
+    # Append assembly if multiple assemblies, or if mine has non-unique
+    # abbreviations
+    # (So far just HymenopteraMine)
+    mine_basename=$(grep "webapp.path"  ~/.intermine/*.properties | tail -n 1 | awk -F'=' '{print $2}')
+    append_assembly=""
+    if [[ $num_assemblies -gt 1 ]] || [[ "$mine_basename" == "hymenopteramine" ]]; then
+        append_assembly="-$assembly"
+    fi 
+
+    echo "$append_assembly"
+}
+
+# Whether to include assembly with abbreviation
+# (Some mines have non-unique abbreviations)
+function include_assembly {
+    mine_basename=$(grep "webapp.path"  ~/.intermine/*.properties | tail -n 1 | awk -F'=' '{print $2}')
+    if [ "$mine_basename" == "hymenopteramine" ]; then
+        return true
+    fi
+    return false  
+}
+
 # Verify that directory exists; print warning if it does not
 # and do not add source to project.xml
 function check_dir {
@@ -76,6 +102,7 @@ function check_dir {
         echo "WARNING: Directory $dirname does not exist" 1>&2
         return 1
     fi
+    return 0
 }
 
 # Verify that file exists; print warning if it does not
@@ -86,6 +113,7 @@ function check_file {
         echo "WARNING: $filename does not exist" 1>&2
         return 1
     fi
+    return 0
 }
 
 # Add project.xml headers
@@ -260,10 +288,7 @@ function add_snp {
         num_assemblies=$(echo "$assemblies" | wc -l)
         for assembly in $assemblies; do
             # If multiple assemblies, append assembly version to source name
-            append_assembly=""
-            if [ $num_assemblies -gt 1 ]; then
-                append_assembly="-$assembly"
-            fi
+	    append_assembly=$(get_append_assembly "$assembly" "$num_assemblies")
             # Get number of parts
             actual_numparts=$(ls ${mine_dir}/datasets/${data_subdir}/${org}/${assembly} | wc -l)
             if [ "$actual_numparts" -ge "$numparts" ]; then
@@ -300,33 +325,45 @@ function add_snp {
 function add_faang_bioproject {
     bioproject_dir="${mine_dir}/datasets/FAANG-bioproject"
     check_dir "$bioproject_dir"
-    echo "    <source name=\"faang-bioproject\" type=\"faang-bioproject\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${bioproject_dir}\"/>" >> $outfile
-    echo "    </source>" >> $outfile
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        echo "    <source name=\"faang-bioproject\" type=\"faang-bioproject\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${bioproject_dir}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
 }
 
 function add_faang_biosample {
     biosample_dir="${mine_dir}/datasets/FAANG-biosample"
     check_dir "$biosample_dir"
-    echo "    <source name=\"faang-biosample\" type=\"faang-biosample\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${biosample_dir}\"/>" >> $outfile
-    echo "    </source>" >> $outfile
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        echo "    <source name=\"faang-biosample\" type=\"faang-biosample\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${biosample_dir}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
 }
 
 function add_faang_analysis {
     analysis_dir="${mine_dir}/datasets/FAANG-analysis"
     check_dir "$analysis_dir"
-    echo "    <source name=\"faang-analysis\" type=\"faang-analysis\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${analysis_dir}\"/>" >> $outfile
-    echo "    </source>" >> $outfile
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        echo "    <source name=\"faang-analysis\" type=\"faang-analysis\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${analysis_dir}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
 }
 
 function add_faang_experiment {
     experiment_dir="${mine_dir}/datasets/experiment"
     check_dir "$experiment_dir"
-    echo "    <source name=\"faang-experiment\" type=\"faang-experiment\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${experiment_dir}\"/>" >> $outfile
-    echo "    </source>" >> $outfile
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        echo "    <source name=\"faang-experiment\" type=\"faang-experiment\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${experiment_dir}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
 }
 
 function add_bioproject_data {
@@ -350,20 +387,21 @@ function add_maize_expression {
 
     expression_dir="${mine_dir}/datasets/expression"
     check_dir "$expression_dir"
-
-    echo "    <source name=\"expression-metadata\" type=\"maize-expression-metadata\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"taxonId\" value=\"4577\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${expression_dir}/metadata\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir.includes\" value=\".tab\"/>" >> $outfile
-    echo "    </source>" >> $outfile
-    echo "    <source name=\"expression-gene\" type=\"maize-expression-gene\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"taxonId\" value=\"4577\"/>" >> $outfile
-    echo "      <property name=\"entityType\" value=\"Sample\"/>" >> $outfile
-    echo "      <property name=\"type\" value=\"mean\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${expression_dir}\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir.includes\" value=\".tab\"/>" >> $outfile
-    echo "    </source>" >> $outfile
-
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        echo "    <source name=\"expression-metadata\" type=\"maize-expression-metadata\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"taxonId\" value=\"4577\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${expression_dir}/metadata\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir.includes\" value=\".tab\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+        echo "    <source name=\"expression-gene\" type=\"maize-expression-gene\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"taxonId\" value=\"4577\"/>" >> $outfile
+        echo "      <property name=\"entityType\" value=\"Sample\"/>" >> $outfile
+        echo "      <property name=\"type\" value=\"mean\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${expression_dir}\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir.includes\" value=\".tab\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
     echo >> $outfile
     echo >> $outfile
 }
@@ -390,10 +428,7 @@ function add_genome_fasta {
         num_assemblies=$(echo "$assemblies" | wc -l)
         for assembly in $assemblies; do
             # If multiple assemblies, append assembly version to source name
-            append_assembly=""
-            if [ $num_assemblies -gt 1 ]; then
-                append_assembly="-$assembly"
-            fi
+            append_assembly=$(get_append_assembly "$assembly" "$num_assemblies")
             echo "    <source name=\"${abbr}${append_assembly}-fasta\" type=\"${source_type}\" version=\"${source_version}\">" >> $outfile
             echo "      <property name=\"${source_type}.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
             echo "      <property name=\"${source_type}.dataSourceName\" value=\"${fullname^} Genome ${data_source}\"/>" >> $outfile
@@ -437,10 +472,7 @@ function add_maize_gff {
         num_assemblies=$(echo "$assemblies" | wc -l)
         for assembly in $assemblies; do
             # If multiple assemblies, append assembly version to source name
-            append_assembly=""
-            if [ $num_assemblies -gt 1 ]; then
-                append_assembly="-$assembly"
-            fi
+            append_assembly=$(get_append_assembly "$assembly" "$num_assemblies")
             echo "    <source name=\"${abbr}${append_assembly}-maize-gff\" type=\"maize-gff\" version=\"${source_version}\">" >> $outfile
             echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
             echo "      <property name=\"gff3.dataSourceName\" value=\"Gramene/MaizeGDB\"/>" >> $outfile
@@ -464,17 +496,19 @@ function add_community_gff_source {
 
     dataset_dir="${mine_dir}/datasets/${data_subdir}"
     check_dir "$dataset_dir"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        source_abbr=$(echo "${datasource}" | tr " " "-" | tr "_" "-")
 
-    source_abbr=$(echo "${datasource}" | tr " " "-" | tr "_" "-")
-
-    echo "    <source name=\"${source_abbr,,}-gff\" type=\"gff\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"gff3.taxonId\" value=\"4577\"/>" >> $outfile
-    echo "      <property name=\"gff3.dataSourceName\" value=\"${datasource}\"/>" >> $outfile
-    echo "      <property name=\"gff3.dataSetTitle\" value=\"${datasettitle}\"/>" >> $outfile
-    echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
-    echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"Zm-B73-REFERENCE-NAM-5.0\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${dataset_dir}\"/>" >> $outfile
-    echo "    </source>" >> $outfile
+        echo "    <source name=\"${source_abbr,,}-gff\" type=\"gff\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"gff3.taxonId\" value=\"4577\"/>" >> $outfile
+        echo "      <property name=\"gff3.dataSourceName\" value=\"${datasource}\"/>" >> $outfile
+        echo "      <property name=\"gff3.dataSetTitle\" value=\"${datasettitle}\"/>" >> $outfile
+        echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
+        echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"Zm-B73-REFERENCE-NAM-5.0\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${dataset_dir}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
 }
 
 function add_community_qtl_source {
@@ -485,18 +519,20 @@ function add_community_qtl_source {
 
     dataset_dir="${mine_dir}/datasets/${data_subdir}"
     check_dir "$dataset_dir"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        source_abbr=$(echo "${datasource}" | tr " " "-" | tr "_" "-")
 
-    source_abbr=$(echo "${datasource}" | tr " " "-" | tr "_" "-")
-
-    echo "    <!--QTL GFF-->" >> $outfile
-    echo "    <source name=\"${source_abbr,,}-qtl-gff\" type=\"qtl-gff\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"gff3.taxonId\" value=\"4577\"/>" >> $outfile
-    echo "      <property name=\"gff3.dataSourceName\" value=\"${datasource}\"/>" >> $outfile
-    echo "      <property name=\"gff3.dataSetTitle\" value=\"${datasettitle}\"/>" >> $outfile
-    echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
-    echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"Zm-B73-REFERENCE-NAM-5.0\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${dataset_dir}\"/>" >> $outfile
-    echo "    </source>" >> $outfile
+        echo "    <!--QTL GFF-->" >> $outfile
+        echo "    <source name=\"${source_abbr,,}-qtl-gff\" type=\"qtl-gff\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"gff3.taxonId\" value=\"4577\"/>" >> $outfile
+        echo "      <property name=\"gff3.dataSourceName\" value=\"${datasource}\"/>" >> $outfile
+        echo "      <property name=\"gff3.dataSetTitle\" value=\"${datasettitle}\"/>" >> $outfile
+        echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
+        echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"Zm-B73-REFERENCE-NAM-5.0\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${dataset_dir}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
 }
 
 function add_community_gff {
@@ -531,15 +567,16 @@ function add_refseq_gff {
     for org in $orgs; do
         fullname=$(echo "$org" | sed 's/_/ /'g)
         taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+	if [ -z "$taxon_id" ]; then
+	    echo "WARNING: Taxon id for $fullname not found in taxon_ids.tab"
+	fi
         abbr=$(get_abbr "$org")
         assemblies=$(get_assemblies "${data_subdir}/${org}")
         num_assemblies=$(echo "$assemblies" | wc -l)
         for assembly in $assemblies; do
             # If multiple assemblies, append assembly version to source name
-            append_assembly=""
-            if [ $num_assemblies -gt 1 ]; then
-                append_assembly="-$assembly"
-            fi
+            append_assembly=$(get_append_assembly "$assembly" "$num_assemblies")
+
             # RefSeq-genes
             # Check that directory not empty:
             num_gff_files=$(find "${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/genes" -mindepth 1 -maxdepth 1 -type f -name "*.gff3" 2>/dev/null | wc -l)
@@ -611,10 +648,7 @@ function add_ensembl_gff {
         num_assemblies=$(echo "$assemblies" | wc -l)
         for assembly in $assemblies; do
             # If multiple assemblies, append assembly version to source name
-            append_assembly=""
-            if [ $num_assemblies -gt 1 ]; then
-                append_assembly="-$assembly"
-            fi
+            append_assembly=$(get_append_assembly "$assembly" "$num_assemblies")
 
             # Ensembl-genes
 	    # Check that directory not empty:
@@ -724,10 +758,8 @@ function add_cds_protein_fasta_source {
         num_assemblies=$(echo "$assemblies" | wc -l)
         for assembly in $assemblies; do
             # If multiple assemblies, append assembly version to source name
-            append_assembly=""
-            if [ $num_assemblies -gt 1 ]; then
-                append_assembly="-$assembly"
-            fi
+            append_assembly=$(get_append_assembly "$assembly" "$num_assemblies")
+
             # CDS
             echo "    <source name=\"${abbr}${append_assembly}-${dirname,,}-cds\" type=\"${source_type}\" version=\"${source_version}\">" >> $outfile
             echo "      <property name=\"${source_type}.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
@@ -831,14 +863,16 @@ function add_kegg {
     kegg_genes_dir="KEGG_genes"
     map_title_file="${mine_dir}/datasets/${kegg_genes_dir}/map_title.tab"
     check_file "$map_title_file"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        taxon_id_list=$(cut -f1 ${map_title_file} | sort -n | uniq | xargs)
 
-    taxon_id_list=$(cut -f1 ${map_title_file} | sort -n | uniq | xargs)
-
-    echo "    <source name=\"kegg\" type=\"kegg-pathway\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"pathway.organisms\" value=\"${taxon_id_list}\"/>" >> $outfile
-    echo "      <property name=\"urlPrefix\" value=\"https://www.genome.jp/pathway/\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${kegg_genes_dir}\"/>" >> $outfile
-    echo "    </source>" >> $outfile
+        echo "    <source name=\"kegg\" type=\"kegg-pathway\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"pathway.organisms\" value=\"${taxon_id_list}\"/>" >> $outfile
+        echo "      <property name=\"urlPrefix\" value=\"https://www.genome.jp/pathway/\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${kegg_genes_dir}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
 
     echo >> $outfile
     echo >> $outfile
@@ -850,16 +884,19 @@ function add_reactome_gramene {
     echo "    <!--Reactome-Gramene-->" >> $outfile
 
     reactome_gramene_dir="reactome_pathways"
+    check_dir "$reactome_gramene_dir"
     map_title_file="${mine_dir}/datasets/${reactome_gramene_dir}/map_title.tab"
     check_file "$map_title_file"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        taxon_id_list=$(cut -f1 ${map_title_file} | sort -n | uniq | xargs)
 
-    taxon_id_list=$(cut -f1 ${map_title_file} | sort -n | uniq | xargs)
-
-    echo "    <source name=\"reactome-gramene-pathway\" type=\"reactome-gramene\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"pathway.organisms\" value=\"${taxon_id_list}\"/>" >> $outfile
-    echo "      <property name=\"urlPrefix\" value=\"https://plantreactome.gramene.org/PathwayBrowser/#/\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${reactome_gramene_dir}\"/>" >> $outfile
-    echo "    </source>" >> $outfile
+        echo "    <source name=\"reactome-gramene-pathway\" type=\"reactome-gramene\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"pathway.organisms\" value=\"${taxon_id_list}\"/>" >> $outfile
+        echo "      <property name=\"urlPrefix\" value=\"https://plantreactome.gramene.org/PathwayBrowser/#/\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${reactome_gramene_dir}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
 
     echo >> $outfile
     echo >> $outfile
@@ -872,9 +909,10 @@ function add_pubmed_source {
     if [ "$source_name" == "Ensembl" ]; then
         pubmed_dir="ensembl-pubmed-gene"
     fi
-
     pubmed_file=$(find ${mine_dir}/datasets/${pubmed_dir} -mindepth 1 -maxdepth 1 -type f 2>/dev/null)
-    if [ ! -z $pubmed_file ]; then
+    check_file "$pubmed_file"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
         taxon_ids=$(cut -f1 ${pubmed_file} | sort -n | uniq | xargs)
 
         echo "    <source name=\"${pubmed_dir,,}\" type=\"pubmed-gene\" version=\"${source_version}\">" >> $outfile
@@ -978,9 +1016,6 @@ function add_uniprot_keywords {
     echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
     echo "      <property name=\"src.data.dir.includes\" value=\"keywlist.xml\"/>" >> $outfile
     echo "    </source>" >> $outfile
-
-    echo >> $outfile
-    echo >> $outfile
 }
 
 function add_uniprot {
@@ -992,29 +1027,30 @@ function add_uniprot {
     # Get UniProt directory name (case varies)
     dirname=$(get_uniprot_dir_name)
     check_dir "$dirname"
-    if [ -z "$dirname" ]; then
-        echo "WARNING: UniProt data directory does not exist" 1>&2
-        return 1
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        # Get taxon id list from UniProt filenames
+        taxon_id_list=$(get_uniprot_taxon_id_list "$dirname")
+        if [ -z "$taxon_id_list" ]; then
+            echo "WARNING: UniProt taxon id list is empty" 1>&2
+            return 1
+        fi
+
+        index=1
+        for source_name in "$@"; do
+            add_uniprot_source "$source_name" "$index" "$dirname" "$taxon_id_list" 
+            index=$((index+1))
+        done
+
+        # UniProt FASTA
+        add_uniprot_fasta "$dirname" "$taxon_id_list" 
+
+        # UniProt keywords
+        add_uniprot_keywords "$dirname" "$taxon_id_list" 
     fi
 
-    # Get taxon id list from UniProt filenames
-    taxon_id_list=$(get_uniprot_taxon_id_list "$dirname")
-    if [ -z "$taxon_id_list" ]; then
-        echo "WARNING: UniProt taxon id list is empty" 1>&2
-        return 1
-    fi
-
-    index=1
-    for source_name in "$@"; do
-        add_uniprot_source "$source_name" "$index" "$dirname" "$taxon_id_list" 
-        index=$((index+1))
-    done
-
-    # UniProt FASTA
-    add_uniprot_fasta "$dirname" "$taxon_id_list" 
-
-    # UniProt keywords
-    add_uniprot_keywords "$dirname" "$taxon_id_list" 
+    echo >> $outfile
+    echo >> $outfile
 }
 
 function add_faang_gff {
@@ -1035,10 +1071,7 @@ function add_faang_gff {
         num_assemblies=$(echo "$assemblies" | wc -l)
         for assembly in $assemblies; do
             # If multiple assemblies, append assembly version to source name
-            append_assembly=""
-            if [ $num_assemblies -gt 1 ]; then
-                append_assembly="-$assembly"
-            fi
+            append_assembly=$(get_append_assembly "$assembly" "$num_assemblies")
             echo "    <source name=\"${abbr}${append_assembly}-faang-gff\" type=\"faang-gff\" version=\"${source_version}\">" >> $outfile
             echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
             echo "      <property name=\"gff3.dataSourceName\" value=\"FAANG\"/>" >> $outfile
@@ -1072,10 +1105,7 @@ function add_qtl_gff {
         num_assemblies=$(echo "$assemblies" | wc -l)
         for assembly in $assemblies; do
             # If multiple assemblies, append assembly version to source name
-            append_assembly=""
-            if [ $num_assemblies -gt 1 ]; then
-                append_assembly="-$assembly"
-            fi
+            append_assembly=$(get_append_assembly "$assembly" "$num_assemblies")
             echo "    <source name=\"${abbr}${append_assembly}-qtl-gff\" type=\"qtl-gff\" version=\"${source_version}\">" >> $outfile
             echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
             echo "      <property name=\"gff3.dataSourceName\" value=\"Animal QTLdb\"/>" >> $outfile
@@ -1122,15 +1152,16 @@ function add_protein2ipr {
 
     dirname="${mine_dir}/datasets/protein2ipr"
     check_dir "$dirname"
-
     filename="protein2ipr.dat"
     check_file "${dirname}/$filename"
-
-    echo "    <source name=\"protein2ipr\" type=\"protein2ipr\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
-    echo "      <property name=\"includes\" value=\"${filename}\"/>" >> $outfile
-    echo "      <property name=\"osAlias\" value=\"os.production\"/>" >> $outfile
-    echo "    </source>" >> $outfile
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        echo "    <source name=\"protein2ipr\" type=\"protein2ipr\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+        echo "      <property name=\"includes\" value=\"${filename}\"/>" >> $outfile
+        echo "      <property name=\"osAlias\" value=\"os.production\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
 
     echo >> $outfile
     echo >> $outfile
@@ -1144,11 +1175,13 @@ function add_reactome {
     taxon_ids="$1"
     dirname="${mine_dir}/datasets/Reactome"
     check_dir "$dirname"
-
-    echo "    <source name=\"reactome\" type=\"reactome\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
-    echo "      <property name=\"reactome.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
-    echo "    </source>" >> $outfile
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        echo "    <source name=\"reactome\" type=\"reactome\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+        echo "      <property name=\"reactome.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
 
     echo >> $outfile
     echo >> $outfile
@@ -1161,15 +1194,17 @@ function add_biogrid {
 
     dirname="${mine_dir}/datasets/BioGRID"
     check_dir "$dirname"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        taxon_label="NCBITax:"
+        taxon_ids=$(grep -rsoE "${taxon_label}\s+[0-9]+" ${mine_dir}/datasets/BioGRID/ | awk -F"${taxon_label}" '{print $2}' | sort -n | xargs)
 
-    taxon_label="NCBITax:"
-    taxon_ids=$(grep -rsoE "${taxon_label}\s+[0-9]+" ${mine_dir}/datasets/BioGRID/ | awk -F"${taxon_label}" '{print $2}' | sort -n | xargs)
-
-    echo "    <source name=\"biogrid\" type=\"biogrid\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir.includes\" value=\"*.xml\"/>" >> $outfile
-    echo "      <property name=\"biogrid.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
-    echo "    </source>" >> $outfile
+        echo "    <source name=\"biogrid\" type=\"biogrid\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir.includes\" value=\"*.xml\"/>" >> $outfile
+        echo "      <property name=\"biogrid.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
 
     echo >> $outfile
     echo >> $outfile
@@ -1184,11 +1219,13 @@ function add_intact {
 
     dirname="${mine_dir}/datasets/IntAct"
     check_dir "$dirname"
-
-    echo "    <source name=\"psi-intact\" type=\"psi\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
-    echo "      <property name=\"intact.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
-    echo "    </source>" >> $outfile
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        echo "    <source name=\"psi-intact\" type=\"psi\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+        echo "      <property name=\"intact.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
 
     echo >> $outfile
     echo >> $outfile
@@ -1197,20 +1234,26 @@ function add_intact {
 function add_orthodb {
     echo "+ Adding OrthoDB"
 
-    dirname="${mine_dir}/datasets/OrthoDB"
-    check_dir "$dirname"
-
-    taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/*.tab  | sort -n | uniq | xargs)
-
     echo "    <!--OrthoDB-->" >> $outfile
     echo "    <!--Data file(s) must be sorted on column 2 before loading!-->" >> $outfile
 
-    echo "    <source name=\"orthodb\" type=\"orthodb-clusters\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"dataSourceName\" value=\"OrthoDB\"/>" >> $outfile
-    echo "      <property name=\"dataSetTitle\" value=\"OrthoDB data set\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
-    echo "      <property name=\"orthodb.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
-    echo "    </source>" >> $outfile
+    dirname="${mine_dir}/datasets/OrthoDB"
+    check_dir "$dirname"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+	# Check that directory has .tab files
+	num_files=$(find "${dirname}/" -mindepth 1 -maxdepth 1 -type f -name "*.tab" 2>/dev/null | wc -l)
+        if [ "$num_files" -ne 0 ]; then
+            taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/*.tab  | sort -n | uniq | xargs)
+
+            echo "    <source name=\"orthodb\" type=\"orthodb-clusters\" version=\"${source_version}\">" >> $outfile
+            echo "      <property name=\"dataSourceName\" value=\"OrthoDB\"/>" >> $outfile
+            echo "      <property name=\"dataSetTitle\" value=\"OrthoDB data set\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+            echo "      <property name=\"orthodb.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+            echo "    </source>" >> $outfile
+	fi
+    fi
 
     echo >> $outfile
     echo >> $outfile
@@ -1219,20 +1262,26 @@ function add_orthodb {
 function add_hgd_ortho {
     echo "+ Adding HGD-Ortho"
 
-    dirname="${mine_dir}/datasets/HGD-Ortho"
-    check_dir "$dirname"
-
-    taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/*.tab  | sort -n | uniq | xargs)
-
     echo "    <!--HGD-Ortho-->" >> $outfile
     echo "    <!--Data file(s) must be sorted on column 2 before loading!-->" >> $outfile
 
-    echo "    <source name=\"hgd-ortho\" type=\"orthodb-clusters\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"dataSourceName\" value=\"HGD\"/>" >> $outfile
-    echo "      <property name=\"dataSetTitle\" value=\"HGD-Ortho data set\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
-    echo "      <property name=\"orthodb.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
-    echo "    </source>" >> $outfile
+    dirname="${mine_dir}/datasets/HGD-Ortho"
+    check_dir "$dirname"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        # Check that directory has .tab files
+        num_files=$(find "${dirname}/" -mindepth 1 -maxdepth 1 -type f -name "*.tab" 2>/dev/null | wc -l)
+        if [ "$num_files" -ne 0 ]; then
+            taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/*.tab  | sort -n | uniq | xargs)
+   
+            echo "    <source name=\"hgd-ortho\" type=\"orthodb-clusters\" version=\"${source_version}\">" >> $outfile
+            echo "      <property name=\"dataSourceName\" value=\"HGD\"/>" >> $outfile
+            echo "      <property name=\"dataSetTitle\" value=\"HGD-Ortho data set\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+            echo "      <property name=\"orthodb.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+            echo "    </source>" >> $outfile
+        fi
+    fi
 
     echo >> $outfile
     echo >> $outfile
@@ -1245,19 +1294,20 @@ function add_ensembl_compara {
 
     dirname="${mine_dir}/datasets/EnsemblCompara"
     check_dir "$dirname"
-
-    # Get taxon ID list
-    taxon_ids=$(find ${dirname} -type f -printf '%f\n' | awk -F'_' '{printf "%s\\n\n%s\\n\n", $1, $2}' 2>/dev/null | sed 's/\\n//g' | sort -n | uniq | xargs)
-    if [ -z "$taxon_ids" ] ; then
-        echo "WARNING: EnsemblCompara taxon id list is empty" 1>&2
-        return 1
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        # Get taxon ID list
+        taxon_ids=$(find ${dirname} -type f -printf '%f\n' | awk -F'_' '{printf "%s\\n\n%s\\n\n", $1, $2}' 2>/dev/null | sed 's/\\n//g' | sort -n | uniq | xargs)
+        if [ ! -z "$taxon_ids" ] ; then
+            echo "    <source name=\"ensembl-compara\" type=\"ensembl-compara\" version=\"${source_version}\">" >> $outfile
+            echo "      <property name=\"ensemblcompara.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+            echo "      <property name=\"ensemblcompara.homologues\" value=\"${taxon_ids}\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+            echo "    </source>" >> $outfile
+        else
+            echo "WARNING: EnsemblCompara taxon id list is empty" 1>&2
+        fi
     fi
-
-    echo "    <source name=\"ensembl-compara\" type=\"ensembl-compara\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"ensemblcompara.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
-    echo "      <property name=\"ensemblcompara.homologues\" value=\"${taxon_ids}\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
-    echo "    </source>" >> $outfile
 
     echo >> $outfile
     echo >> $outfile
@@ -1270,36 +1320,37 @@ function add_biomart {
 
     dirname="${mine_dir}/datasets/ensembl-plant-biomart"
     check_dir "$dirname"
-
-    # Get taxon ID list
-    homologues_dir="$dirname/homologues"
-    taxon_ids=$(find ${homologues_dir} -type f -printf '%f\n' | awk -F'_' '{printf "%s\\n\n%s\\n\n", $1, $2}' 2>/dev/null | sed 's/\\n//g' | sort -n | uniq | xargs)
-    if [ -z "$taxon_ids" ] ; then
-        echo "WARNING: Ensembl Plant BioMart taxon id list is empty" 1>&2
-        return 1
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        # Get taxon ID list
+        homologues_dir="$dirname/homologues"
+        taxon_ids=$(find ${homologues_dir} -type f -printf '%f\n' | awk -F'_' '{printf "%s\\n\n%s\\n\n", $1, $2}' 2>/dev/null | sed 's/\\n//g' | sort -n | uniq | xargs)
+        if [ ! -z "$taxon_ids" ] ; then
+            echo "    <source name=\"biomart\" type=\"ensembl-compara\" version=\"${source_version}\">" >> $outfile
+            echo "      <property name=\"ensemblcompara.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+            echo "      <property name=\"ensemblcompara.homologues\" value=\"${taxon_ids}\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir\" location=\"${dirname}/homologues\"/>" >> $outfile
+            echo "    </source>" >> $outfile
+            echo "    <!--Symbols-->" >> $outfile
+            echo "    <source name=\"gene-symbols\" type=\"additional-gene-attributes\" version=\"${source_version}\">" >> $outfile
+            echo "      <property name=\"attributeName\" value=\"symbol\"/>" >> $outfile
+            echo "      <property name=\"dataSourceName\" value=\"Ensembl\"/>" >> $outfile
+            echo "      <property name=\"dataSetTitle\" value=\"Ensembl Plant BioMart symbols data set\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir\" location=\"${dirname}/symbols\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir.includes\" value=\".tab\"/>" >> $outfile
+            echo "    </source>" >> $outfile
+            echo "    <!--Descriptions-->" >> $outfile
+            echo "    <source name=\"gene-descriptions\" type=\"additional-gene-attributes\" version=\"${source_version}\">" >> $outfile
+            echo "      <property name=\"attributeName\" value=\"description\"/>" >> $outfile
+            echo "      <property name=\"dataSourceName\" value=\"Ensembl\"/>" >> $outfile
+            echo "      <property name=\"dataSetTitle\" value=\"Ensembl Plant BioMart descriptions data set\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir\" location=\"${dirname}/descriptions\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir.includes\" value=\".tab\"/>" >> $outfile
+            echo "    </source>" >> $outfile
+        else
+            echo "WARNING: Ensembl Plant BioMart taxon id list is empty" 1>&2
+        fi
     fi
-
-    echo "    <source name=\"biomart\" type=\"ensembl-compara\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"ensemblcompara.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
-    echo "      <property name=\"ensemblcompara.homologues\" value=\"${taxon_ids}\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${dirname}/homologues\"/>" >> $outfile
-    echo "    </source>" >> $outfile
-    echo "    <!--Symbols-->" >> $outfile
-    echo "    <source name=\"gene-symbols\" type=\"additional-gene-attributes\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"attributeName\" value=\"symbol\"/>" >> $outfile
-    echo "      <property name=\"dataSourceName\" value=\"Ensembl\"/>" >> $outfile
-    echo "      <property name=\"dataSetTitle\" value=\"Ensembl Plant BioMart symbols data set\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${dirname}/symbols\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir.includes\" value=\".tab\"/>" >> $outfile
-    echo "    </source>" >> $outfile
-    echo "    <!--Descriptions-->" >> $outfile
-    echo "    <source name=\"gene-descriptions\" type=\"additional-gene-attributes\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"attributeName\" value=\"description\"/>" >> $outfile
-    echo "      <property name=\"dataSourceName\" value=\"Ensembl\"/>" >> $outfile
-    echo "      <property name=\"dataSetTitle\" value=\"Ensembl Plant BioMart descriptions data set\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${dirname}/descriptions\"/>" >> $outfile
-    echo "      <property name=\"src.data.dir.includes\" value=\".tab\"/>" >> $outfile
-    echo "    </source>" >> $outfile
 
     echo >> $outfile
     echo >> $outfile
@@ -1312,10 +1363,12 @@ function add_omim {
 
     dirname="${mine_dir}/datasets/omim"
     check_dir "$dirname"
-
-    echo "    <source name=\"omim\" type=\"omim\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
-    echo "    </source>" >> $outfile
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        echo "    <source name=\"omim\" type=\"omim\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
 
     echo >> $outfile
     echo >> $outfile
@@ -1334,17 +1387,18 @@ function add_update_data_sources {
     dirname=$(get_uniprot_dir_name)
     filename="${dirname}/xrefs/dbxref.txt"
     check_file "$filename"
-
-    echo "    <source name=\"update-data-sources\" type=\"update-data-sources\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"src.data.file\" location=\"datasources.xml\"/>" >> $outfile
-    echo "      <property name=\"dataSourceFile\" value=\"${filename}\"/>" >> $outfile
-    echo "    </source>" >> $outfile
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        echo "    <source name=\"update-data-sources\" type=\"update-data-sources\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"src.data.file\" location=\"datasources.xml\"/>" >> $outfile
+        echo "      <property name=\"dataSourceFile\" value=\"${filename}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
 
     filename="${mine_dir}/datasets/datasource-info/customsources.txt"
     check_file "$filename"
-
-    # If directory not present then don't add to project.xml:
-    if [ -f "$filename" ]; then
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
         echo "    <!--Custom data source info not in UniProt file-->" >> $outfile
         echo "    <source name=\"update-data-sources-custom\" type=\"update-data-sources\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"src.data.file\" location=\"datasources-custom.xml\"/>" >> $outfile
