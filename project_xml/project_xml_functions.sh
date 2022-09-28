@@ -392,14 +392,14 @@ function add_maize_expression {
         echo "    <source name=\"expression-metadata\" type=\"maize-expression-metadata\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"taxonId\" value=\"4577\"/>" >> $outfile
         echo "      <property name=\"src.data.dir\" location=\"${expression_dir}/metadata\"/>" >> $outfile
-        echo "      <property name=\"src.data.dir.includes\" value=\".tab\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir.includes\" value=\"*.tab\"/>" >> $outfile
         echo "    </source>" >> $outfile
         echo "    <source name=\"expression-gene\" type=\"maize-expression-gene\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"taxonId\" value=\"4577\"/>" >> $outfile
         echo "      <property name=\"entityType\" value=\"Sample\"/>" >> $outfile
         echo "      <property name=\"type\" value=\"mean\"/>" >> $outfile
         echo "      <property name=\"src.data.dir\" location=\"${expression_dir}\"/>" >> $outfile
-        echo "      <property name=\"src.data.dir.includes\" value=\".tab\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir.includes\" value=\"*.tab\"/>" >> $outfile
         echo "    </source>" >> $outfile
     fi
     echo >> $outfile
@@ -1337,7 +1337,7 @@ function add_biomart {
             echo "      <property name=\"dataSourceName\" value=\"Ensembl\"/>" >> $outfile
             echo "      <property name=\"dataSetTitle\" value=\"Ensembl Plant BioMart symbols data set\"/>" >> $outfile
             echo "      <property name=\"src.data.dir\" location=\"${dirname}/symbols\"/>" >> $outfile
-            echo "      <property name=\"src.data.dir.includes\" value=\".tab\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir.includes\" value=\"*.tab\"/>" >> $outfile
             echo "    </source>" >> $outfile
             echo "    <!--Descriptions-->" >> $outfile
             echo "    <source name=\"gene-descriptions\" type=\"additional-gene-attributes\" version=\"${source_version}\">" >> $outfile
@@ -1345,7 +1345,7 @@ function add_biomart {
             echo "      <property name=\"dataSourceName\" value=\"Ensembl\"/>" >> $outfile
             echo "      <property name=\"dataSetTitle\" value=\"Ensembl Plant BioMart descriptions data set\"/>" >> $outfile
             echo "      <property name=\"src.data.dir\" location=\"${dirname}/descriptions\"/>" >> $outfile
-            echo "      <property name=\"src.data.dir.includes\" value=\".tab\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir.includes\" value=\"*.tab\"/>" >> $outfile
             echo "    </source>" >> $outfile
         else
             echo "WARNING: Ensembl Plant BioMart taxon id list is empty" 1>&2

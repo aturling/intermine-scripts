@@ -218,13 +218,12 @@ echo "Checking organism names...."
 
 # Sometimes species and sub-species are both included when it should be one or the other.
 # Check for two different species where one is contained in the other.
-dbcount=$(psql ${dbname} -c "select count(*) from organism o1 where (select count(*) from organism o2 where o2.species like '%' || o1.species || '%') > 1" -t -A)
+dbcount=$(psql ${dbname} -c "select count(*) from organism o1 where (select count(*) from organism o2 where o2.species like '%' || o1.species || '%' and o2.genus=o1.genus) > 1" -t -A)
 
 if [ ! $dbcount -eq 0 ]; then
     echo "WARNING: organism species and sub-species present in database!"
-    species=$(psql ${dbname} -c "select o1.species from organism o1 where (select count(*) from organism o2 where o2.species like '%' || o1.species || '%') > 1" -t -A)
     echo "organisms:"
-    psql ${dbname} -c "select name from organism where species like '%${species}%'" -t -A
+    psql ${dbname} -c "select o1.name from organism o1 where (select count(*) from organism o2 where o2.species like '%' || o1.species || '%' and o2.genus=o1.genus) > 1" -t -A
     no_dupes_found=0
 else
     echo "No duplicate organisms found."
