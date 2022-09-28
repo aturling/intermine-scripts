@@ -746,8 +746,8 @@ function add_cds_protein_fasta_source {
     fi
 
     # Iterate over organisms
-    # Assumes all organisms with annotations have cds and protein FASTA data
-    data_subdir="${dirname}/annotations"
+    # Assumes all organisms that have cds also have protein FASTA data
+    data_subdir="${dirname}/cds_fasta"
     orgs=$(get_orgs "$data_subdir")
     for org in $orgs; do
         fullname=$(echo "$org" | sed 's/_/ /'g)
