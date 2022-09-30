@@ -860,8 +860,8 @@ function add_kegg {
 
     echo "    <!--KEGG-->" >> $outfile
 
-    kegg_genes_dir="KEGG_genes"
-    map_title_file="${mine_dir}/datasets/${kegg_genes_dir}/map_title.tab"
+    kegg_genes_dir="${mine_dir}/datasets/KEGG_genes"
+    map_title_file="${kegg_genes_dir}/map_title.tab"
     check_file "$map_title_file"
     ec=$?
     if [ "$ec" -eq 0 ]; then
@@ -870,7 +870,7 @@ function add_kegg {
         echo "    <source name=\"kegg\" type=\"kegg-pathway\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"pathway.organisms\" value=\"${taxon_id_list}\"/>" >> $outfile
         echo "      <property name=\"urlPrefix\" value=\"https://www.genome.jp/pathway/\"/>" >> $outfile
-        echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${kegg_genes_dir}\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${kegg_genes_dir}\"/>" >> $outfile
         echo "    </source>" >> $outfile
     fi
 
@@ -883,9 +883,9 @@ function add_reactome_gramene {
 
     echo "    <!--Reactome-Gramene-->" >> $outfile
 
-    reactome_gramene_dir="reactome_pathways"
+    reactome_gramene_dir="${mine_dir}/datasets/reactome_gramene"
     check_dir "$reactome_gramene_dir"
-    map_title_file="${mine_dir}/datasets/${reactome_gramene_dir}/map_title.tab"
+    map_title_file="${reactome_gramene_dir}/map_title.tab"
     check_file "$map_title_file"
     ec=$?
     if [ "$ec" -eq 0 ]; then
@@ -894,7 +894,7 @@ function add_reactome_gramene {
         echo "    <source name=\"reactome-gramene-pathway\" type=\"reactome-gramene\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"pathway.organisms\" value=\"${taxon_id_list}\"/>" >> $outfile
         echo "      <property name=\"urlPrefix\" value=\"https://plantreactome.gramene.org/PathwayBrowser/#/\"/>" >> $outfile
-        echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${reactome_gramene_dir}\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${reactome_gramene_dir}\"/>" >> $outfile
         echo "    </source>" >> $outfile
     fi
 
