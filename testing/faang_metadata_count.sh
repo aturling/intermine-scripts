@@ -229,7 +229,15 @@ check_null_field "Analysis" "organismid" "organism ref"
 check_null_field "Analysis" "source" "source name"
 
 # Check that biosample ref was set
-check_null_field "Analysis" "biosampleid" "BioSample ref"
+# not needed for now - it is fine for some analysis rows to have no biosample ref
+#check_null_field "Analysis" "biosampleid" "BioSample ref"
+# just make sure there's at least one ref:
+dbcount=$(psql ${dbname} -c "select count(id) from analysis where biosampleid is not null" -t -A)
+if [ "$dbcount" -eq 0 ]; then
+    echo "WARNING: no BioSample refs set in Analysis table!"
+else
+    echo "Analysis table contains BioSample refs"
+fi
 
 # Check that bioproject ref was set
 check_null_field "Analysis" "bioprojectid" "BioProject ref"
