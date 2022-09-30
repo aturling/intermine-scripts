@@ -16,6 +16,14 @@ dbname=$(grep db.production.datasource.databaseName ~/.intermine/*.properties | 
 echo "Database name is ${dbname}"
 echo
 
+# Requires that entrez-organism loaded first
+nullcount=$(psql ${dbname} -c "select count(*) from organism where name is null" -t -A)
+if [ "$nullcount" -gt 0 ]; then
+    echo "Entrez-organism source needs to be loaded before running this test!"
+    # Exit early, nothing to do
+    exit 1
+fi
+
 # Get dataset id for Reactome to help simplify queries
 dataset_name="Reactome pathways data set"
 dataset_id=$(psql ${dbname} -c "select id from dataset where dataset.name='${dataset_name}'" -t -A)
@@ -34,7 +42,7 @@ for org in $orgs; do
     name=$(psql ${dbname} -c "select o.name from organism o where o.taxonid='${org}'" -t -A)
     # Get org id from taxon id in database
     org_id=$(psql ${dbname} -c "select o.id from organism o where o.taxonid='${org}'" -t -A)
-    echo "Checking pathways for organism: $name"
+    echo "Checking pathways for organism: $name with taxon id $org"
     # Get pathway count for organism from file
     filecount=$(grep -P "\t${name}" /db/*/datasets/Reactome/*.txt | cut -f2 | sort | uniq | wc -l)
     # Special case: if count is zero, might be that organism name is slightly different in file

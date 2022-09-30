@@ -13,6 +13,14 @@ dbname=$(grep db.production.datasource.databaseName ~/.intermine/*.properties | 
 echo "Database name is ${dbname}"
 echo
 
+# Requires that entrez-organism loaded first
+nullcount=$(psql ${dbname} -c "select count(*) from organism where name is null" -t -A)
+if [ "$nullcount" -gt 0 ]; then
+    echo "Entrez-organism source needs to be loaded before running this test!"
+    # Exit early, nothing to do
+    exit 1
+fi
+
 all_counts_correct=1
 
 # CodingSequences:
