@@ -1136,10 +1136,15 @@ function add_interpro {
         echo "WARNING: InterPro data directory does not exist" 1>&2
         return 1
     fi
-
-    echo "    <source name=\"interpro\" type=\"interpro\" version=\"${source_version}\">" >> $outfile
-    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${dirname}\"/>" >> $outfile
-    echo "    </source>" >> $outfile
+    # Check not empty
+    num_files=$(find "${mine_dir}/datasets/${dirname}/" -mindepth 1 -maxdepth 1 -type f 2>/dev/null | wc -l)
+    if [ "$num_files" -ne 0 ]; then
+        echo "    <source name=\"interpro\" type=\"interpro\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${dirname}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    else
+        echo "WARNING: InterPro data directory exists but is empty"
+    fi
 
     echo >> $outfile
     echo >> $outfile
