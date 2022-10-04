@@ -46,6 +46,9 @@ function add_mine_sources {
     # Reactome-Gramene
     add_reactome_gramene
 
+    # MaizeGDB-E2P2-Pathway
+    add_e2p2_pathway
+
     # Community gff - no Gene.source loaded
     add_community_gff
 

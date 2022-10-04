@@ -902,6 +902,29 @@ function add_reactome_gramene {
     echo >> $outfile
 }
 
+function add_e2p2_pathway {
+    echo "+ Adding Maize E2P2 Pathway"
+
+    echo "    <!--Maize E2P2 Pathway-->" >> $outfile
+
+    e2p2_dir="${mine_dir}/datasets/MaizeGDB-E2P2-Pathway"
+    check_dir "$e2p2_dir"
+    map_title_file="${e2p2_dir}/map_title.tab"
+    check_file "$map_title_file"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        taxon_id_list=$(cut -f1 ${map_title_file} | sort -n | uniq | xargs)
+
+        echo "    <source name=\"maize-e2p2-pathway\" type=\"e2p2-pathway\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"pathway.organisms\" value=\"${taxon_id_list}\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${e2p2_dir}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
 function add_pubmed_source {
     source_name=$1
 
