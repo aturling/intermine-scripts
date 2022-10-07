@@ -5,7 +5,7 @@ function add_mine_sources {
     add_ontologies_sources
 
     # SNP
-    add_snp "Zm00001eb.1"
+    add_snp "B73 Zm00001eb.1"
 
     # Genome FASTA
     add_genome_fasta
@@ -17,13 +17,13 @@ function add_mine_sources {
     add_maize_gff
 
     # CDS/Protein FASTA
-    add_cds_protein_fasta "RefSeq" "Gramene/MaizeGDB"
+    add_cds_protein_fasta "RefSeq" "MaizeGDB"
 
     # xrefs
-    add_xrefs
+    add_xrefs "MaizeMine" "Gene ID Cross References (MaizeGDB ⇔ RefSeq) data set"
 
     # aliases
-    add_aliases
+    add_aliases "MaizeMine" "Gene ID Aliases (B73 Zm00001eb.1 ⇔ AGPv4_Zm00001d.2) data set"
 
     # Maize expression
     add_maize_expression
@@ -37,8 +37,11 @@ function add_mine_sources {
     # InterPro
     add_interpro
 
-    # Add InterPro to protein (protein2ipr)
+    # InterPro to protein (protein2ipr)
     add_protein2ipr
+
+    # GO annotation
+    add_go_annotation "MaizeGDB" "MaizeGDB-PANNZER GO annotation data set"
 
     # KEGG
     add_kegg
@@ -51,6 +54,9 @@ function add_mine_sources {
 
     # Community gff - no Gene.source loaded
     add_community_gff
+
+    # MaizeGDB-PanGene
+    add_pangene
 
     # Ensembl Plant BioMart
     add_biomart

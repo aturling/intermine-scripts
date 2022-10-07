@@ -44,11 +44,13 @@ function add_mine_sources {
 
     # xrefs
     # Data source directories: datasets/xref/<organism>
-    add_xrefs
+    # Usage: add_xrefs "<DataSource.name>" "<DataSet.name>", e.g.,
+    add_xrefs "FAANGMine" "Gene ID Cross References (Ensembl ⇔ RefSeq) data set"
 
     # aliases
     # Data source directories: datasets/alias/<organism>
-    add_aliases
+    # Usage: add_aliases "<DataSource.name>" "<DataSet.name>", e.g.,
+    add_aliases "MaizeMine" "Gene ID Aliases (B73 Zm00001eb.1 ⇔ AGPv4) data set"
 
     # Maize expression (MaizeMine only)
     # Data source directories: datasets/expression, datasets/expression/metadata
@@ -75,6 +77,11 @@ function add_mine_sources {
     # Data source directory: datasets/protein2ipr
     add_protein2ipr
 
+    # GO annotation
+    # Data source directory: datasets/GO-annotation/<source>
+    # Usage: add_go_annotation "<DataSource.name>" "<DataSet.name>", e.g.,
+    add_go_annotation "MaizeGDB" "MaizeGDB-PANNZER GO Annotation data set"
+
     # KEGG
     # Data source directories: datasets/KEGG_genes, datasets/KEGG_meta (optional)
     add_kegg
@@ -89,9 +96,17 @@ function add_mine_sources {
     # Data source directory: datasets/reactome_pathways
     add_reactome_gramene
 
+    # E2P2-Pathway (MaizeMine only)
+    # Data source directory: datasets/MaizeGDB-E2P2-Pathway
+    add_e2p2_pathway
+
     # Community gff (MaizeMine only) - no Gene.source loaded
     # Data source directories: datasets/community_datasets/<source>
     add_community_gff
+
+    # PanGene (MaizeMine only)
+    # Data source directory: datasets/MaizeGDB-NAM-PanGene
+    add_pangene
 
     # Ensembl Plant BioMart (MaizeMine only)
     # Data source directory: datasets/ensembl-plant-biomart

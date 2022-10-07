@@ -95,12 +95,27 @@ function include_assembly {
 }
 
 # Verify that directory exists; print warning if it does not
-# and do not add source to project.xml
 function check_dir {
     local dirname=$1
     if [ ! -d "$dirname" ]; then
         echo "WARNING: Directory $dirname does not exist" 1>&2
         return 1
+    fi
+    return 0
+}
+
+# Verify that directory exists and is not empty
+# Print warning otherwise
+function check_nonempty_dir {
+    local dirname=$1
+    check_dir "$dirname"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        numfiles=$(find -L $dirname/ -mindepth 1 -maxdepth 1 -type f 2>/dev/null | wc -l)
+        if [ "$numfiles" -eq 0 ]; then
+            echo "WARNING: Directory $dirname is empty"
+            return 1
+        fi
     fi
     return 0
 }
@@ -156,7 +171,7 @@ function add_ontologies_sources {
 
     # Next GO.obo
     # Check that it exists first
-    go_file=$(find ${mine_dir}/datasets/ontologies/GO -maxdepth 1 -type f -name "*.obo" -printf "%f\n")
+    go_file=$(find ${mine_dir}/datasets/ontologies/GO -maxdepth 1 -type l -name "*.obo" -printf "%f\n")
     if [ ! -z $go_file ]; then
         echo "  + Adding ontology: gene-ontology"
         echo "    <source name=\"go\" type=\"go\" version=\"${source_version}\">" >> $outfile
@@ -324,7 +339,7 @@ function add_snp {
 
 function add_faang_bioproject {
     bioproject_dir="${mine_dir}/datasets/FAANG-bioproject"
-    check_dir "$bioproject_dir"
+    check_nonempty_dir "$bioproject_dir"
     ec=$?
     if [ "$ec" -eq 0 ]; then
         echo "    <source name=\"faang-bioproject\" type=\"faang-bioproject\" version=\"${source_version}\">" >> $outfile
@@ -335,7 +350,7 @@ function add_faang_bioproject {
 
 function add_faang_biosample {
     biosample_dir="${mine_dir}/datasets/FAANG-biosample"
-    check_dir "$biosample_dir"
+    check_nonempty_dir "$biosample_dir"
     ec=$?
     if [ "$ec" -eq 0 ]; then
         echo "    <source name=\"faang-biosample\" type=\"faang-biosample\" version=\"${source_version}\">" >> $outfile
@@ -346,7 +361,7 @@ function add_faang_biosample {
 
 function add_faang_analysis {
     analysis_dir="${mine_dir}/datasets/FAANG-analysis"
-    check_dir "$analysis_dir"
+    check_nonempty_dir "$analysis_dir"
     ec=$?
     if [ "$ec" -eq 0 ]; then
         echo "    <source name=\"faang-analysis\" type=\"faang-analysis\" version=\"${source_version}\">" >> $outfile
@@ -357,7 +372,7 @@ function add_faang_analysis {
 
 function add_faang_experiment {
     experiment_dir="${mine_dir}/datasets/experiment"
-    check_dir "$experiment_dir"
+    check_nonempty_dir "$experiment_dir"
     ec=$?
     if [ "$ec" -eq 0 ]; then
         echo "    <source name=\"faang-experiment\" type=\"faang-experiment\" version=\"${source_version}\">" >> $outfile
@@ -386,7 +401,7 @@ function add_maize_expression {
     echo "    <!--Expression-->" >> $outfile
 
     expression_dir="${mine_dir}/datasets/expression"
-    check_dir "$expression_dir"
+    check_nonempty_dir "$expression_dir"
     ec=$?
     if [ "$ec" -eq 0 ]; then
         echo "    <source name=\"expression-metadata\" type=\"maize-expression-metadata\" version=\"${source_version}\">" >> $outfile
@@ -473,10 +488,11 @@ function add_maize_gff {
         for assembly in $assemblies; do
             # If multiple assemblies, append assembly version to source name
             append_assembly=$(get_append_assembly "$assembly" "$num_assemblies")
+            gene_source=$(tail -n 1 ${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/*.gff3 | cut -f2)
             echo "    <source name=\"${abbr}${append_assembly}-maize-gff\" type=\"maize-gff\" version=\"${source_version}\">" >> $outfile
             echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
-            echo "      <property name=\"gff3.dataSourceName\" value=\"Gramene/MaizeGDB\"/>" >> $outfile
-            echo "      <property name=\"gff3.dataSetTitle\" value=\"Zm00001eb.1 gene set for ${assembly}\"/>" >> $outfile
+            echo "      <property name=\"gff3.dataSourceName\" value=\"MaizeGDB\"/>" >> $outfile
+            echo "      <property name=\"gff3.dataSetTitle\" value=\"${gene_source} gene set for ${assembly}\"/>" >> $outfile
             echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
             echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
             echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}\"/>" >> $outfile
@@ -492,15 +508,15 @@ function add_community_gff_source {
     data_subdir=$1
     datasource=$2
     datasettitle=$3
+    source_abbr=$4
+
     echo "  + Adding community data set: $datasettitle"
 
     dataset_dir="${mine_dir}/datasets/${data_subdir}"
-    check_dir "$dataset_dir"
+    check_nonempty_dir "$dataset_dir"
     ec=$?
     if [ "$ec" -eq 0 ]; then
-        source_abbr=$(echo "${datasource}" | tr " " "-" | tr "_" "-")
-
-        echo "    <source name=\"${source_abbr,,}-gff\" type=\"gff\" version=\"${source_version}\">" >> $outfile
+        echo "    <source name=\"${source_abbr}-gff\" type=\"gff\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"gff3.taxonId\" value=\"4577\"/>" >> $outfile
         echo "      <property name=\"gff3.dataSourceName\" value=\"${datasource}\"/>" >> $outfile
         echo "      <property name=\"gff3.dataSetTitle\" value=\"${datasettitle}\"/>" >> $outfile
@@ -515,16 +531,16 @@ function add_community_qtl_source {
     data_subdir=$1
     datasource=$2
     datasettitle=$3
+    source_abbr=$4
+
     echo "  + Adding community data set: $datasettitle"
 
     dataset_dir="${mine_dir}/datasets/${data_subdir}"
-    check_dir "$dataset_dir"
+    check_nonempty_dir "$dataset_dir"
     ec=$?
     if [ "$ec" -eq 0 ]; then
-        source_abbr=$(echo "${datasource}" | tr " " "-" | tr "_" "-")
-
         echo "    <!--QTL GFF-->" >> $outfile
-        echo "    <source name=\"${source_abbr,,}-qtl-gff\" type=\"qtl-gff\" version=\"${source_version}\">" >> $outfile
+        echo "    <source name=\"${source_abbr}-qtl-gff\" type=\"qtl-gff\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"gff3.taxonId\" value=\"4577\"/>" >> $outfile
         echo "      <property name=\"gff3.dataSourceName\" value=\"${datasource}\"/>" >> $outfile
         echo "      <property name=\"gff3.dataSetTitle\" value=\"${datasettitle}\"/>" >> $outfile
@@ -543,14 +559,14 @@ function add_community_gff {
 
     data_dir="community_datasets"
 
-    add_community_gff_source "$data_dir/Vollbrecht" "Vollbrecht" "Vollbrecht AcDs insertions data set"
-    add_community_gff_source "$data_dir/MaizeGDB_UniformMu" "MaizeGDB_UniformMu" "MaizeGDB UniformMu insertions data set"
-    add_community_gff_source "$data_dir/Grotewold_root" "Grotewold CAGE Tag Count Root" "Grotewold root transcription start sites data set"
-    add_community_gff_source "$data_dir/Grotewold_shoot" "Grotewold CAGE Tag Count Shoot" "Grotewold shoot transcription start sites data set"
-    add_community_gff_source "$data_dir/Stam_Enhancers/Husk" "Stam 2017 Husk H3K9ac Enhancer" "Stam 2017 Husk H3K9ac Enhancers data set"
-    add_community_gff_source "$data_dir/Stam_Enhancers/Seedling" "Stam 2017 Seedling H3K9ac Enhancer" "Stam 2017 Seedling H3K9ac Enhancers data set"
-    add_community_qtl_source "$data_dir/GWAS_Atlas" "GWAS Atlas" "Curated GWAS Atlas data set"
-    add_community_qtl_source "$data_dir/Wallace_2014_GWAS" "Wallace 2014 GWAS" "Wallace GWAS data set"
+    add_community_gff_source "$data_dir/Vollbrecht" "Vollbrecht" "Vollbrecht AcDs insertions data set" "vollbrecht"
+    add_community_gff_source "$data_dir/MaizeGDB_UniformMu" "MaizeGDB UniformMu" "MaizeGDB UniformMu insertions data set" "maizegdb-uniformmu"
+    add_community_gff_source "$data_dir/Grotewold_root" "Grotewold CAGE Tag Count" "Grotewold root transcription start sites data set" "grotewold-root"
+    add_community_gff_source "$data_dir/Grotewold_shoot" "Grotewold CAGE Tag Count" "Grotewold shoot transcription start sites data set" "grotewold-shoot"
+    add_community_gff_source "$data_dir/Stam_Enhancers/Husk" "Stam 2017 H3K9ac Enhancer" "Stam 2017 Husk H3K9ac Enhancers data set" "stam-husk"
+    add_community_gff_source "$data_dir/Stam_Enhancers/Seedling" "Stam 2017 H3K9ac Enhancer" "Stam 2017 Seedling H3K9ac Enhancers data set" "stam-seedling"
+    add_community_qtl_source "$data_dir/GWAS_Atlas" "GWAS Atlas" "Curated GWAS Atlas data set" "gwas-atlas"
+    add_community_qtl_source "$data_dir/Wallace_2014_GWAS" "Wallace 2014 GWAS" "Wallace GWAS data set" "wallace-gwas"
 
     echo >> $outfile
     echo >> $outfile
@@ -739,11 +755,6 @@ function add_cds_protein_fasta_source {
 
     dirname="$source_name"
     gene_source="$source_name"
-    # Special case for MaizeGDB:
-    if [ "$source_name" == "Gramene/MaizeGDB" ]; then
-        dirname="MaizeGDB"
-	gene_source="Zm00001eb.1"
-    fi
 
     # Iterate over organisms
     # Assumes all organisms that have cds also have protein FASTA data
@@ -759,6 +770,9 @@ function add_cds_protein_fasta_source {
         for assembly in $assemblies; do
             # If multiple assemblies, append assembly version to source name
             append_assembly=$(get_append_assembly "$assembly" "$num_assemblies")
+            if [ "$source_name" == "MaizeGDB" ]; then
+                gene_source=$(tail -n 1 ${mine_dir}/datasets/${dirname}/annotations/${org}/${assembly}/*.gff3 | cut -f2)
+            fi
 
             # CDS
             echo "    <source name=\"${abbr}${append_assembly}-${dirname,,}-cds\" type=\"${source_type}\" version=\"${source_version}\">" >> $outfile
@@ -804,6 +818,9 @@ function add_cds_protein_fasta {
 }
 
 function add_aliases {
+    datasource=$1
+    dataset=$2
+
     echo "+ Adding aliases"
 
     echo "    <!--Aliases-->" >> $outfile
@@ -824,6 +841,8 @@ function add_aliases {
         echo "    <source name=\"${abbr}-aliases\" type=\"aliases\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"taxonId\" value=\"${taxon_id}\"/>" >> $outfile
 	echo "      <property name=\"className\" value=\"${classname}\"/>" >> $outfile
+        echo "      <property name=\"dataSourceName\" value=\"${datasource}\"/>" >> $outfile
+        echo "      <property name=\"dataSetTitle\" value=\"${dataset}\"/>" >> $outfile
         echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}\"/>" >> $outfile
         echo "    </source>" >> $outfile
     done
@@ -833,6 +852,9 @@ function add_aliases {
 }
 
 function add_xrefs {
+    datasource=$1
+    dataset=$2
+
     echo "+ Adding xrefs"
 
     echo "    <!--xRefs-->" >> $outfile
@@ -847,6 +869,8 @@ function add_xrefs {
 
         echo "    <source name=\"${abbr}-xref\" type=\"cross-references\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"taxonId\" value=\"${taxon_id}\"/>" >> $outfile
+        echo "      <property name=\"dataSourceName\" value=\"${datasource}\"/>" >> $outfile
+        echo "      <property name=\"dataSetTitle\" value=\"${dataset}\"/>" >> $outfile
         echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}\"/>" >> $outfile
         echo "    </source>" >> $outfile
     done
@@ -1049,7 +1073,7 @@ function add_uniprot {
 
     # Get UniProt directory name (case varies)
     dirname=$(get_uniprot_dir_name)
-    check_dir "$dirname"
+    check_nonempty_dir "$dirname"
     ec=$?
     if [ "$ec" -eq 0 ]; then
         # Get taxon id list from UniProt filenames
@@ -1146,7 +1170,7 @@ function add_qtl_gff {
 
 function get_interpro_dir_name {
     # Folder name could be InterPro or interpro
-    find ${mine_dir}/datasets -mindepth 1 -maxdepth 1 -type d -iname "interpro" -printf "%f\n"
+    find ${mine_dir}/datasets -mindepth 1 -maxdepth 1 -type d -iname "interpro"
 }
 
 function add_interpro {
@@ -1155,13 +1179,9 @@ function add_interpro {
     echo "    <!--InterPro-->" >> $outfile
 
     dirname=$(get_interpro_dir_name)
-    if [ -z "$dirname" ]; then
-        echo "WARNING: InterPro data directory does not exist" 1>&2
-        return 1
-    fi
-    # Check not empty
-    num_files=$(find "${mine_dir}/datasets/${dirname}/" -mindepth 1 -maxdepth 1 -type f 2>/dev/null | wc -l)
-    if [ "$num_files" -ne 0 ]; then
+    check_nonempty_dir "$dirname"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
         echo "    <source name=\"interpro\" type=\"interpro\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${dirname}\"/>" >> $outfile
         echo "    </source>" >> $outfile
@@ -1195,6 +1215,30 @@ function add_protein2ipr {
     echo >> $outfile
 }
 
+function add_go_annotation {
+    datasource=$1
+    dataset=$2
+
+    echo "+ Adding GO annotation"
+
+    echo "    <!--GO annotation-->" >> $outfile
+
+    dirname="${mine_dir}/datasets/GO-annotation/${datasource}"
+    check_nonempty_dir "$dirname"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        echo "    <source name=\"${datasource,,}-go-annotation\" type=\"go-annotation\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"datasource\" value=\"${datasource}\"/>" >> $outfile
+        echo "      <property name=\"dataset\" value=\"${dataset}\"/>" >> $outfile
+        echo "      <property name=\"ontologyPrefix\" value=\"GO\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
 function add_reactome {
     echo "+ Adding Reactome"
 
@@ -1202,7 +1246,7 @@ function add_reactome {
 
     taxon_ids="$1"
     dirname="${mine_dir}/datasets/Reactome"
-    check_dir "$dirname"
+    check_nonempty_dir "$dirname"
     ec=$?
     if [ "$ec" -eq 0 ]; then
         echo "    <source name=\"reactome\" type=\"reactome\" version=\"${source_version}\">" >> $outfile
@@ -1221,7 +1265,7 @@ function add_biogrid {
     echo "    <!--BioGRID-->" >> $outfile
 
     dirname="${mine_dir}/datasets/BioGRID"
-    check_dir "$dirname"
+    check_nonempty_dir "$dirname"
     ec=$?
     if [ "$ec" -eq 0 ]; then
         taxon_label="NCBITax:"
@@ -1246,7 +1290,7 @@ function add_intact {
     echo "    <!--IntAct-->" >> $outfile
 
     dirname="${mine_dir}/datasets/IntAct"
-    check_dir "$dirname"
+    check_nonempty_dir "$dirname"
     ec=$?
     if [ "$ec" -eq 0 ]; then
         echo "    <source name=\"psi-intact\" type=\"psi\" version=\"${source_version}\">" >> $outfile
@@ -1266,21 +1310,17 @@ function add_orthodb {
     echo "    <!--Data file(s) must be sorted on column 2 before loading!-->" >> $outfile
 
     dirname="${mine_dir}/datasets/OrthoDB"
-    check_dir "$dirname"
+    check_nonempty_dir "$dirname"
     ec=$?
     if [ "$ec" -eq 0 ]; then
-	# Check that directory has .tab files
-	num_files=$(find "${dirname}/" -mindepth 1 -maxdepth 1 -type f -name "*.tab" 2>/dev/null | wc -l)
-        if [ "$num_files" -ne 0 ]; then
-            taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/*.tab  | sort -n | uniq | xargs)
+        taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/*.tab  | sort -n | uniq | xargs)
 
-            echo "    <source name=\"orthodb\" type=\"orthodb-clusters\" version=\"${source_version}\">" >> $outfile
-            echo "      <property name=\"dataSourceName\" value=\"OrthoDB\"/>" >> $outfile
-            echo "      <property name=\"dataSetTitle\" value=\"OrthoDB data set\"/>" >> $outfile
-            echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
-            echo "      <property name=\"orthodb.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
-            echo "    </source>" >> $outfile
-	fi
+        echo "    <source name=\"orthodb\" type=\"orthodb-clusters\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"dataSourceName\" value=\"OrthoDB\"/>" >> $outfile
+        echo "      <property name=\"dataSetTitle\" value=\"OrthoDB data set\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+        echo "      <property name=\"orthodb.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
     fi
 
     echo >> $outfile
@@ -1294,21 +1334,17 @@ function add_hgd_ortho {
     echo "    <!--Data file(s) must be sorted on column 2 before loading!-->" >> $outfile
 
     dirname="${mine_dir}/datasets/HGD-Ortho"
-    check_dir "$dirname"
+    check_nonempty_dir "$dirname"
     ec=$?
     if [ "$ec" -eq 0 ]; then
-        # Check that directory has .tab files
-        num_files=$(find "${dirname}/" -mindepth 1 -maxdepth 1 -type f -name "*.tab" 2>/dev/null | wc -l)
-        if [ "$num_files" -ne 0 ]; then
-            taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/*.tab  | sort -n | uniq | xargs)
-   
-            echo "    <source name=\"hgd-ortho\" type=\"orthodb-clusters\" version=\"${source_version}\">" >> $outfile
-            echo "      <property name=\"dataSourceName\" value=\"HGD\"/>" >> $outfile
-            echo "      <property name=\"dataSetTitle\" value=\"HGD-Ortho data set\"/>" >> $outfile
-            echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
-            echo "      <property name=\"orthodb.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
-            echo "    </source>" >> $outfile
-        fi
+        taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/*.tab  | sort -n | uniq | xargs)
+  
+        echo "    <source name=\"hgd-ortho\" type=\"orthodb-clusters\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"dataSourceName\" value=\"HGD\"/>" >> $outfile
+        echo "      <property name=\"dataSetTitle\" value=\"HGD-Ortho data set\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+        echo "      <property name=\"orthodb.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
     fi
 
     echo >> $outfile
@@ -1321,7 +1357,7 @@ function add_ensembl_compara {
     echo "    <!--EnsemblCompara-->" >> $outfile
 
     dirname="${mine_dir}/datasets/EnsemblCompara"
-    check_dir "$dirname"
+    check_nonempty_dir "$dirname"
     ec=$?
     if [ "$ec" -eq 0 ]; then
         # Get taxon ID list
@@ -1335,6 +1371,24 @@ function add_ensembl_compara {
         else
             echo "WARNING: EnsemblCompara taxon id list is empty" 1>&2
         fi
+    fi
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
+function add_pangene {
+    echo "+ Adding MaizeGDB PanGene"
+
+    echo "    <!--MaizeGDB Pangene-->" >> $outfile
+
+    dirname="${mine_dir}/datasets/MaizeGDB-NAM-PanGene"
+    check_nonempty_dir "$dirname"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        echo "    <source name=\"maize-pangene\" type=\"pangene\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
     fi
 
     echo >> $outfile
@@ -1390,7 +1444,7 @@ function add_omim {
     echo "    <!--OMIM-->" >> $outfile
 
     dirname="${mine_dir}/datasets/omim"
-    check_dir "$dirname"
+    check_nonempty_dir "$dirname"
     ec=$?
     if [ "$ec" -eq 0 ]; then
         echo "    <source name=\"omim\" type=\"omim\" version=\"${source_version}\">" >> $outfile
