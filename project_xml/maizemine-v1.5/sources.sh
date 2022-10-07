@@ -20,10 +20,10 @@ function add_mine_sources {
     add_cds_protein_fasta "RefSeq" "MaizeGDB"
 
     # xrefs
-    add_xrefs "MaizeMine" "Gene ID Cross References (MaizeGDB ⇔ RefSeq) data set"
+    add_xrefs "MaizeMine"
 
     # aliases
-    add_aliases "MaizeMine" "Gene ID Aliases (B73 Zm00001eb.1 ⇔ AGPv4_Zm00001d.2) data set"
+    add_aliases "MaizeMine"
 
     # Maize expression
     add_maize_expression
