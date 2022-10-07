@@ -27,10 +27,10 @@ function add_mine_sources {
     add_cds_protein_fasta "RefSeq" "Ensembl"
 
     # xrefs
-    add_xrefs
+    add_xrefs "HGD"
 
     # aliases
-    add_aliases
+    add_aliases "HGD"
 
     # PubMed
     # TODO - not sure which source(s)

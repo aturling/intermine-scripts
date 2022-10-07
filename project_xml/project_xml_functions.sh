@@ -57,6 +57,12 @@ function get_assemblies {
     get_orgs "$1"
 }
 
+# Get xref sources in org subdirectory
+function get_xref_sources {
+    # Functionally equivalent to getting organism names
+    get_orgs $1
+}
+
 # Get abbreviation from directory name (organism name)
 function get_abbr {
     local dir=$1
@@ -819,11 +825,14 @@ function add_cds_protein_fasta {
 
 function add_aliases {
     datasource=$1
-    dataset=$2
 
     echo "+ Adding aliases"
 
     echo "    <!--Aliases-->" >> $outfile
+
+    # Aliases for genes or transcripts
+    # For aliases can keep a more general data set name
+    dataset="Gene ID aliases data set"
 
     # Iterate over organisms
     data_subdir="alias"
@@ -832,10 +841,15 @@ function add_aliases {
         fullname=$(echo "$org" | sed 's/_/ /'g)
         taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
         abbr=$(get_abbr "$org")
-	classname="org.intermine.model.bio.Transcript"
-        num_transcripts=$(find ${mine_dir}/datasets/${data_subdir}/${org}/ -mindepth 1 -maxdepth 1 -type f -name "*map*" 2>/dev/null | wc -l)
-	if [ "$num_transcripts" -eq 0 ]; then
-	    classname="org.intermine.model.bio.Gene"
+	classname="org.intermine.model.bio.Gene"
+
+        # Class name is always Gene, except in HymenopteraMine, it's transcript for all but amel
+        mine_basename=$(grep "webapp.path"  ~/.intermine/*.properties | tail -n 1 | awk -F'=' '{print $2}')
+        if [ "$mine_basename" == "hymenopteramine" ]; then
+            if [ ! "$org" == "apis_mellifera" ]; then
+	        classname="org.intermine.model.bio.Transcript"
+                dataset="Transcript ID aliases data set"
+            fi
 	fi
 
         echo "    <source name=\"${abbr}-aliases\" type=\"aliases\" version=\"${source_version}\">" >> $outfile
@@ -853,7 +867,6 @@ function add_aliases {
 
 function add_xrefs {
     datasource=$1
-    dataset=$2
 
     echo "+ Adding xrefs"
 
@@ -866,13 +879,20 @@ function add_xrefs {
         fullname=$(echo "$org" | sed 's/_/ /'g)
         taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
         abbr=$(get_abbr "$org")
+        xref_sources=$(get_xref_sources "$data_subdir/$org")
+        for xref_source in ${xref_sources}; do
+            source1=$(echo "$xref_source" | awk -F'-' '{print $1}')
+            source2=$(echo "$xref_source" | awk -F'-' '{print $2}')
+            # Generate the data set name to include the two sources the ids are coming from
+            dataset="Gene ID Cross References (${source1} ⇔ ${source2}) data set"
 
-        echo "    <source name=\"${abbr}-xref\" type=\"cross-references\" version=\"${source_version}\">" >> $outfile
-        echo "      <property name=\"taxonId\" value=\"${taxon_id}\"/>" >> $outfile
-        echo "      <property name=\"dataSourceName\" value=\"${datasource}\"/>" >> $outfile
-        echo "      <property name=\"dataSetTitle\" value=\"${dataset}\"/>" >> $outfile
-        echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}\"/>" >> $outfile
-        echo "    </source>" >> $outfile
+            echo "    <source name=\"${abbr}-xref\" type=\"cross-references\" version=\"${source_version}\">" >> $outfile
+            echo "      <property name=\"taxonId\" value=\"${taxon_id}\"/>" >> $outfile
+            echo "      <property name=\"dataSourceName\" value=\"${datasource}\"/>" >> $outfile
+            echo "      <property name=\"dataSetTitle\" value=\"${dataset}\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${xref_source}\"/>" >> $outfile
+            echo "    </source>" >> $outfile
+        done
     done
 
     echo >> $outfile
