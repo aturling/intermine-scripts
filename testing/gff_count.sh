@@ -29,12 +29,23 @@ sources=("RefSeq" "Ensembl" "MaizeGDB" "Genbank")
 echo "Checking gff counts..."
 for source in "${sources[@]}" ; do
     echo "Source: $source"
+    append_dir=""
+    if [[ "$source" == "RefSeq" ]] || [[ "$source" == "Ensembl" ]]; then
+        append_dir="genes/"
+    fi
     # Iterate over all organisms/assemblies
-    files=$(find /db/*/datasets/${source}/annotations/*/*/genes -type f -name *.gff3 2>/dev/null)
+    files=$(find /db/*/datasets/${source}/annotations/*/*/${append_dir} -type f -name *.gff3 2>/dev/null)
     for file in $files; do
         org_name=$(echo "${file}" | awk -F'/' '{print $7}' | sed 's/_/ /g')
         assembly=$(echo "${file}" | awk -F'/' '{print $8}')
-        echo "Checking $source gff for $org_name (assembly: $assembly)..."
+
+        genesource="$source"
+        # Special case for MaizeGDB: Gene.source is not the same as the folder name
+        if [ "$source" == "MaizeGDB" ]; then
+            genesource=$(tail -n 1 /db/*/datasets/MaizeGDB/annotations/zea_mays/${assembly}/*.gff3 | cut -f2)
+        fi
+
+        echo "Checking $source ($genesource) gff for $org_name (assembly: $assembly)..."
     
         # Get org id in database
         org_id=$(psql ${dbname} -c "select o.id from organism o where lower(o.name)='${org_name}'" -t -A)
@@ -51,7 +62,7 @@ for source in "${sources[@]}" ; do
 
         # Get all possible class names (transcripts, genes, etc.)
         echo "Getting all class names in input file..."
-        classes=$(cat /db/*/datasets/${source}/annotations/*/${assembly}/genes/*.gff3 | grep -v "#" | cut -f 3 | sort | uniq)
+        classes=$(cat /db/*/datasets/${source}/annotations/*/${assembly}/${append_dir}*.gff3 | grep -v "#" | cut -f 3 | sort | uniq)
         echo $classes
         class_count_correct=1
         for class in $classes; do
@@ -61,11 +72,11 @@ for source in "${sources[@]}" ; do
             dbcount=0
             # Special case: gene
             if [ "$class" == "gene" ]; then
-                dbcount=$(psql ${dbname} -c "select count(g.id) from gene g join bioentitiesdatasets bed on bed.bioentities=g.id join dataset d on d.id=bed.datasets where g.organismid=${org_id} and g.source='${source}' and d.name like '%${source} gene set%'" -t -A)
+                dbcount=$(psql ${dbname} -c "select count(g.id) from gene g join bioentitiesdatasets bed on bed.bioentities=g.id join dataset d on d.id=bed.datasets where g.organismid=${org_id} and g.source='${genesource}' and d.name like '%${genesource} gene set%'" -t -A)
             else
-                dbcount=$(psql ${dbname} -c "select count(t.id) from $tablename t where t.organismid=${org_id} and t.source='${source}' and t.class='org.intermine.model.bio.${tablename}'" -t -A)
+                dbcount=$(psql ${dbname} -c "select count(t.id) from $tablename t where t.organismid=${org_id} and t.source='${genesource}' and t.class='org.intermine.model.bio.${tablename}'" -t -A)
             fi
-            filecount=$(cat /db/*/datasets/${source}/annotations/*/${assembly}/genes/*.gff3 | grep -v "#" | cut -f 3 | grep -E "^${class}" | wc -l)
+            filecount=$(cat /db/*/datasets/${source}/annotations/*/${assembly}/${append_dir}*.gff3 | grep -v "#" | cut -f 3 | grep -E "^${class}" | wc -l)
             if [ ! $dbcount -eq $filecount ]; then
                 echo "WARNING: $dbcount ${class}s in database, but $filecount in input file!"
                 class_count_correct=0

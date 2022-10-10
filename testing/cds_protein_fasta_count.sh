@@ -37,7 +37,14 @@ for source in "${sources[@]}" ; do
             # assumes directory format is /db/<mine_dir>/datasets/<source>/cds_fasta/<organism_name>/<assembly>/*.fa
             org_name=$(echo "${fasta_file}" | awk -F'/' '{print $7}' | sed 's/_/ /g')
             assembly=$(echo "${fasta_file}" | awk -F'/' '{print $8}')
-            echo "Checking $source coding sequences for ${org_name} (assembly: $assembly)..."
+
+            genesource="$source"
+            # Special case for MaizeGDB: Gene.source is not the same as the folder name
+            if [ "$source" == "MaizeGDB" ]; then
+                genesource=$(tail -n 1 /db/*/datasets/MaizeGDB/annotations/zea_mays/${assembly}/*.gff3 | cut -f2)
+            fi
+
+            echo "Checking $source ($genesource) coding sequences for ${org_name} (assembly: $assembly)..."
             # get org id to make query faster
             org_id=$(psql ${dbname} -c "select o.id from organism o where lower(o.name)='${org_name}'" -t -A)
             if [ -z $org_id ]; then
@@ -49,7 +56,8 @@ for source in "${sources[@]}" ; do
                 echo "WARNING: organism $org_name not in database!"
                 continue
             fi
-            dbcount=$(psql ${dbname} -c "select count(c.id) from codingsequence c where c.source='$source' and c.organismid=${org_id}" -t -A)
+
+            dbcount=$(psql ${dbname} -c "select count(c.id) from codingsequence c where c.source='$genesource' and c.organismid=${org_id}" -t -A)
             filecount=$(grep ">" $fasta_file | wc -l)
             if [ $dbcount -eq $filecount ]; then
                 echo "CodingSequence count correct ($filecount)"
@@ -77,7 +85,14 @@ for source in "${sources[@]}" ; do
             # assumes directory format is /db/<mine_dir>/datasets/<source>/protein_fasta/<organism_name>/<assembly>/*.fa
             org_name=$(echo "${fasta_file}" | awk -F'/' '{print $7}' | sed 's/_/ /g')
             assembly=$(echo "${fasta_file}" | awk -F'/' '{print $8}')
-            echo "Checking $source polypeptides for ${org_name} (assembly: $assembly)..."
+
+            genesource="$source"
+            # Special case for MaizeGDB: Gene.source is not the same as the folder name
+            if [ "$source" == "MaizeGDB" ]; then
+                genesource=$(tail -n 1 /db/*/datasets/MaizeGDB/annotations/zea_mays/${assembly}/*.gff3 | cut -f2)
+            fi
+
+            echo "Checking $source ($genesource) polypeptides for ${org_name} (assembly: $assembly)..."
             # get org id to make query faster
             org_id=$(psql ${dbname} -c "select o.id from organism o where lower(o.name)='${org_name}'" -t -A)
             if [ -z $org_id ]; then
@@ -89,7 +104,8 @@ for source in "${sources[@]}" ; do
                 echo "WARNING: organism $org_name not in database!"
                 continue
             fi
-            dbcount=$(psql ${dbname} -c "select count(p.id) from polypeptide p where p.source='$source' and p.organismid=${org_id}" -t -A)
+
+            dbcount=$(psql ${dbname} -c "select count(p.id) from polypeptide p where p.source='$genesource' and p.organismid=${org_id}" -t -A)
             filecount=$(grep ">" $fasta_file | wc -l)
             if [ $dbcount -eq $filecount ]; then
                 echo "Polypeptide count correct ($filecount)"

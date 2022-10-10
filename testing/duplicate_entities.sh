@@ -41,12 +41,17 @@ run_duplicate_dbquery () {
     else
         orgs_equal=" and t2.organismid = t1.organismid"
     fi
-    count_ids_select="(select count(*) from ${tablename} t2 where t2.${fieldname} = t1.${fieldname}${orgs_equal}) > 1"
+    assemblies_equal=""
+    group_by_field="organismid"
+    if [ "$tablename" == "chromosome" ]; then
+        assemblies_equal=" and t2.assembly = t1.assembly"
+        group_by_field="assembly"
+    fi
+    count_ids_select="(select count(*) from ${tablename} t2 where t2.${fieldname} = t1.${fieldname}${orgs_equal}${assemblies_equal}) > 1"
     echo "Checking for duplicate ${tablename}s..."
-    #echo "Running: psql ${dbname} -c 'select count(${fieldname}), organismid from ${tablename} t1 where ${count_ids_select} group by organismid limit 1' -t -A"
-    dbcount=$(psql ${dbname} -c "select count(${fieldname}), organismid from ${tablename} t1 where ${count_ids_select} group by organismid limit 1" -t -A)
-    if [ ! -z $dbcount ]; then
-        if [ ! -z $orgs_equal ]; then
+    dbcount=$(psql ${dbname} -c "select count(${fieldname}), ${group_by_field} from ${tablename} t1 where ${count_ids_select} group by ${group_by_field} limit 1" -t -A)
+    if [ ! -z "$dbcount" ]; then
+        if [ ! -z "$orgs_equal" ]; then
             # If orgs equal included in query, duplicates definitely found
             echo "WARNING: duplicate ${tablename}s found!"
             no_dupes_found=0
@@ -58,18 +63,18 @@ run_duplicate_dbquery () {
             total_dupe_ids=0
             for dupe_id in $id_list; do
                 #echo "Checking ${dupe_id}"
-                id_count=$(psql ${dbname} -c "select count(id) as c from ${tablename} where ${fieldname}='${dupe_id}' group by organismid order by c desc limit 1" -t -A)
-                if [ ! $id_count -eq 1 ]; then
+                id_count=$(psql ${dbname} -c "select count(id) as c from ${tablename} where ${fieldname}='${dupe_id}' group by ${group_by_field} order by c desc limit 1" -t -A)
+                if [ ! "$id_count" -eq 1 ]; then
                     echo "WARNING: Duplicate ${tablename} found with identifier ${dupe_id}"
                     total_dupe_ids=$((total_dupe_ids + 1))
                     no_dupes_found=0
                 fi
-                if [ $total_dupe_ids -gt 10 ]; then
+                if [ "$total_dupe_ids" -gt 10 ]; then
                     echo "More than 10 duplicate ${tablename}s found, query database for all duplicates."
                     break
                 fi
             done
-            if [ $total_dupe_ids -eq 0 ]; then
+            if [ "$total_dupe_ids" -eq 0 ]; then
                 echo "No duplicate ${tablename}s found"
             fi
         fi
