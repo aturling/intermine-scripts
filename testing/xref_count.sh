@@ -35,7 +35,7 @@ for org in $orgs; do
         continue
     fi
     # Count from files
-    file_count=$(cat /db/*/datasets/xref/${org}/* | wc -l)
+    file_count=$(cat /db/*/datasets/xref/${org}/*/* | wc -l)
     # Count in database
     dbcount=$(psql ${dbname} -c "select count(g.id) from crossreference c join gene g on g.id=c.subjectid where organismid=${org_id} and c.targetid is not null" -t -A)
     if [ ! "$dbcount" -eq "$file_count" ]; then

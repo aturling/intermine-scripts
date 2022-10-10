@@ -27,8 +27,10 @@ all_counts_correct=1
 
 sources=("RefSeq" "Ensembl" "MaizeGDB" "Genbank")
 echo "Checking gff counts..."
+echo
 for source in "${sources[@]}" ; do
     echo "Source: $source"
+    echo
     append_dir=""
     if [[ "$source" == "RefSeq" ]] || [[ "$source" == "Ensembl" ]]; then
         append_dir="genes/"
