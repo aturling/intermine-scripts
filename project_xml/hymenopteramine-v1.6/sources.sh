@@ -18,8 +18,7 @@ function add_mine_sources {
     #add_genbank_gff
 
     # OGS gff
-    # TODO
-    #add_ogs_gff
+    add_ogs_gff
 
     # CDS/Protein FASTA
     # TODO

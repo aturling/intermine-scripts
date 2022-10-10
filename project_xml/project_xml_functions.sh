@@ -471,10 +471,52 @@ function add_genome_fasta {
 function add_ogs_gff {
     echo "+ Adding OGS GFF"
 
-    echo "    <!--OGS GFF-->" >> $outfile
+    echo "    <!--Official Gene Set (OGS) GFF-->" >> $outfile
 
-# TODO
+    # Iterate over organisms
+    data_subdir="OGS/annotations"
+    orgs=$(get_orgs "$data_subdir")
+    for org in $orgs; do
+        fullname=$(echo "$org" | sed 's/_/ /'g)
+        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        abbr=$(get_abbr "$org")
+        assemblies=$(get_assemblies "${data_subdir}/${org}")
+        num_assemblies=$(echo "$assemblies" | wc -l)
+        for assembly in $assemblies; do
+            # If multiple assemblies, append assembly version to source name
+            append_assembly=$(get_append_assembly "$assembly" "$num_assemblies")
+            data_dir="${mine_dir}/datasets/${data_subdir}/${org}/${assembly}"
 
+            # Special case for nvit: also contains Evidential Gene Set
+            if [ "$org" == "nasonia_vitripennis" ]; then
+                data_dir="${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/evidential_gene_set"            
+                gene_source=$(tail -n 1 ${data_dir}/*.gff3 | cut -f2)
+                echo "    <source name=\"${abbr}${append_assembly}-evi-ogs-gff\" type=\"ogs-gff\" version=\"${source_version}\">" >> $outfile
+                echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
+                echo "      <property name=\"gff3.dataSourceName\" value=\"Evidential Gene Set\"/>" >> $outfile
+                echo "      <property name=\"gff3.dataSetTitle\" value=\"${fullname^} Evidential Gene Set (${gene_source}) for ${assembly}\"/>" >> $outfile
+                echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
+                echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
+                echo "      <property name=\"src.data.dir\" location=\"${data_dir}\"/>" >> $outfile
+                echo "    </source>" >> $outfile
+
+                data_dir="${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/OGSv1.2"
+            fi
+
+            gene_source=$(tail -n 1 ${data_dir}/*.gff3 | cut -f2)
+            echo "    <source name=\"${abbr}${append_assembly}-ogs-gff\" type=\"ogs-gff\" version=\"${source_version}\">" >> $outfile
+            echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
+            echo "      <property name=\"gff3.dataSourceName\" value=\"Official Gene Set\"/>" >> $outfile
+            echo "      <property name=\"gff3.dataSetTitle\" value=\"${fullname^} Official Gene Set (${gene_source}) for ${assembly}\"/>" >> $outfile
+            echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
+            echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir\" location=\"${data_dir}\"/>" >> $outfile
+            echo "    </source>" >> $outfile
+        done
+    done
+
+    echo >> $outfile
+    echo >> $outfile
 }
 
 function add_maize_gff {
@@ -498,7 +540,7 @@ function add_maize_gff {
             echo "    <source name=\"${abbr}${append_assembly}-maize-gff\" type=\"maize-gff\" version=\"${source_version}\">" >> $outfile
             echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
             echo "      <property name=\"gff3.dataSourceName\" value=\"MaizeGDB\"/>" >> $outfile
-            echo "      <property name=\"gff3.dataSetTitle\" value=\"${gene_source} gene set for ${assembly}\"/>" >> $outfile
+            echo "      <property name=\"gff3.dataSetTitle\" value=\"${fullname^} ${gene_source} gene set for ${assembly}\"/>" >> $outfile
             echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
             echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
             echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}\"/>" >> $outfile
@@ -606,7 +648,7 @@ function add_refseq_gff {
                 echo "    <source name=\"${abbr}${append_assembly}-refseq-gff\" type=\"refseq-gff\" version=\"${source_version}\">" >> $outfile
                 echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
                 echo "      <property name=\"gff3.dataSourceName\" value=\"RefSeq\"/>" >> $outfile
-                echo "      <property name=\"gff3.dataSetTitle\" value=\"NCBI RefSeq gene set for ${assembly}\"/>" >> $outfile
+                echo "      <property name=\"gff3.dataSetTitle\" value=\"${fullname^} NCBI RefSeq gene set for ${assembly}\"/>" >> $outfile
                 echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile 
                 echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
                 echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/genes\"/>" >> $outfile
@@ -622,7 +664,7 @@ function add_refseq_gff {
                 echo "    <source name=\"${abbr}${append_assembly}-pseudogene-refseq-gff\" type=\"pseudogene-refseq-gff\" version=\"${source_version}\">" >> $outfile
                 echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
                 echo "      <property name=\"gff3.dataSourceName\" value=\"RefSeq\"/>" >> $outfile
-                echo "      <property name=\"gff3.dataSetTitle\" value=\"NCBI RefSeq pseudogene (transcribed) set for ${assembly}\"/>" >> $outfile
+                echo "      <property name=\"gff3.dataSetTitle\" value=\"${fullname^} NCBI RefSeq pseudogene (transcribed) set for ${assembly}\"/>" >> $outfile
                 echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
                 echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
                 echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/pseudogenes_transcribed\"/>" >> $outfile
@@ -638,7 +680,7 @@ function add_refseq_gff {
                 echo "    <source name=\"${abbr}${append_assembly}-pseudogene-refseq-nottranscribed-gff\" type=\"pseudogene-refseq-nottranscribed-gff\" version=\"${source_version}\">" >> $outfile
                 echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
                 echo "      <property name=\"gff3.dataSourceName\" value=\"RefSeq\"/>" >> $outfile
-                echo "      <property name=\"gff3.dataSetTitle\" value=\"NCBI RefSeq pseudogene (not transcribed) set for ${assembly}\"/>" >> $outfile
+                echo "      <property name=\"gff3.dataSetTitle\" value=\"${fullname^} NCBI RefSeq pseudogene (not transcribed) set for ${assembly}\"/>" >> $outfile
                 echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
                 echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
                 echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/pseudogenes_nottranscribed\"/>" >> $outfile
@@ -679,7 +721,7 @@ function add_ensembl_gff {
                 echo "    <source name=\"${abbr}${append_assembly}-ensembl-gff\" type=\"ensembl-gff\" version=\"${source_version}\">" >> $outfile
                 echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
                 echo "      <property name=\"gff3.dataSourceName\" value=\"Ensembl\"/>" >> $outfile
-                echo "      <property name=\"gff3.dataSetTitle\" value=\"Ensembl gene set for ${assembly}\"/>" >> $outfile
+                echo "      <property name=\"gff3.dataSetTitle\" value=\"${fullname^} Ensembl gene set for ${assembly}\"/>" >> $outfile
                 echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
                 echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
                 echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/genes\"/>" >> $outfile
@@ -695,7 +737,7 @@ function add_ensembl_gff {
                 echo "    <source name=\"${abbr}${append_assembly}-pseudogene-ensembl-gff\" type=\"pseudogene-ensembl-gff\" version=\"${source_version}\">" >> $outfile
                 echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
                 echo "      <property name=\"gff3.dataSourceName\" value=\"Ensembl\"/>" >> $outfile
-                echo "      <property name=\"gff3.dataSetTitle\" value=\"Ensembl pseudogene set for ${assembly}\"/>" >> $outfile
+                echo "      <property name=\"gff3.dataSetTitle\" value=\"${fullname^} Ensembl pseudogene set for ${assembly}\"/>" >> $outfile
                 echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
                 echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
                 echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/pseudogenes\"/>" >> $outfile
