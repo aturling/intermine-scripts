@@ -468,6 +468,33 @@ function add_genome_fasta {
     echo >> $outfile
 }
 
+function add_genbank_gff {
+    echo "+ Adding Genbank GFF"
+
+    echo "    <!--Genbank GFF-->" >> $outfile
+
+    # For now just one org, Melipona quadrifasciata
+    org="melipona_quadrifasciata"
+    fullname=$(echo "$org" | sed 's/_/ /'g)
+    taxon_id="166423"
+    assembly=$(find ${mine_dir}/datasets/Genbank/annotations/${org}/ -mindepth 1 -maxdepth 1 -type d -printf "%f\n")
+
+
+    # GFF - compatible with RefSeq loader
+    data_dir="${mine_dir}/datasets/Genbank/annotations/${org}/${assembly}"
+    echo "    <source name=\"mqua-genbank-gff\" type=\"refseq-gff\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
+    echo "      <property name=\"gff3.dataSourceName\" value=\"Genbank\"/>" >> $outfile
+    echo "      <property name=\"gff3.dataSetTitle\" value=\"${fullname^} Genbank Gene Set for ${assembly}\"/>" >> $outfile
+    echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
+    echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${data_dir}\"/>" >> $outfile
+    echo "    </source>" >> $outfile
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
 function add_ogs_gff {
     echo "+ Adding OGS GFF"
 

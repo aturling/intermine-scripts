@@ -13,17 +13,14 @@ function add_mine_sources {
     # Ensembl gff
     add_ensembl_gff
 
-    # Genbank gff
-    # TODO
-    #add_genbank_gff
-
     # OGS gff
     add_ogs_gff
 
+    # Genbank gff
+    add_genbank_gff
+
     # CDS/Protein FASTA
-    # TODO
-    #add_cds_protein_fasta "RefSeq" "Ensembl" "OGS" "Genbank"
-    add_cds_protein_fasta "RefSeq" "Ensembl"
+    add_cds_protein_fasta "RefSeq" "Ensembl" "OGS" "Genbank"
 
     # xrefs
     add_xrefs "HGD"
