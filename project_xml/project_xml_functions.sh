@@ -564,7 +564,7 @@ function add_community_gff_source {
     check_nonempty_dir "$dataset_dir"
     ec=$?
     if [ "$ec" -eq 0 ]; then
-        echo "    <source name=\"${source_abbr}-gff\" type=\"gff\" version=\"${source_version}\">" >> $outfile
+        echo "    <source name=\"${source_abbr}-gff\" type=\"maize-gff\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"gff3.taxonId\" value=\"4577\"/>" >> $outfile
         echo "      <property name=\"gff3.dataSourceName\" value=\"${datasource}\"/>" >> $outfile
         echo "      <property name=\"gff3.dataSetTitle\" value=\"${datasettitle}\"/>" >> $outfile
