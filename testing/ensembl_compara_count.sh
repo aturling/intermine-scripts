@@ -14,16 +14,22 @@ echo "Database name is ${dbname}"
 echo
 
 # Check if data set exists
-ensembl_comp_dir=$(find /db/*/datasets -maxdepth 1 -type d -name EnsemblCompara)
+subdir="EnsemblCompara"
+ensembl_comp_dir=$(find /db/*/datasets -maxdepth 1 -type d -name "$subdir")
 if [ -z $ensembl_comp_dir ]; then
-    echo "Ensembl Compara data set does not exist"
-    exit 1
+    # Check for biomart
+    subdir="ensembl-plant-biomart/homologues"
+    numfiles=$(ls /db/*/datasets/$subdir 2>/dev/null | wc -l)
+    if [ ! "$numfiles" -gt 0 ]; then
+        echo "Ensembl Compara data set does not exist"
+        exit 1
+    fi
 fi
 
 all_counts_correct=1
 
 # Get list of taxon IDs from input files
-taxon_ids=$(find /db/*/datasets/EnsemblCompara -maxdepth 1 -type f -printf '%f\n' | awk -F'_' '{printf "%s\\n\n%s\\n\n", $1, $2}' | sed 's/\\n//g' | sort | uniq)
+taxon_ids=$(find /db/*/datasets/${subdir} -maxdepth 1 -type f -printf '%f\n' | awk -F'_' '{printf "%s\\n\n%s\\n\n", $1, $2}' | sed 's/\\n//g' | sort | uniq)
 
 # Get number of homologues from Ensembl Compara per taxon ID
 echo "Querying database for Ensembl Compara homologues..."
@@ -41,10 +47,10 @@ for taxon_id in $taxon_ids; do
     dbcount=$(psql ${dbname} -c "select count(h.id) from homologue h join datasetshomologue dh on dh.homologue=h.id join gene g on g.id=h.geneid join organism o on o.id=g.organismid where dh.datasets='${dataset_id}' and o.taxonid='${taxon_id}'" -t -A)
     # Get number of homologues for this organism by counting lines of files with taxon id in filename
     # Every valid line has "ortholog" in last column so grep on that to exclude invalid/empty lines
-    file_count=$(grep ortholog /db/*/datasets/EnsemblCompara/*${taxon_id}* | wc -l | grep total | awk '{print $1}')
+    file_count=$(grep ortholog /db/*/datasets/${subdir}/*${taxon_id}* | wc -l | grep total | awk '{print $1}')
     if [ -z $file_count ]; then
         # Only one file with this taxon id:
-        file_count=$(grep ortholog /db/*/datasets/EnsemblCompara/*${taxon_id}* | wc -l)
+        file_count=$(grep ortholog /db/*/datasets/${subdir}/*${taxon_id}* | wc -l)
     fi
     if [ $dbcount -eq $file_count ]; then
         echo "Homologue count correct for organism with taxon id $taxon_id ($file_count homologues)"
