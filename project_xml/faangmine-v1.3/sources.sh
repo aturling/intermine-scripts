@@ -26,7 +26,7 @@ function add_mine_sources {
     add_cds_protein_fasta "RefSeq" "Ensembl"
 
     # xrefs
-    add_xrefs "FAANGMine" "Gene ID Cross References (Ensembl ⇔ RefSeq) data set"
+    add_xrefs "FAANGMine"
 
     # PubMed
     add_pubmed "RefSeq" "Ensembl"
