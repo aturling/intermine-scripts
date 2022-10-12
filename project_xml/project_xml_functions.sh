@@ -1272,7 +1272,7 @@ function add_interpro {
     ec=$?
     if [ "$ec" -eq 0 ]; then
         echo "    <source name=\"interpro\" type=\"interpro\" version=\"${source_version}\">" >> $outfile
-        echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${dirname}\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
         echo "    </source>" >> $outfile
     else
         echo "WARNING: InterPro data directory exists but is empty"
