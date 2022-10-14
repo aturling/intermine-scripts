@@ -48,11 +48,13 @@ function add_mine_sources {
 
     # KEGG
     add_kegg
-    # TODO - kegg metadata
 
     # Reactome
     # Manually specify organisms by taxon id list (depends on mine)
     add_reactome "7227"
+
+    # RBHs
+    add_rbh
 
     # OrthoDB
     add_orthodb
