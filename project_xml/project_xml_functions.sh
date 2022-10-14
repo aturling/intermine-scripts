@@ -401,6 +401,35 @@ function add_bioproject_data {
     echo >> $outfile
 }
 
+function add_faang_expression {
+    echo "+ Adding FAANG expression"
+
+    echo "    <!--Gene expression-->" >> $outfile
+
+    # Iterate over organisms
+    data_subdir="gene_expression"
+    orgs=$(get_orgs "$data_subdir")
+    for org in $orgs; do
+        fullname=$(echo "$org" | sed 's/_/ /'g)
+        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        abbr=$(get_abbr "$org")
+
+        # Iterate over sources
+        sources=$(get_xref_sources "${data_subdir}/${org}")
+        for genesource in $sources; do
+            echo "    <source name=\"${abbr}-expression-gene-${genesource,,}\" type=\"faang-expression\" version=\"${source_version}\">" >> $outfile
+            echo "      <property name=\"taxonId\" value=\"${taxon_id}\"/>" >> $outfile
+            echo "      <property name=\"geneSource\" value=\"${genesource}\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${genesource}\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir.includes\" value=\"*.tab\"/>" >> $outfile
+            echo "    </source>" >> $outfile
+        done
+    done
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
 function add_maize_expression {
     echo "+ Adding Maize expression"
 

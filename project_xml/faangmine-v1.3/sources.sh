@@ -7,7 +7,7 @@ function add_mine_sources {
     # SNP
     add_snp "Ensembl"
 
-    # BioProject, BioSample, and Analysis data
+    # FAANG metadata (BioProject, BioSample, Analysis, Experiment)
     add_bioproject_data
 
     # Genome FASTA
@@ -27,6 +27,9 @@ function add_mine_sources {
 
     # xrefs
     add_xrefs "FAANGMine"
+
+    # FAANG expression
+    add_faang_expression
 
     # PubMed
     add_pubmed "RefSeq" "Ensembl"
