@@ -997,6 +997,22 @@ function add_xrefs {
     echo >> $outfile
 }
 
+function add_rbh {
+    echo "+ Adding Reciprocal Best Hits"
+
+    echo "    <!--Reciprocal Best Hits-->" >> $outfile
+
+    dirname="${mine_dir}/datasets/HGD-RBH"
+    check_nonempty_dir "$dirname"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        echo "    <source name=\"reciprocal-best-hits\" type=\"reciprocal-best-hits\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir.includes\" value=\"*.tab\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
+}
+
 function add_kegg {
     echo "+ Adding KEGG"
 
