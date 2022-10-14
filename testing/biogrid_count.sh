@@ -19,6 +19,11 @@ echo
 dataset_name="BioGRID interaction data set"
 dataset_id=$(psql ${dbname} -c "select id from dataset where dataset.name='${dataset_name}'" -t -A)
 
+if [ -z $dataset_id ]; then
+    echo "BioGRID data set not found in database"
+    exit 1;
+fi
+
 # Each InteractionExperiment has one pub reference, so count number of distinct PubMed ids across
 # BioGRID files
 # First check that every InteractionExperiment from BioGRID has a pub reference:
