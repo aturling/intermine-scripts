@@ -1011,6 +1011,9 @@ function add_rbh {
         echo "      <property name=\"src.data.dir.includes\" value=\"*.tab\"/>" >> $outfile
         echo "    </source>" >> $outfile
     fi
+
+    echo >> $outfile
+    echo >> $outfile
 }
 
 function add_kegg {

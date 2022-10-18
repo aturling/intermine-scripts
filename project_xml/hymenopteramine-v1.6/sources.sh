@@ -29,16 +29,14 @@ function add_mine_sources {
     add_aliases "HGD"
 
     # PubMed
-    # TODO - not sure which source(s)
-    #add_pubmed "RefSeq" "Ensembl"
+    add_pubmed "RefSeq"
 
     #---Gene.source merge key line---
     add_merge_key_note
 
     # UniProt
-    # TODO
-    #add_uniprot "RefSeq" "Ensembl" "OGS"
-    add_uniprot "RefSeq" "Ensembl"
+    # No longer need iteration for OGS
+    add_uniprot "RefSeq"
 
     # InterPro
     add_interpro
