@@ -858,7 +858,6 @@ function add_cds_protein_fasta_source {
     echo "    <!--${source_name} CDS and Protein Fasta-->" >> $outfile
 
     dirname="$source_name"
-    gene_source="$source_name"
 
     # Iterate over organisms
     # Assumes all organisms that have cds also have protein FASTA data
@@ -874,7 +873,10 @@ function add_cds_protein_fasta_source {
         for assembly in $assemblies; do
             # If multiple assemblies, append assembly version to source name
             append_assembly=$(get_append_assembly "$assembly" "$num_assemblies")
-            if [ "$source_name" == "MaizeGDB" ]; then
+
+            # Get the gene source from the GFF, since it's not always the same as the data source name, unless RefSeq or Ensembl
+            gene_source="$source_name"
+            if [[ "$source_name" != "RefSeq" ]] && [[ "$source_name" != "Ensembl" ]]; then
                 gene_source=$(tail -n 1 ${mine_dir}/datasets/${dirname}/annotations/${org}/${assembly}/*.gff3 | cut -f2)
             fi
 
@@ -1453,6 +1455,11 @@ function add_orthodb {
         taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/*.tab  | sort -n | uniq | xargs)
 
         echo "    <source name=\"orthodb\" type=\"orthodb-clusters\" version=\"${source_version}\">" >> $outfile
+        # HymenopteraMine has HGD-ortho which also sets cluster id, so set additional field for OrthoDB cluster
+        mine_basename=$(grep "webapp.path"  ~/.intermine/*.properties | tail -n 1 | awk -F'=' '{print $2}')
+        if [ "$mine_basename" == "hymenopteramine" ]; then
+            echo "      <property name=\"loadOrthoDBClusterIds\" value=\"true\"/>" >> $outfile
+        fi
         echo "      <property name=\"dataSourceName\" value=\"OrthoDB\"/>" >> $outfile
         echo "      <property name=\"dataSetTitle\" value=\"OrthoDB data set\"/>" >> $outfile
         echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
