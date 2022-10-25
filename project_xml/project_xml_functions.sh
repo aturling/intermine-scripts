@@ -1296,6 +1296,7 @@ function add_qtl_gff {
             echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
             echo "      <property name=\"gff3.dataSourceName\" value=\"Animal QTLdb\"/>" >> $outfile
             echo "      <property name=\"gff3.dataSetTitle\" value=\"${fullname^} QTL from Animal QTLdb data set\"/>" >> $outfile
+            echo "      <property name=\"gff3.loadSequenceAlterations\" value=\"true\"/>" >> $outfile
             echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
             echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
             echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}\"/>" >> $outfile
