@@ -59,24 +59,24 @@ else
 fi
 echo
 
-# Next check number of syntelog groups
-echo "Counting expected number of syntelog groups from input file..."
+# Next check number of PanGene groups
+echo "Counting expected number of PanGene groups from input file..."
 file_count=$(cut -f 2 "$pangene_filename" | sort | uniq | wc -l)
 echo "Querying database for number of PanGene syntelog groups..."
-dbcount=$(psql ${dbname} -c"select count(oc.id) from synteloggroup oc join datasetssynteloggroup doc on doc.synteloggroup = oc.id where doc.datasets=${dataset_id}" -t -A)
+dbcount=$(psql ${dbname} -c"select count(oc.id) from pangenegroup oc join datasetspangenegroup doc on doc.pangenegroup = oc.id where doc.datasets=${dataset_id}" -t -A)
 if [ ! $dbcount -eq $file_count ]; then
-    echo "WARNING: found $file_count syntelog groups from input file, but $dbcount groups in SyntelogGroup table!"
+    echo "WARNING: found $file_count PanGene groups from input file, but $dbcount groups in PanGeneGroup table!"
     all_counts_correct=0
 fi
 
-echo "Querying database for number of PanGene syntelog groups in Syntelog table..."
+echo "Querying database for number of PanGene groups in Syntelog table..."
 dbcount=$(psql ${dbname} -c "select count(distinct(h.pangeneid)) from syntelog h join datasetssyntelog dh on dh.syntelog=h.id where dh.datasets=${dataset_id} and h.pangeneid is not null" -t -A)
 file_count=$(cut -f 2 "$pangene_filename" | sort | uniq -c | grep -v ' 1 ' | wc -l)
 if [ ! $dbcount -eq $file_count ]; then
-    echo "WARNING: Expected $file_count syntelog groups with gene pairs from input file, but $dbcount groups in database!"
+    echo "WARNING: Expected $file_count PanGene groups with gene pairs from input file, but $dbcount groups in database!"
     all_counts_correct=0
 else
-    echo "Syntelog groups count correct ($dbcount groups)"
+    echo "PanGene groups count correct ($dbcount groups)"
 fi
 echo
 
