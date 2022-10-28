@@ -9,6 +9,68 @@
 # TODO: add pseudogenes
 #######################################################
 
+function get_counts {
+    local source=$1
+    local genesource=$2
+    local org_name=$3
+    local assembly=$4
+    local subdir=$5
+
+    echo "Checking $source ($genesource) gff for $org_name (assembly: $assembly)..."
+
+    # Get org id in database
+    org_id=$(psql ${dbname} -c "select o.id from organism o where lower(o.name)='${org_name}'" -t -A)
+    if [ -z $org_id ]; then
+        # Try using assembly version instead
+        org_id=$(psql ${dbname} -c "select o.id from chromosome c join organism o on o.id=c.organismid where c.assembly='${assembly}' limit 1" -t -A)
+    fi
+    if [ -z $org_id ]; then
+        # If still can't find it, skip to next organism
+        echo "WARNING: organism $org_name not in database!"
+        echo
+        continue
+    fi
+
+    # Get all possible class names (transcripts, genes, etc.)
+    echo "Getting all class names in input file..."
+    class_count_correct=1
+    classes=$(cat /db/*/datasets/${source}/annotations/*/${assembly}/${subdir}/*.gff3 | grep -v "#" | cut -f 3 | sort | uniq)
+    if [ -z "$classes" ]; then
+        echo "WARNING: No classes found in /db/*/datasets/${source}/annotations/*/${assembly}/${subdir}/*.gff3!"
+        class_count_correct=0
+        all_counts_correct=0
+    else
+        echo $classes
+    fi
+    for class in $classes; do
+        # Get database table name from class
+        tablename=$(echo "$class" | sed 's/[^ _]*/\u&/g' | sed 's/_//g')
+        # Count in database
+        dbcount=0
+        # Special case: gene
+        if [ "$class" == "gene" ]; then
+            dataset_title_part="${genesource} gene set"
+            if [ "$source" == "OGS" ]; then
+                dataset_title_part="Official Gene Set ($genesource)"
+            fi
+            dbcount=$(psql ${dbname} -c "select count(g.id) from gene g join bioentitiesdatasets bed on bed.bioentities=g.id join dataset d on d.id=bed.datasets where g.organismid=${org_id} and g.source='${genesource}' and d.name like '%${dataset_title_part}%'" -t -A)
+        else
+            dbcount=$(psql ${dbname} -c "select count(t.id) from $tablename t where t.organismid=${org_id} and t.source='${genesource}' and t.class='org.intermine.model.bio.${tablename}'" -t -A)
+        fi
+        filecount=$(cat /db/*/datasets/${source}/annotations/*/${assembly}/${subdir}/*.gff3 | grep -v "#" | cut -f 3 | grep -E "^${class}" | wc -l)
+        if [ ! $dbcount -eq $filecount ]; then
+            echo "WARNING: $dbcount ${class}s in database, but $filecount in input file!"
+            class_count_correct=0
+            all_counts_correct=0
+        fi
+    done
+    if [ ! $class_count_correct -eq 0 ]; then
+        echo "Counts correct for all class names"
+    fi
+    echo
+}
+
+
 # get database name from properties file
 dbname=$(grep db.production.datasource.databaseName ~/.intermine/*.properties | awk -F'=' '{print $2}')
 
@@ -36,79 +98,25 @@ for source in "${sources[@]}" ; do
         subdir="genes/"
     fi
     # Iterate over all organisms/assemblies
-    files=$(find /db/*/datasets/${source}/annotations/*/*/${subrdir} -type f -name *.gff3 2>/dev/null)
+    files=$(find /db/*/datasets/${source}/annotations/*/*/${subdir} -type f -name *.gff3 2>/dev/null)
     for file in $files; do
         org_dir=$(echo "${file}" | awk -F'/' '{print $7}')
         org_name=$(echo "$org_dir" | sed 's/_/ /g')
         assembly=$(echo "${file}" | awk -F'/' '{print $8}')
 
-        # Usually just one genesource per org but nasonia vitripennis has two for OGS:
-        genesources=()
-        append_dir=""
+        # Usually just one genesource per org but nasonia vitripennis has two for OGS
         if [[ "$org_dir" == "nasonia_vitripennis" ]] && [[ "$source" == "OGS" ]] ; then
-           nvit_sources=$(find /db/*/datasets/$source/annotations/${org_dir}/${assembly}/ -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
-           for nvit_source in $nvit_sources; do
-               genesource=$(tail -n 1 /db/*/datasets/$source/annotations/${org_dir}/${assembly}/${nvit_source}/*.gff3 | cut -f2)
-               genesources+=("$genesource")
-           done
-           append_dir="*/"
+           nvit_source=$(echo "${file}" | awk -F'/' '{print $9}')
+           genesource=$(tail -n 1 /db/*/datasets/$source/annotations/${org_dir}/${assembly}/${nvit_source}/*.gff3 | cut -f2)
+           get_counts "$source" "$genesource" "$org_name" "$assembly" "${nvit_source}/"
         else
             genesource="$source"
             # Special cases where Gene.source is not the same as the folder name
             if [[ "$source" == "MaizeGDB" ]] || [[ "$source" == "OGS" ]] ; then
                 genesource=$(tail -n 1 /db/*/datasets/$source/annotations/${org_dir}/${assembly}/*.gff3 | cut -f2)
             fi
-            genesources=("$genesource")
+            get_counts "$source" "$genesource" "$org_name" "$assembly" "$subdir"
         fi
-
-        for genesource in "${genesources[@]}" ; do
-            echo "Checking $source ($genesource) gff for $org_name (assembly: $assembly)..."
-      
-            # Get org id in database
-            org_id=$(psql ${dbname} -c "select o.id from organism o where lower(o.name)='${org_name}'" -t -A)
-            if [ -z $org_id ]; then
-                # Try using assembly version instead
-                org_id=$(psql ${dbname} -c "select o.id from chromosome c join organism o on o.id=c.organismid where c.assembly='${assembly}' limit 1" -t -A)
-            fi
-            if [ -z $org_id ]; then
-                # If still can't find it, skip to next organism
-                echo "WARNING: organism $org_name not in database!"
-                echo
-                continue
-            fi
-
-            # Get all possible class names (transcripts, genes, etc.)
-            echo "Getting all class names in input file..."
-            classes=$(cat /db/*/datasets/${source}/annotations/*/${assembly}/${subdir}/${append_dir}*.gff3 | grep -v "#" | cut -f 3 | sort | uniq)
-            echo $classes
-            class_count_correct=1
-            for class in $classes; do
-                # Get database table name from class
-                tablename=$(echo "$class" | sed 's/[^ _]*/\u&/g' | sed 's/_//g')
-                # Count in database
-                dbcount=0
-                # Special case: gene
-                if [ "$class" == "gene" ]; then
-                    dataset_title_part="${genesource} gene set"
-                    if [ "$source" == "OGS" ]; then
-                        dataset_title_part="Official Gene Set ($genesource)"
-                    fi
-                    dbcount=$(psql ${dbname} -c "select count(g.id) from gene g join bioentitiesdatasets bed on bed.bioentities=g.id join dataset d on d.id=bed.datasets where g.organismid=${org_id} and g.source='${genesource}' and d.name like '%${dataset_title_part}%'" -t -A)
-                else
-                    dbcount=$(psql ${dbname} -c "select count(t.id) from $tablename t where t.organismid=${org_id} and t.source='${genesource}' and t.class='org.intermine.model.bio.${tablename}'" -t -A)
-                fi
-                filecount=$(cat /db/*/datasets/${source}/annotations/*/${assembly}/${subdir}/${append_dir}*.gff3 | grep -v "#" | cut -f 3 | grep -E "^${class}" | wc -l)
-                if [ ! $dbcount -eq $filecount ]; then
-                    echo "WARNING: $dbcount ${class}s in database, but $filecount in input file!"
-                    class_count_correct=0
-                    all_counts_correct=0
-                fi
-            done
-            if [ ! $class_count_correct -eq 0 ]; then
-                echo "Counts correct for all class names"
-            fi
-        done
-        echo
     done
 done
 
