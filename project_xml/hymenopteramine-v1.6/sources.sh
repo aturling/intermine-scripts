@@ -61,8 +61,7 @@ function add_mine_sources {
     add_hgd_ortho
 
     # GO-Annotation
-    # TODO
-    #add_go_annotation
+    add_go_annotation "HGD"
 
     # Add BioGRID
     add_biogrid
