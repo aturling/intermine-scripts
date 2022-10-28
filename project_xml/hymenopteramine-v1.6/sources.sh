@@ -36,7 +36,7 @@ function add_mine_sources {
 
     # UniProt
     # No longer need iteration for OGS
-    add_uniprot "RefSeq"
+    add_uniprot "RefSeq" "FlyBase"
 
     # InterPro
     add_interpro

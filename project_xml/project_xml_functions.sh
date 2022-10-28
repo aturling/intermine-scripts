@@ -514,7 +514,7 @@ function add_genbank_gff {
     echo "    <source name=\"mqua-genbank-gff\" type=\"refseq-gff\" version=\"${source_version}\">" >> $outfile
     echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
     echo "      <property name=\"gff3.dataSourceName\" value=\"Genbank\"/>" >> $outfile
-    echo "      <property name=\"gff3.dataSetTitle\" value=\"${fullname^} Genbank Gene Set for ${assembly}\"/>" >> $outfile
+    echo "      <property name=\"gff3.dataSetTitle\" value=\"${fullname^} Genbank gene set for ${assembly}\"/>" >> $outfile
     echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
     echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
     echo "      <property name=\"src.data.dir\" location=\"${data_dir}\"/>" >> $outfile
@@ -1147,6 +1147,11 @@ function add_uniprot_source {
     dirname=$3
     taxon_id_list=$4
 
+    # Special case: FlyBase
+    if [ "$source_name" == "FlyBase" ]; then
+        taxon_id_list="7227"
+    fi
+
     # Between one to three iterations:
     cardinal="First"
     if [ "$index" -eq "2" ]; then
@@ -1369,7 +1374,10 @@ function add_go_annotation {
     if [ "$ec" -eq 0 ]; then
         echo "    <source name=\"${datasource,,}-go-annotation\" type=\"go-annotation\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"datasource\" value=\"${datasource}\"/>" >> $outfile
-        echo "      <property name=\"dataset\" value=\"${dataset}\"/>" >> $outfile
+        # data set is optional
+        if [ ! -z "$dataset" ]; then
+            echo "      <property name=\"dataset\" value=\"${dataset}\"/>" >> $outfile
+        fi
         echo "      <property name=\"ontologyPrefix\" value=\"GO\"/>" >> $outfile
         echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
         echo "    </source>" >> $outfile
