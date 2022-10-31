@@ -40,17 +40,45 @@ for org in $orgs; do
 
     sources=$(find /db/*/datasets/${data_subdir}/${org}/ -mindepth 1 -maxdepth 1 -type d -printf "%f\n" 2>/dev/null | sort)
     for genesource in $sources; do
-        # Database count:
-        dbcount=$(psql ${dbname} -c "select count(g.id) from gene g join bioentitiesdatasets bed on bed.bioentities=g.id join dataset d on d.id=bed.datasets where g.organismid=${org_id} and g.source='${genesource}' and d.id=${dataset_id}" -t -A)
-        # File count:
+        # Database count - genes:
+        gene_dbcount=$(psql ${dbname} -c "select count(g.id) from gene g join bioentitiesdatasets bed on bed.bioentities=g.id join dataset d on d.id=bed.datasets where g.organismid=${org_id} and g.source='${genesource}' and d.id=${dataset_id}" -t -A)
+        # File count - genes:
         # First row is header, begins with "Gene"
-        filecount=$(cut -f1 /db/*/datasets/${data_subdir}/${org}/${genesource}/*.tab | grep -v Gene | sort | uniq | wc -l)
+        gene_filecount=$(cut -f1 /db/*/datasets/${data_subdir}/${org}/${genesource}/*.tab | grep -v Gene | sort | uniq | wc -l)
 
-        if [ ! "$dbcount" -eq "$filecount" ]; then
-            echo "WARNING: $dbcount $genesource genes for $org_name in database, but $filecount in input file!"
+        if [ ! "$gene_dbcount" -eq "$gene_filecount" ]; then
+            echo "WARNING: $gene_dbcount $genesource genes for $org_name in database, but $gene_filecount in input files!"
             all_counts_correct=0
         else
-            echo "Gene count correct for $genesource $org_name genes ($dbcount genes)"
+            echo "Gene count correct for $genesource $org_name genes ($gene_dbcount genes)"
+        fi
+
+        # Next check expected number of experiment ids
+        exp_dbcount=$(psql ${dbname} -c "select count(distinct(e.experiment)) from expression e join gene g on g.id=e.geneid join bioentitiesdatasets bed on bed.bioentities=g.id join dataset d on d.id=bed.datasets where g.organismid=${org_id} and g.source='${genesource}' and d.id=${dataset_id}" -t -A)
+        exp_filecount=$(head -q -n 1 /db/*/datasets/${data_subdir}/${org}/${genesource}/*.tab | tr '\t' '\n' | grep -v Gene | sort | uniq | wc -l)
+
+        if [ ! "$exp_dbcount" -eq "$exp_filecount" ]; then
+            echo "WARNING: $exp_dbcount experiment ids for $org_name $genesource genes in database, but $exp_filecount in input files!"
+            all_counts_correct=0
+        else
+            echo "Experiment count correct for $genesource $org_name genes ($exp_dbcount experiments)"
+        fi
+
+        # Lastly check expected number of expression items
+        dbcount=$(psql ${dbname} -c "select count(e.id) from expression e join gene g on g.id=e.geneid join bioentitiesdatasets bed on bed.bioentities=g.id join dataset d on d.id=bed.datasets where g.organismid=${org_id} and g.source='${genesource}' and d.id=${dataset_id}" -t -A)
+        filecount=$((gene_filecount * exp_filecount))
+
+        if [ ! "$dbcount" -eq "$filecount" ]; then
+            echo "Checking for possible empty expression cells..."
+            # Some rows might not have any values (denoted by "-") which won't result in an expression item, subtract those:
+            empty_cell_count=$(grep -oh '-' /db/*/datasets/${data_subdir}/${org}/${genesource}/*.tab | wc -l)
+            expected_exprs=$((filecount-empty_cell_count))
+            if [ ! "$dbcount" -eq "$expected_exprs" ]; then
+                echo "WARNING: $dbcount expressions for $genesource $org_name genes in database, but $expected_exprs in input files!"
+                all_counts_correct=0
+            else
+                echo "Expression count correct for $genesource $org_name genes ($dbcount expressions)"
+            fi
         fi
     done
 done
