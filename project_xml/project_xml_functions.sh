@@ -946,7 +946,7 @@ function add_aliases {
         # Class name is always Gene, except in HymenopteraMine, it's transcript for all but amel
         mine_basename=$(grep "webapp.path"  ~/.intermine/*.properties | tail -n 1 | awk -F'=' '{print $2}')
         if [ "$mine_basename" == "hymenopteramine" ]; then
-            if [ ! "$org" == "apis mellifera" ]; then
+            if [ ! "$org" == "apis_mellifera" ]; then
 	        classname="org.intermine.model.bio.Transcript"
                 dataset="Transcript ID aliases data set"
             fi
