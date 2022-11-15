@@ -98,8 +98,7 @@ fi
 
 all_counts_correct=1
 
-#sources=("RefSeq" "RefSeq-pseudogenes-transcribed" "Ensembl" "MaizeGDB" "OGS" "Genbank")
-sources=("RefSeq-pseudogenes-transcribed" "RefSeq-pseudogenes-nottranscribed")
+sources=("RefSeq" "RefSeq-pseudogenes-transcribed" "RefSeq-pseudogenes-nottranscribed" "Ensembl" "MaizeGDB" "OGS" "Genbank")
 echo "Checking gff counts..."
 echo
 for source in "${sources[@]}" ; do
