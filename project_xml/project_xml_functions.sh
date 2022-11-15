@@ -1662,7 +1662,7 @@ function add_ncbi_entrez {
     echo >> $outfile
 }
 
-function add_post_processes {
+function add_default_post_processes {
     echo "+ Adding Post-processing"
 
     echo "    <post-process name=\"create-chromosome-locations-and-lengths\"/>" >> $outfile

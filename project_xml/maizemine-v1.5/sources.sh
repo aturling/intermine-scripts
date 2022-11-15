@@ -69,5 +69,5 @@ function add_mine_sources {
 }
 
 function add_mine_post_processes {
-    add_post_processes
+    add_default_post_processes
 }
