@@ -5,8 +5,6 @@
 #
 # Check database for correct number of entities loaded
 # from gff files (genes, exons, transcripts, etc.)
-#
-# TODO: add pseudogenes
 #######################################################
 
 function get_counts {
@@ -14,7 +12,8 @@ function get_counts {
     local genesource=$2
     local org_name=$3
     local assembly=$4
-    local subdir=$5
+    local sourcedir=$5
+    local subdir=$6
 
     echo "Checking $source ($genesource) gff for $org_name (assembly: $assembly)..."
 
@@ -34,9 +33,9 @@ function get_counts {
     # Get all possible class names (transcripts, genes, etc.)
     echo "Getting all class names in input file..."
     class_count_correct=1
-    classes=$(cat /db/*/datasets/${source}/annotations/*/${assembly}/${subdir}/*.gff3 | grep -v "#" | cut -f 3 | sort | uniq)
+    classes=$(cat /db/*/datasets/${sourcedir}/annotations/*/${assembly}/${subdir}/*.gff3 | grep -v "#" | cut -f 3 | sort | uniq)
     if [ -z "$classes" ]; then
-        echo "WARNING: No classes found in /db/*/datasets/${source}/annotations/*/${assembly}/${subdir}/*.gff3!"
+        echo "WARNING: No classes found in /db/*/datasets/${sourcedir}/annotations/*/${assembly}/${subdir}/*.gff3!"
         class_count_correct=0
         all_counts_correct=0
     else
@@ -54,10 +53,22 @@ function get_counts {
                 dataset_title_part="Gene Set ($genesource)"
             fi
             dbcount=$(psql ${dbname} -c "select count(g.id) from gene g join bioentitiesdatasets bed on bed.bioentities=g.id join dataset d on d.id=bed.datasets where g.organismid=${org_id} and g.source='${genesource}' and d.name like '%${dataset_title_part}%'" -t -A)
+        elif [[ $class == pseudo* ]]; then
+            dataset_title_part="${genesource} pseudogene"
+            if [ "$source" == "RefSeq-pseudogenes-transcribed" ]; then
+                dataset_title_part="$dataset_title_part (transcribed)"
+            elif [ "$source" == "RefSeq-pseudogenes-nottranscribed" ]; then
+                dataset_title_part="$dataset_title_part (not transcribed)"
+            fi
+            tablename="pseudogene"
+            if [[ $class == pseudogenic* ]]; then
+                tablename=$(echo "$class" | sed 's/_//g')
+            fi
+            dbcount=$(psql ${dbname} -c "select count(g.id) from ${tablename} g join bioentitiesdatasets bed on bed.bioentities=g.id join dataset d on d.id=bed.datasets where g.organismid=${org_id} and g.source='${genesource}' and d.name like '%${dataset_title_part}%'" -t -A)
         else
             dbcount=$(psql ${dbname} -c "select count(t.id) from $tablename t where t.organismid=${org_id} and t.source='${genesource}' and t.class='org.intermine.model.bio.${tablename}'" -t -A)
         fi
-        filecount=$(cat /db/*/datasets/${source}/annotations/*/${assembly}/${subdir}/*.gff3 | cut -f 3 | grep -v "#" | grep -E "^${class}" | wc -l)
+        filecount=$(cat /db/*/datasets/${sourcedir}/annotations/*/${assembly}/${subdir}/*.gff3 | cut -f 3 | grep -v "#" | grep -E "^${class}" | wc -l)
         if [ ! $dbcount -eq $filecount ]; then
             echo "WARNING: $dbcount ${class}s in database, but $filecount in input file!"
             class_count_correct=0
@@ -87,18 +98,26 @@ fi
 
 all_counts_correct=1
 
-sources=("RefSeq" "Ensembl" "MaizeGDB" "OGS" "Genbank")
+#sources=("RefSeq" "RefSeq-pseudogenes-transcribed" "Ensembl" "MaizeGDB" "OGS" "Genbank")
+sources=("RefSeq-pseudogenes-transcribed" "RefSeq-pseudogenes-nottranscribed")
 echo "Checking gff counts..."
 echo
 for source in "${sources[@]}" ; do
     echo "Source: $source"
     echo
+    sourcedir="$source"
     subdir=""
     if [[ "$source" == "RefSeq" ]] || [[ "$source" == "Ensembl" ]]; then
         subdir="genes/"
+    elif [[ "$source" == "RefSeq-pseudogenes-transcribed" ]]; then
+        sourcedir="RefSeq"
+        subdir="pseudogenes_transcribed/"
+    elif [[ "$source" == "RefSeq-pseudogenes-nottranscribed" ]]; then
+        sourcedir="RefSeq"
+        subdir="pseudogenes_nottranscribed/"
     fi
     # Iterate over all organisms/assemblies
-    files=$(find /db/*/datasets/${source}/annotations/*/*/${subdir} -type f -name *.gff3 2>/dev/null)
+    files=$(find /db/*/datasets/${sourcedir}/annotations/*/*/${subdir} -type f -name *.gff3 2>/dev/null)
     for file in $files; do
         org_dir=$(echo "${file}" | awk -F'/' '{print $7}')
         org_name=$(echo "$org_dir" | sed 's/_/ /g')
@@ -107,15 +126,17 @@ for source in "${sources[@]}" ; do
         # Usually just one genesource per org but nasonia vitripennis has two for OGS
         if [[ "$org_dir" == "nasonia_vitripennis" ]] && [[ "$source" == "OGS" ]] ; then
            nvit_source=$(echo "${file}" | awk -F'/' '{print $9}')
-           genesource=$(tail -n 1 /db/*/datasets/$source/annotations/${org_dir}/${assembly}/${nvit_source}/*.gff3 | cut -f2)
-           get_counts "$source" "$genesource" "$org_name" "$assembly" "${nvit_source}/"
+           genesource=$(tail -n 1 /db/*/datasets/$sourcedir/annotations/${org_dir}/${assembly}/${nvit_source}/*.gff3 | cut -f2)
+           get_counts "$source" "$genesource" "$org_name" "$assembly" "$sourcedir" "${nvit_source}/"
         else
             genesource="$source"
             # Special cases where Gene.source is not the same as the folder name
             if [[ "$source" == "MaizeGDB" ]] || [[ "$source" == "OGS" ]] ; then
-                genesource=$(tail -n 1 /db/*/datasets/$source/annotations/${org_dir}/${assembly}/*.gff3 | cut -f2)
+                genesource=$(tail -n 1 /db/*/datasets/$sourcedir/annotations/${org_dir}/${assembly}/*.gff3 | cut -f2)
+            elif [[ "$source" == "RefSeq-pseudogenes-transcribed" ]] || [[ "$source" == "RefSeq-pseudogenes-nottranscribed" ]]; then
+                genesource="RefSeq"
             fi
-            get_counts "$source" "$genesource" "$org_name" "$assembly" "$subdir"
+            get_counts "$source" "$genesource" "$org_name" "$assembly" "$sourcedir" "$subdir"
         fi
     done
 done
