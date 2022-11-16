@@ -1366,7 +1366,7 @@ function add_go_annotation {
 
     echo "+ Adding GO annotation"
 
-    echo "    <!--GO annotation-->" >> $outfile
+    echo "    <!--GO annotation ($datasource)-->" >> $outfile
 
     dirname="${mine_dir}/datasets/GO-annotation/${datasource}"
     check_nonempty_dir "$dirname"
