@@ -79,8 +79,10 @@ function add_mine_sources {
 
     # GO annotation
     # Data source directory: datasets/GO-annotation/<source>
-    # Usage: add_go_annotation "<DataSource.name>" "<DataSet.name>", e.g.,
-    add_go_annotation "MaizeGDB" "MaizeGDB-PANNZER GO Annotation data set"
+    # Usage: add_go_annotation "<DataSource.name>" "<DataSet.name>" "<loadPublications flag>", 
+    add_go_annotation "MaizeGDB" "MaizeGDB-PANNZER GO Annotation data set" "true"
+    # Or to not load the data set title from project.xml, use "none", e.g.,
+    add_go_annotation "HGD" "none" "false"
 
     # KEGG
     # Data source directories: datasets/KEGG_genes, datasets/KEGG_meta (optional)

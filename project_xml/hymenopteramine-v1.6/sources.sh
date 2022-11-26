@@ -61,9 +61,9 @@ function add_mine_sources {
     add_hgd_ortho
 
     # GO-Annotation
-    add_go_annotation "HGD"
-    add_go_annotation "FlyBase"
-    add_go_annotation "UniProt"
+    add_go_annotation "HGD" "none" "false"
+    add_go_annotation "FlyBase" "none" "true"
+    add_go_annotation "UniProt" "none" "true"
 
     # Add BioGRID
     add_biogrid

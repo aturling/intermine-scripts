@@ -1363,6 +1363,7 @@ function add_protein2ipr {
 function add_go_annotation {
     datasource=$1
     dataset=$2
+    loadpubs=$3
 
     echo "+ Adding GO annotation"
 
@@ -1375,9 +1376,10 @@ function add_go_annotation {
         echo "    <source name=\"${datasource,,}-go-annotation\" type=\"go-annotation\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"datasource\" value=\"${datasource}\"/>" >> $outfile
         # data set is optional
-        if [ ! -z "$dataset" ]; then
+        if [ "$dataset" != "none" ]; then
             echo "      <property name=\"dataset\" value=\"${dataset}\"/>" >> $outfile
         fi
+        echo "      <property name=\"loadPublications\" value=\"${loadpubs}\"/>" >> $outfile
         echo "      <property name=\"ontologyPrefix\" value=\"GO\"/>" >> $outfile
         echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
         echo "    </source>" >> $outfile
