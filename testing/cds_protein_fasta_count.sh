@@ -31,7 +31,7 @@ for source in "${sources[@]}" ; do
     srcdir=$(find /db/*/datasets/ -maxdepth 1 -type d -name "$source")
     if [ ! -z $srcdir ]; then
         echo "Source: $source..."
-        files=$(find /db/*/datasets/${source}/cds_fasta* -type f -name *.fa)
+        files=$(find /db/*/datasets/${source}/cds_fasta -type f -name *.fa)
 
         for fasta_file in $files; do
             # assumes directory format is /db/<mine_dir>/datasets/<source>/cds_fasta/<organism_name>/<assembly>/*.fa
