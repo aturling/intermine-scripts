@@ -1489,18 +1489,24 @@ function add_hgd_ortho {
     echo "    <!--Data file(s) must be sorted on column 2 before loading!-->" >> $outfile
 
     dirname="${mine_dir}/datasets/HGD-Ortho"
-    check_nonempty_dir "$dirname"
-    ec=$?
-    if [ "$ec" -eq 0 ]; then
-        taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/*.tab  | sort -n | uniq | xargs)
-  
-        echo "    <source name=\"hgd-ortho\" type=\"orthodb-clusters\" version=\"${source_version}\">" >> $outfile
+    num_lcas=$(find ${dirname} -mindepth 1 -maxdepth 1 -type f 2>/dev/null | wc -l)
+    if [ $num_lcas -eq 0 ]; then
+        echo "WARNING: $dirname does not exist or is empty" 1>&2
+        return 1
+    fi
+    lcafiles=$(find ${dirname} -mindepth 1 -maxdepth 1 -type f -printf "%f\n" | sort)
+    for lcafile in $lcafiles; do
+        taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/${lcafile}  | sort -n | uniq | xargs)
+        lca=$(echo "$lcafile" | awk -F'_' '{print $1}')  
+
+        echo "    <source name=\"hgd-ortho-${lca,,}\" type=\"orthodb-clusters\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"dataSourceName\" value=\"HGD\"/>" >> $outfile
         echo "      <property name=\"dataSetTitle\" value=\"HGD-Ortho data set\"/>" >> $outfile
         echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir.includes\" value=\"${lcafile}\"/>" >> $outfile
         echo "      <property name=\"orthodb.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
         echo "    </source>" >> $outfile
-    fi
+    done
 
     echo >> $outfile
     echo >> $outfile

@@ -54,12 +54,6 @@ function add_mine_sources {
     # RBHs
     add_rbh
 
-    # OrthoDB
-    add_orthodb
-
-    # HGD-ortho
-    add_hgd_ortho
-
     # GO-Annotation
     add_go_annotation "HGD" "HGD GO annotation data set" "false"
     add_go_annotation "FlyBase" "FlyBase GO annotation data set" "true"
@@ -70,6 +64,12 @@ function add_mine_sources {
 
     # Add IntAct
     add_intact "7227"
+
+    # OrthoDB
+    add_orthodb
+
+    # HGD-ortho
+    add_hgd_ortho
 
     # Update data sources
     add_update_data_sources
