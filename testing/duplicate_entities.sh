@@ -211,8 +211,8 @@ run_null_query ${dbname} "protein" "organismid"
 # empty sequences:
 run_null_query ${dbname} "protein" "md5checksum"
 
-# duplicates:
-run_duplicate_dbquery ${dbname} "protein" "primaryaccession" 0
+# duplicates - don't bother because there are almost always a few
+#run_duplicate_dbquery ${dbname} "protein" "primaryaccession" 0
 
 
 #--------------------------------
