@@ -26,7 +26,7 @@ def getHeaderWidths(mineName):
         'AquaMine': ['10%', '15%', '22%', '23%', '20%', '10%'],
         'FAANGMine': ['15%', '15%', '10%', '25%', '25%', '10%'],
         'HymenopteraMine': ['15%', '15%', '15%', '25%', '20%', '10%'],
-        'MaizeMine': ['15%', '25%', '10%', '15%', '20%', '15%']
+        'MaizeMine': ['15%', '15%', '15%', '20%', '20%', '15%']
     }
     return headerWidthsForMine[mineName]
 
@@ -84,18 +84,17 @@ def formatText(text):
         "CMO"                            : "https://bioportal.bioontology.org/ontologies/CMO",
         "ECO"                            : "https://bioportal.bioontology.org/ontologies/ECO",
         "GO"                             : "https://bioportal.bioontology.org/ontologies/GO",
-        "HAO"                            : "http://www.obofoundry.org/ontology/hao.html",
+        "HAO"                            : "https://bioportal.bioontology.org/ontologies/HAO",
         "LBO"                            : "https://bioportal.bioontology.org/ontologies/LBO",
         "LPT"                            : "https://bioportal.bioontology.org/ontologies/LPT",
         "MA"                             : "https://bioportal.bioontology.org/ontologies/MA",
         "MI"                             : "https://bioportal.bioontology.org/ontologies/PSIMOD",
-        "PO"                             : "https://github.com/Planteome/plant-ontology",
-        "SO"                             : "http://intermine.org/im-docs/docs/database/data-sources/library/so",
-        "UBERON"                         : "http://purl.obolibrary.org/obo/uberon/basic.obo",
+        "PO"                             : "https://bioportal.bioontology.org/ontologies/PO",
+        "SO"                             : "https://bioportal.bioontology.org/ontologies/SO",
+        "UBERON"                         : "https://bioportal.bioontology.org/ontologies/UBERON",
         "VT"                             : "https://bioportal.bioontology.org/ontologies/VT",
         # Other sources:
-        "BioGRID Download"               : "https://downloads.thebiogrid.org/BioGRID/Release-Archive/BIOGRID-3.5.187/",
-        "Ensembl Plant Biomart download" : "http://plants.ensembl.org/index.html",
+        "Ensembl Plants BioMart Download" : "http://plants.ensembl.org/index.html",
         "FAANG Download"                 : "https://data.faang.org/dataset/PRJEB35307",
         "GOA UniProt FTP"                : "http://ftp.ebi.ac.uk/pub/databases/GO/goa/UNIPROT/goa_uniprot_all.gaf.gz",
         "GO Consortium Annotation FTP"   : "http://geneontology.org/page/download-ontology",
@@ -103,27 +102,24 @@ def formatText(text):
         "HGD"                            : "http://hymenopteragenome.org",
         "HGD Genome Fasta Download"      : "http://hymenopteragenome.org/genome_fasta",
         "HGD OGS GFF3 Download"          : "http://hymenopteragenome.org/ogs_gff3_files",
-        "IntAct FTP"                     : "ftp://ftp.ebi.ac.uk/pub/databases/IntAct/current/",
-        "InterPro FTP"                   : "http://ftp.ebi.ac.uk/pub/databases/interpro/88.0/",
-        "KEGG Download"                  : "https://www.kegg.jp/kegg/rest/keggapi.html",
+        "KEGG Download"                  : "https://www.kegg.jp/kegg/rest/",
         "NCBI PubMed FTP"                : "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2pubmed.gz",
         "OMIM Download"                  : "https://www.omim.org/downloads",
         "OrthoDB Download"               : "https://www.orthodb.org",
-        "Plant Reactome Gramene FTP"     : "https://plantreactome.gramene.org/index.php?lang=en",
+        "Plant Reactome Gramene Download" : "https://plantreactome.gramene.org/download/current/Ensembl2PlantReactome_All_Levels.txt",
         "QTL Download"                   : "https://www.animalgenome.org/cgi-bin/QTLdb/index",
         "Reactome Download"              : "https://reactome.org/download/current/UniProt2Reactome_All_Levels.txt",
         "TreeFam Download"               : "http://www.treefam.org/download",
-        "UniProt FTP"                    : "https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/",
         # Maize Community datasets:
-        "MaizeGDB Expression download"   : "https://datacommons.cyverse.org/browse/iplant/home/maizegdb/maizegdb/MaizeGDB_qTeller_FPKM/B73v5_qTeller_FPKM",
-        "Grotewold CAGE Tag Count Root download" : "https://datacommons.cyverse.org/browse/iplant/home/maizegdb/maizegdb/B73v5_JBROWSE_AND_ANALYSES/B73v5_TSS",
-        "Grotewold CAGE Tag Count Shoot download" : "https://datacommons.cyverse.org/browse/iplant/home/maizegdb/maizegdb/B73v5_JBROWSE_AND_ANALYSES/B73v5_TSS",
-        "GWAS Atlas download" : "https://datacommons.cyverse.org/browse/iplant/home/maizegdb/maizegdb/B73v5_JBROWSE_AND_ANALYSES/B73v5_diversity_markers_and_GWAS/GWAS/SNPs_from_GWAS_Atlas_database",
-        "MaizeGDB_UniformMu download" : "https://download.maizegdb.org/Insertions/UniformMu/",
-        "Stam 2017 Husk H3K9ac Enhancer download" : "https://datacommons.cyverse.org/browse/iplant/home/maizegdb/maizegdb/B73v5_JBROWSE_AND_ANALYSES/B73v5_epigenetics_and_DNA_binding/Oka_2017_enhancer_binding/Oka_Enhancer_Husk_v5.gff",
-        "Stam 2017 Seedling H3K9ac Enhancer download" : "https://datacommons.cyverse.org/browse/iplant/home/maizegdb/maizegdb/B73v5_JBROWSE_AND_ANALYSES/B73v5_epigenetics_and_DNA_binding/Oka_2017_enhancer_binding/Oka_Enhancer_Seedling_v5.gff",
-        "Vollbrecht 2010 Ac/Ds Insertions download" : "https://download.maizegdb.org/Insertions/AcDs_Vollbrecht/",
-        "Wallace 2014 GWAS download" : "https://datacommons.cyverse.org/browse/iplant/home/maizegdb/maizegdb/B73v5_JBROWSE_AND_ANALYSES/B73v5_diversity_markers_and_GWAS/GWAS/GWAS_SNPs_from_Wallace_2014/B73v5_Wallace_etal_2014_PLoSGenet_GWAS_hits-150112_blastn.gff.gz",
+        "MaizeGDB Expression Download"   : "https://datacommons.cyverse.org/browse/iplant/home/maizegdb/maizegdb/MaizeGDB_qTeller_FPKM/B73v5_qTeller_FPKM",
+        "Grotewold CAGE Tag Count Root Download" : "https://datacommons.cyverse.org/browse/iplant/home/maizegdb/maizegdb/B73v5_JBROWSE_AND_ANALYSES/B73v5_TSS",
+        "Grotewold CAGE Tag Count Shoot Download" : "https://datacommons.cyverse.org/browse/iplant/home/maizegdb/maizegdb/B73v5_JBROWSE_AND_ANALYSES/B73v5_TSS",
+        "GWAS Atlas Download" : "https://datacommons.cyverse.org/browse/iplant/home/maizegdb/maizegdb/B73v5_JBROWSE_AND_ANALYSES/B73v5_diversity_markers_and_GWAS/GWAS/SNPs_from_GWAS_Atlas_database",
+        "MaizeGDB_UniformMu Download" : "https://download.maizegdb.org/Insertions/UniformMu/",
+        "Stam 2017 Husk H3K9ac Enhancer Download" : "https://datacommons.cyverse.org/browse/iplant/home/maizegdb/maizegdb/B73v5_JBROWSE_AND_ANALYSES/B73v5_epigenetics_and_DNA_binding/Oka_2017_enhancer_binding/Oka_Enhancer_Husk_v5.gff",
+        "Stam 2017 Seedling H3K9ac Enhancer Download" : "https://datacommons.cyverse.org/browse/iplant/home/maizegdb/maizegdb/B73v5_JBROWSE_AND_ANALYSES/B73v5_epigenetics_and_DNA_binding/Oka_2017_enhancer_binding/Oka_Enhancer_Seedling_v5.gff",
+        "Vollbrecht 2010 Ac/Ds Insertions Download" : "https://download.maizegdb.org/Insertions/AcDs_Vollbrecht/",
+        "Wallace 2014 GWAS Download" : "https://datacommons.cyverse.org/browse/iplant/home/maizegdb/maizegdb/B73v5_JBROWSE_AND_ANALYSES/B73v5_diversity_markers_and_GWAS/GWAS/GWAS_SNPs_from_Wallace_2014/B73v5_Wallace_etal_2014_PLoSGenet_GWAS_hits-150112_blastn.gff.gz",
     }
     for linkText, url in linksWithinText.items():
         if (linkText in text):
@@ -131,24 +127,35 @@ def formatText(text):
     for linkText, url in linksExactMatch.items():
         if (linkText == text):
             text = text.replace(linkText, createURL(linkText, url, True))
-    # 3) convert NCBI FTP urls to links, if applicable:
-    text = addFTPLinks(text)
-    # 4) convert Ensembl Download urls to links, if applicable:
+    # 3) convert download/FTP urls to links, if applicable:
+    text = addDownloadLinks(text)
+
+    return text
+
+
+def addDownloadLinks(text):
+    if (len(text) > 26 and (text[0:26] == "ftp://ftp.ncbi.nlm.nih.gov")):
+        text = createURL("NCBI FTP", text, True)
+    if (len(text) > 28 and (text[0:28] == "https://ftp.ncbi.nlm.nih.gov")):
+        text = createURL("NCBI FTP", text, True)
+    if (len(text)> 23 and (text[0:23] == "https://ftp.uniprot.org")):
+        text = createURL("UniProt FTP", text, True)
+    if (len(text) > 44 and (text[0:44] == "https://ftp.ebi.ac.uk/pub/databases/interpro")):
+        text = createURL("InterPro FTP", text, True)
+    if (len(text) > 40 and (text[0:40] == "ftp://ftp.ebi.ac.uk/pub/databases/IntAct")):
+        text = createURL("IntAct FTP", text, True)
+    if (len(text) > 30 and (text[0:30] == "https://ftp.ensemblgenomes.org")):
+        text = createURL("Ensembl Genomes FTP", text, True)
     if (len(text) > 23 and (text[0:23] == "https://ftp.ensembl.org")):
         text = createURL("Ensembl Download", text, True)
     if (len(text) > 22 and (text[0:22] == "http://ftp.ensembl.org")):
         text = createURL("Ensembl Download", text, True)
     if (len(text) > 26 and (text[0:26] == "https://useast.ensembl.org")):
         text = createURL("Ensembl Download", text, True)
-
-    return text
-
-
-def addFTPLinks(text):
-    if (len(text) > 26 and (text[0:26] == "ftp://ftp.ncbi.nlm.nih.gov")):
-        text = createURL("NCBI FTP", text, True)
-    if (len(text) > 28 and (text[0:28] == "https://ftp.ncbi.nlm.nih.gov")):
-        text = createURL("NCBI FTP", text, True)
+    if (len(text) > 40 and (text[0:40] == "https://downloads.thebiogrid.org/BioGRID")):
+        text = createURL("BioGRID Download", text, True)
+    if (len(text) > 29 and (text[0:29] == "https://download.maizegdb.org")):
+        text = createURL("MaizeGDB Download", text, True)
 
     return text
 
