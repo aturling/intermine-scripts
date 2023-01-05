@@ -37,11 +37,13 @@ def getHeaderWidths(mineName):
 # * HTML allowed in cells (<br>, <b>, etc.)
 # * Vertically adjacent cells with same content will be merged;
 #   add "*" in front of 2nd and onward cells to prevent this.
+#   Horizontally adjacent cells with same content will also be merged;
+#   similarly add "*" in front of 2nd and onward column cells to prevent this.
+#   In other words, any cell with "*" in front will never be merged with any
+#   other row or column.
+#   The '*' prefix itself will not appear in the final table output.
 # * "PubMed: #########" numbers will be replaced with link to pubmed.
 # * Check links below in formatText(), may need to be customized per mine.
-# * Links beginning with "ftp://ftp.ncbi.nlm.nih.gov" or
-#   "https://ftp.ncbi.nlm.nih.gov" can be put straight into
-#   the cell with no formatting and will be converted to "NCBI FTP" with link.
 
 ##################################################
 
@@ -80,36 +82,49 @@ def formatText(text):
     }
     linksExactMatch = {
         # Ontologies:
-        "BTO"                            : "https://bioportal.bioontology.org/ontologies/BTO",
-        "CMO"                            : "https://bioportal.bioontology.org/ontologies/CMO",
-        "ECO"                            : "https://bioportal.bioontology.org/ontologies/ECO",
-        "GO"                             : "https://bioportal.bioontology.org/ontologies/GO",
-        "HAO"                            : "https://bioportal.bioontology.org/ontologies/HAO",
-        "LBO"                            : "https://bioportal.bioontology.org/ontologies/LBO",
-        "LPT"                            : "https://bioportal.bioontology.org/ontologies/LPT",
-        "MA"                             : "https://bioportal.bioontology.org/ontologies/MA",
-        "MI"                             : "https://bioportal.bioontology.org/ontologies/PSIMOD",
-        "PO"                             : "https://bioportal.bioontology.org/ontologies/PO",
-        "SO"                             : "https://bioportal.bioontology.org/ontologies/SO",
-        "UBERON"                         : "https://bioportal.bioontology.org/ontologies/UBERON",
-        "VT"                             : "https://bioportal.bioontology.org/ontologies/VT",
+        "ATOL"                            : "https://bioportal.bioontology.org/ontologies/ATOL",
+        "BTO"                             : "https://bioportal.bioontology.org/ontologies/BTO",
+        "CL"                              : "https://obophenotype.github.io/cell-ontology/",
+        "CMO"                             : "https://bioportal.bioontology.org/ontologies/CMO",
+        "ECO"                             : "https://bioportal.bioontology.org/ontologies/ECO",
+        "EFO"                             : "https://www.ebi.ac.uk/efo/index.html",
+        "EOL"                             : "https://bioportal.bioontology.org/ontologies/EOL",
+        "GO"                              : "https://bioportal.bioontology.org/ontologies/GO",
+        "HAO"                             : "https://bioportal.bioontology.org/ontologies/HAO",
+        "HSAPDV"                          : "https://bioportal.bioontology.org/ontologies/HSAPDV",
+        "HP"                              : "https://hpo.jax.org/app/data/ontology",
+        "LBO"                             : "https://bioportal.bioontology.org/ontologies/LBO",
+        "LPT"                             : "https://bioportal.bioontology.org/ontologies/LPT",
+        "MA"                              : "https://bioportal.bioontology.org/ontologies/MA",
+        "MONDO"                           : "https://mondo.monarchinitiative.org/pages/download/",
+        "MI"                              : "https://bioportal.bioontology.org/ontologies/PSIMOD",
+        "OBI"                             : "http://obi-ontology.org",
+        "ORDO"                            : "https://bioportal.bioontology.org/ontologies/ORDO",
+        "PATO"                            : "https://github.com/pato-ontology/pato/",
+        "PO"                              : "https://bioportal.bioontology.org/ontologies/PO",
+        "PSI-MI"                          : "https://github.com/HUPO-PSI/psi-mi-CV",
+        "SO"                              : "https://bioportal.bioontology.org/ontologies/SO",
+        "UBERON"                          : "https://bioportal.bioontology.org/ontologies/UBERON",
+        "VT"                              : "https://bioportal.bioontology.org/ontologies/VT",
         # Other sources:
         "Ensembl Plants BioMart Download" : "http://plants.ensembl.org/index.html",
-        "FAANG Download"                 : "https://data.faang.org/dataset/PRJEB35307",
-        "GOA UniProt FTP"                : "http://ftp.ebi.ac.uk/pub/databases/GO/goa/UNIPROT/goa_uniprot_all.gaf.gz",
-        "GO Consortium Annotation FTP"   : "http://geneontology.org/page/download-ontology",
-        "GOC Download"                   : "http://geneontology.org/docs/download-ontology",
-        "HGD"                            : "http://hymenopteragenome.org",
-        "HGD Genome Fasta Download"      : "http://hymenopteragenome.org/genome_fasta",
-        "HGD OGS GFF3 Download"          : "http://hymenopteragenome.org/ogs_gff3_files",
-        "KEGG Download"                  : "https://www.kegg.jp/kegg/rest/",
-        "NCBI PubMed FTP"                : "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2pubmed.gz",
-        "OMIM Download"                  : "https://www.omim.org/downloads",
-        "OrthoDB Download"               : "https://www.orthodb.org",
+        "GOA UniProt FTP"                 : "http://ftp.ebi.ac.uk/pub/databases/GO/goa/UNIPROT/goa_uniprot_all.gaf.gz",
+        "GO Consortium Annotation FTP"    : "http://geneontology.org/page/download-ontology",
+        "GOC Download"                    : "http://geneontology.org/docs/download-ontology",
+        "HGD"                             : "http://hymenopteragenome.org",
+        "HGD Genome Fasta Download"       : "http://hymenopteragenome.org/genome_fasta",
+        "HGD GO Annotation Download"      : "http://hymenopteragenome.org/hgd-go-annotation",
+        "HGD OGS GFF3 Download"           : "http://hymenopteragenome.org/ogs_gff3_files",
+        "HGD Ortholog Download"           : "http://hymenopteragenome.org/orthologs",
+        "KEGG Download"                   : "https://www.kegg.jp/kegg/rest/keggapi.html",
+        "NCBI PubMed FTP"                 : "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2pubmed.gz",
+        "OMIM Download"                   : "https://www.omim.org/downloads",
+        "OrthoDB"                         : "https://www.orthodb.org/",
+        "OrthoDB Download"                : "https://data.orthodb.org/download/",
         "Plant Reactome Gramene Download" : "https://plantreactome.gramene.org/download/current/Ensembl2PlantReactome_All_Levels.txt",
-        "QTL Download"                   : "https://www.animalgenome.org/cgi-bin/QTLdb/index",
-        "Reactome Download"              : "https://reactome.org/download/current/UniProt2Reactome_All_Levels.txt",
-        "TreeFam Download"               : "http://www.treefam.org/download",
+        "QTL Download"                    : "https://www.animalgenome.org/cgi-bin/QTLdb/index",
+        "Reactome Download"               : "https://reactome.org/download/current/UniProt2Reactome_All_Levels.txt",
+        "TreeFam Download"                : "http://www.treefam.org/download",
         # Maize Community datasets:
         "MaizeGDB Expression Download"   : "https://datacommons.cyverse.org/browse/iplant/home/maizegdb/maizegdb/MaizeGDB_qTeller_FPKM/B73v5_qTeller_FPKM",
         "Grotewold CAGE Tag Count Root Download" : "https://datacommons.cyverse.org/browse/iplant/home/maizegdb/maizegdb/B73v5_JBROWSE_AND_ANALYSES/B73v5_TSS",
@@ -143,19 +158,31 @@ def addDownloadLinks(text):
     if (len(text) > 44 and (text[0:44] == "https://ftp.ebi.ac.uk/pub/databases/interpro")):
         text = createURL("InterPro FTP", text, True)
     if (len(text) > 40 and (text[0:40] == "ftp://ftp.ebi.ac.uk/pub/databases/IntAct")):
-        text = createURL("IntAct FTP", text, True)
+        text = createURL("IntAct Download", text, True)
+    if (len(text) > 42 and (text[0:42] == "https://ftp.ebi.ac.uk/pub/databases/IntAct")):
+        text = createURL("IntAct Download", text, True)
+    if (len(text) > 39 and (text[0:39] == "https://ftp.ebi.ac.uk/pub/databases/eva")):
+        text = createURL("EVA Download", text, True)   
     if (len(text) > 30 and (text[0:30] == "https://ftp.ensemblgenomes.org")):
         text = createURL("Ensembl Genomes FTP", text, True)
     if (len(text) > 23 and (text[0:23] == "https://ftp.ensembl.org")):
-        text = createURL("Ensembl Download", text, True)
+        text = createURL("Ensembl FTP", text, True)
     if (len(text) > 22 and (text[0:22] == "http://ftp.ensembl.org")):
-        text = createURL("Ensembl Download", text, True)
+        text = createURL("Ensembl FTP", text, True)
     if (len(text) > 26 and (text[0:26] == "https://useast.ensembl.org")):
         text = createURL("Ensembl Download", text, True)
+    if (len(text) > 41 and (text[0:41] == "https://ftp.ensembl.org/pub/rapid-release")):
+        text = createURL("Ensembl Rapid Release FTP", text, True)
     if (len(text) > 40 and (text[0:40] == "https://downloads.thebiogrid.org/BioGRID")):
         text = createURL("BioGRID Download", text, True)
+    if (len(text) > 39 and (text[0:39] == "https://www.ncbi.nlm.nih.gov/bioproject")):
+        text = createURL("NCBI BioProject", text, True) 
+    if (len(text) > 30 and (text[0:30] == "https://data.faang.org/dataset")):
+        text = createURL("FAANG Data Portal", text, True)
     if (len(text) > 29 and (text[0:29] == "https://download.maizegdb.org")):
         text = createURL("MaizeGDB Download", text, True)
+    if (len(text) > 31 and (text[0:31] == "http://ftp.flybase.net/releases")):
+        text = createURL("FlyBase Download", text, True)
 
     return text
 
@@ -200,6 +227,7 @@ def main():
         dataTable = csv.reader(csvfile, delimiter=',')
         for rowNum, row in enumerate(dataTable):
             tableRows.append([])  # add empty array
+            colSpan = 1  # Initialize colspan for entire row
             for colNum, col in enumerate(row):
                 # Remove any line breaks from end of text
                 col = col.rstrip('\n')
@@ -210,12 +238,36 @@ def main():
                 colVals['spansRows'] = False
                 colVals['rowSpan'] = 1
                 colVals['spanStartRow'] = -1
-                
+                colVals['spansCols'] = False
+                colVals['colSpan'] = 1
+                colVals['spanStartCol'] = -1
+
+                # Check if this column is part of a col span, and if so, update variables
+                # Note that an asterisk (*) in front denotes keep columns separate even if it matches previous column
+                if ((colNum > 1) and (col) and (col[0] != '*') and (col == tableRows[rowNum][colNum - 1]['text'])):
+                    # Text in this column matches text from previous column in same row, so combine into colspan
+                    colVals['spansCols'] = True
+                    spanStartCol = 0 # initialize
+                    # Determine which column is the start of the span:
+                    if (tableRows[rowNum][colNum - 1]['spanStartCol'] > -1):
+                        # tableRows[rowNum][colNum - 1]["spanStartCol"] already points to first col of span
+                        spanStartCol = tableRows[rowNum][colNum - 1]["spanStartCol"]
+                    else:
+                        # Previous column is the start of the span
+                        spanStartCol = colNum - 1
+                        # Update previous column in this row to indicate it's part of a span
+                        tableRows[rowNum][colNum - 1]['spansCols'] = True
+                    # Increment colSpan count for the first col in the span
+                    tableRows[rowNum][spanStartCol]['colSpan'] += 1
+                    # Set this so next column will know which colSpan count to update too
+                    colVals['spanStartCol'] = spanStartCol
+                    # Don't remove asterisk yet, will need to denote separate row below
+
                 # Check if this column is part of a row span, and if so, update variables
                 # Note that an asterisk (*) in front denotes keep separate row even if it matches the row above
                 if ((rowNum > 0) and (col) and (col[0] != '*') and (col == tableRows[rowNum - 1][colNum]['text'])):
                     # Text in this column matches text from same column in previous row,
-                    # so combine them into one colspan
+                    # so combine them into one rowspan
                     # First indicate that this column is part of a colspan:
                     colVals['spansRows'] = True
                     spanStartRow = 0  # initialize
@@ -269,6 +321,9 @@ def main():
                 if (col['spansRows'] and col['rowSpan'] <= 1):
                     # If middle row of spanning column, don't create <td> at all, just put in placeholder comment
                     HTMLfile.write('<!-- part of rowspan -->')
+                elif (col['spansCols'] and col['colSpan'] <= 1):
+                    # If middle of spanning row, similarly don't create <td> at all
+                    HTMLfile.write('<!-- part of colspan -->')
                 else:
                     # Create the <td> column:
                     colText = col['text'] # cell contents
@@ -281,6 +336,9 @@ def main():
                     if (col['spansRows'] and col['rowSpan'] > 1):
                         # First row of spanning column, add rowspan
                         HTMLfile.write(' rowspan="' + str(col['rowSpan']) + '"')
+                    if (col['spansCols'] and col['colSpan'] > 1):
+                        # First row of spanning row, add colspan
+                        HTMLfile.write(' colspan="' + str(col['colSpan']) + '"')
                     
                     HTMLfile.write('>') # End row tag
                     
