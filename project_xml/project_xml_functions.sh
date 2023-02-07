@@ -304,6 +304,9 @@ function add_snp {
         fullname=$(echo "$org" | sed 's/_/ /'g)
         taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
         data_source=$(grep -i "$fullname" snp_sources.tab | cut -f2)
+        if [ -z "$data_source" ]; then
+            echo "WARNING: $fullname not found in snp_sources.tab"
+        fi
         # Iterate over assemblies (usually just one)
         assemblies=$(get_assemblies "${data_subdir}/${org}")
         num_assemblies=$(echo "$assemblies" | wc -l)
@@ -1096,18 +1099,22 @@ function add_pubmed_source {
         pubmed_dir="ensembl-pubmed-gene"
     fi
     pubmed_file=$(find ${mine_dir}/datasets/${pubmed_dir} -mindepth 1 -maxdepth 1 -type f 2>/dev/null)
-    check_file "$pubmed_file"
-    ec=$?
-    if [ "$ec" -eq 0 ]; then
-        taxon_ids=$(cut -f1 ${pubmed_file} | sort -n | uniq | xargs)
+    if [ ! -z "$pubmed_file" ]; then
+        check_file "$pubmed_file"
+        ec=$?
+        if [ "$ec" -eq 0 ]; then
+            taxon_ids=$(cut -f1 ${pubmed_file} | sort -n | uniq | xargs)
 
-        echo "    <source name=\"${pubmed_dir,,}\" type=\"pubmed-gene\" version=\"${source_version}\">" >> $outfile
-        echo "      <property name=\"geneSource\" value=\"${source_name}\"/>" >> $outfile
-        echo "      <property name=\"pubmed.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
-        echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${pubmed_dir}\"/>" >> $outfile
-        echo "    </source>" >> $outfile
+            echo "    <source name=\"${pubmed_dir,,}\" type=\"pubmed-gene\" version=\"${source_version}\">" >> $outfile
+            echo "      <property name=\"geneSource\" value=\"${source_name}\"/>" >> $outfile
+            echo "      <property name=\"pubmed.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${pubmed_dir}\"/>" >> $outfile
+            echo "    </source>" >> $outfile
+        else
+            echo "WARNING: no pubmed gene data file in ${pubmed_dir}" 1>&2
+        fi
     else
-        echo "WARNING: no pubmed gene data file in ${pubmed_dir}" 1>&2
+        echo "WARNING: Directory ${mine_dir}/datasets/$pubmed_dir does not exist"
     fi
 }
 
@@ -1477,6 +1484,36 @@ function add_orthodb {
         echo "      <property name=\"orthodb.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
         echo "    </source>" >> $outfile
     fi
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
+function add_aquamine_ortho {
+    echo "+ Adding AquaMine-Ortho"
+
+    echo "    <!--AquaMine-Ortho-->" >> $outfile
+    echo "    <!--Data file(s) must be sorted on column 2 before loading!-->" >> $outfile
+
+    dirname="${mine_dir}/datasets/AquaMine-Ortho"
+    num_lcas=$(find ${dirname} -mindepth 1 -maxdepth 1 -type f 2>/dev/null | wc -l)
+    if [ $num_lcas -eq 0 ]; then
+        echo "WARNING: $dirname does not exist or is empty" 1>&2
+        return 1
+    fi
+    lcafiles=$(find ${dirname} -mindepth 1 -maxdepth 1 -type f -printf "%f\n" | sort)
+    for lcafile in $lcafiles; do
+        taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/${lcafile}  | sort -n | uniq | xargs)
+        lca=$(echo "$lcafile" | awk -F'_' '{print $1}')
+
+        echo "    <source name=\"aquamine-ortho-${lca,,}\" type=\"orthodb-clusters\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"dataSourceName\" value=\"AquaMine\"/>" >> $outfile
+        echo "      <property name=\"dataSetTitle\" value=\"AquaMine-Ortho data set\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir.includes\" value=\"${lcafile}\"/>" >> $outfile
+        echo "      <property name=\"orthodb.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    done
 
     echo >> $outfile
     echo >> $outfile

@@ -2,12 +2,10 @@ Bos taurus	9913
 Bubalus bubalis	89462
 Canis lupus familiaris	9615
 Capra hircus	9925
-Danio rerio	7955
 Drosophila melanogaster	7227
 Equus caballus	9796
 Felis catus	9685
 Gallus gallus	9031
-Lottia gigantea	225164
 Homo sapiens	9606
 Mus musculus	10090
 Ovis aries	9940
@@ -130,3 +128,40 @@ Vespula pensylvanica	30213
 Vespula vulgaris	7454
 Vollenhovia emeryi	411798
 Wasmannia auropunctata	64793
+Astyanax mexicanus	7994
+Clupea harengus	7950
+Coregonus clupeaformis	59861
+Crassostrea gigas	29159
+Crassostrea virginica	6565
+Danio rerio	7955
+Esox lucius	8010
+Etheostoma cragini	417921
+Gadus morhua	8049
+Gasterosteus aculeatus aculeatus	481459
+Haliotis rufescens	6454
+Hippoglossus hippoglossus	8267
+Hippoglossus stenolepis	195615
+Homarus americanus	6706
+Ictalurus punctatus	7998
+Lepisosteus oculatus	7918
+Lottia gigantea	225164
+Mercenaria mercenaria	6596
+Micropterus salmoides	27706
+Morone saxatilis	34816
+Mugil cephalus	48193
+Oncorhynchus gorbuscha	8017
+Oncorhynchus keta	8018
+Oncorhynchus kisutch	8019
+Oncorhynchus mykiss	8022
+Oncorhynchus nerka	8023
+Oncorhynchus tshawytscha	74940
+Oreochromis niloticus	8128
+Penaeus monodon	6687
+Penaeus vannamei	6689
+Perca flavescens	8167
+Procambarus clarkii	6728
+Salmo salar	8030
+Salvelinus sp. IW2-2015	2691554
+Seriola dumerili	41447
+Seriola lalandi dorsalis	1841481
+Xiphias gladius	8245
