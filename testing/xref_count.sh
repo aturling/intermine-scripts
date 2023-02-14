@@ -39,7 +39,7 @@ for org in $orgs; do
     # Count in database
     dbcount=$(psql ${dbname} -c "select count(g.id) from crossreference c join gene g on g.id=c.subjectid where organismid=${org_id} and c.targetid is not null" -t -A)
     if [ ! "$dbcount" -eq "$file_count" ]; then
-        echo "WARNING: $dbcount xrefs in database, but $filecount in input file!"
+        echo "WARNING: $dbcount xrefs in database, but $file_count in input file!"
         all_counts_correct=0
     else
         echo "Counts correct ($dbcount xrefs)"
