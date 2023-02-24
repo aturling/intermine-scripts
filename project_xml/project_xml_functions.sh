@@ -119,7 +119,7 @@ function check_nonempty_dir {
     if [ "$ec" -eq 0 ]; then
         numfiles=$(find -L $dirname/ -mindepth 1 -maxdepth 1 -type f 2>/dev/null | wc -l)
         if [ "$numfiles" -eq 0 ]; then
-            echo "WARNING: Directory $dirname is empty"
+            echo "WARNING: Directory $dirname is empty" 1>&2
             return 1
         fi
     fi
