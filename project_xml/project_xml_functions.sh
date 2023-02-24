@@ -1501,19 +1501,22 @@ function add_aquamine_ortho {
         echo "WARNING: $dirname does not exist or is empty" 1>&2
         return 1
     fi
-    lcafiles=$(find ${dirname} -mindepth 1 -maxdepth 1 -type f -printf "%f\n" | sort)
-    for lcafile in $lcafiles; do
-        taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/${lcafile}  | sort -n | uniq | xargs)
-        lca=$(echo "$lcafile" | awk -F'_' '{print $1}')
+    # No need to split by LCA
+    #lcafiles=$(find ${dirname} -mindepth 1 -maxdepth 1 -type f -printf "%f\n" | sort)
+    #for lcafile in $lcafiles; do
+    #    taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/${lcafile}  | sort -n | uniq | xargs)
+    #    lca=$(echo "$lcafile" | awk -F'_' '{print $1}')
+    taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/* | sort -n | uniq | xargs)
 
-        echo "    <source name=\"aquamine-ortho-${lca,,}\" type=\"orthodb-clusters\" version=\"${source_version}\">" >> $outfile
-        echo "      <property name=\"dataSourceName\" value=\"AquaMine\"/>" >> $outfile
-        echo "      <property name=\"dataSetTitle\" value=\"AquaMine-Ortho data set\"/>" >> $outfile
-        echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
-        echo "      <property name=\"src.data.dir.includes\" value=\"${lcafile}\"/>" >> $outfile
-        echo "      <property name=\"orthodb.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
-        echo "    </source>" >> $outfile
-    done
+    echo "    <source name=\"aquamine-ortho\" type=\"orthodb-clusters\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"dataSourceName\" value=\"AquaMine\"/>" >> $outfile
+    echo "      <property name=\"dataSetTitle\" value=\"AquaMine-Ortho data set\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+    #    echo "      <property name=\"src.data.dir.includes\" value=\"${lcafile}\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir.includes\" value=\"*.tab\"/>" >> $outfile
+    echo "      <property name=\"orthodb.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+    echo "    </source>" >> $outfile
+    #done
 
     echo >> $outfile
     echo >> $outfile
