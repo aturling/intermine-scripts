@@ -114,6 +114,11 @@ function add_mine_sources {
     # Data source directory: datasets/ensembl-plant-biomart
     add_biomart
 
+    # RBHs
+    # Data source directory: datasets/<source>-RBH
+    # Usage: add_rbh "<DataSource.name>"
+    add_rbh "HGD"
+
     # OrthoDB
     # Data source directory: datasets/OrthoDB
     add_orthodb

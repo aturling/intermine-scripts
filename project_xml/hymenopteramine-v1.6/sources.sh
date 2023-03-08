@@ -52,7 +52,7 @@ function add_mine_sources {
     add_reactome "7227"
 
     # RBHs
-    add_rbh
+    add_rbh "HGD"
 
     # GO-Annotation
     add_go_annotation "HGD" "HGD GO annotation data set" "false"
