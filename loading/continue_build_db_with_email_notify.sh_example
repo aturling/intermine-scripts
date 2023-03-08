@@ -7,10 +7,6 @@
 # send e-mail when done.
 ######################################################
 
-next_source="create-chromosome-locations-and-lengths"
-#source_list="evidence-ontology,*fasta,*qtl-gff,uniprot*,kegg,entrez-organism,do-sources,create-attribute-indexes"
-source_list="so,evidence-ontology,ensembl-compara"
-
 scriptname=`basename "$0"`
 scriptpath=`dirname $(readlink -f $0)`
 log_dir="${scriptpath}/log"
@@ -31,8 +27,31 @@ script_outfile="${log_dir}/${script_outfilename}"
 echo "Script output will be stored in file $script_outfile"
 
 cd ${mine_home_dir}
-#./project_build -a ${next_source}- localhost ${build_dir} >> ${script_outfile} 2>&1
-./project_build -b -a "${source_list}" localhost ${build_dir} >> ${script_outfile} 2>&1
+
+
+# Choose load type, comment out rest
+#-----------------------------------------------------------------------------------------
+
+# 1. Continue load (do not wipe database), beginning with $next_source and rest of sources 
+# that follow in project.xml (including post-processing):
+
+next_source="update-data-sources"
+./project_build -a ${next_source}- localhost ${build_dir} >> ${script_outfile} 2>&1
+
+
+# 2. Load a subset of the sources. Wipes the database first, then loads only sources listed
+# (list may include post-processing steps):
+
+#source_list="so,evidence-ontology,*fasta,*qtl-gff,uniprot*,kegg,entrez-organism,do-sources,create-attribute-indexes"
+#./project_build -b -a "${source_list}" localhost ${build_dir} >> ${script_outfile} 2>&1
+
+
+# 3. Load a subset of the sources as above, WITHOUT wiping the database first:
+
+#source_list="*snp-variation*"
+#./project_build -a "${source_list}" localhost ${build_dir} >> ${script_outfile} 2>&1
+
+#-----------------------------------------------------------------------------------------
 
 # Get exit code
 ec=$?

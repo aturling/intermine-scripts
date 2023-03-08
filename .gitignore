@@ -12,3 +12,4 @@
 *Data_Sources.csv
 temp
 project*.xml
+continue_build_db_with_email_notify.sh
