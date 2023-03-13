@@ -12,4 +12,4 @@ See also: https://intermine.readthedocs.io/en/latest/web-services/#api-and-clien
 * ```pandas```
 
 2. Log into MaizeMine (https://maizemine.rnet.missouri.edu/maizemine/mymine.do), get API key from 
-Account Details tab, and paste API key into ```.env`` file.
+Account Details tab, and paste API key into ```.env``` file.
