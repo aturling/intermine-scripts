@@ -74,6 +74,17 @@ function get_abbr {
     echo "$abbr"
 }
 
+function get_taxon_id_from_tabfile {
+    local fullname=$1
+
+    taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+    if [ -z "$taxon_id" ]; then
+        echo "WARNING: $fullname not found in taxon_ids.tab"
+    fi
+
+    echo "$taxon_id"
+}
+
 function get_append_assembly {
     num_assemblies=$2
     assembly=$1
@@ -302,7 +313,7 @@ function add_snp {
     for org in $orgs; do
         abbr=$(get_abbr "$org")
         fullname=$(echo "$org" | sed 's/_/ /'g)
-        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        taxon_id=$(get_taxon_id_from_tabfile "$fullname")
         data_source=$(grep -i "$fullname" snp_sources.tab | cut -f2)
         if [ -z "$data_source" ]; then
             echo "WARNING: $fullname not found in snp_sources.tab"
@@ -414,7 +425,7 @@ function add_faang_expression {
     orgs=$(get_orgs "$data_subdir")
     for org in $orgs; do
         fullname=$(echo "$org" | sed 's/_/ /'g)
-        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        taxon_id=$(get_taxon_id_from_tabfile "$fullname")
         abbr=$(get_abbr "$org")
 
         # Iterate over sources
@@ -473,7 +484,7 @@ function add_genome_fasta {
         fullname=$(echo "$org" | sed 's/_/ /'g)
         genus=$(echo $org | cut -d_ -f1)
         species=$(echo $org | rev | cut -d_ -f1 | rev)
-        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        taxon_id=$(get_taxon_id_from_tabfile "$fullname")
         abbr=$(get_abbr "$org")
         data_source=$(find ${mine_dir}/datasets/${data_subdir}/${org}/ -type f -name "*.fa" -printf "%f\n" | grep -oE ".+_genom" | sed 's/_genom//')
         # Iterate over assemblies (usually just one)
@@ -537,7 +548,7 @@ function add_ogs_gff {
     orgs=$(get_orgs "$data_subdir")
     for org in $orgs; do
         fullname=$(echo "$org" | sed 's/_/ /'g)
-        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        taxon_id=$(get_taxon_id_from_tabfile "$fullname")
         abbr=$(get_abbr "$org")
         assemblies=$(get_assemblies "${data_subdir}/${org}")
         num_assemblies=$(echo "$assemblies" | wc -l)
@@ -588,7 +599,7 @@ function add_maize_gff {
     orgs=$(get_orgs "$data_subdir")
     for org in $orgs; do
         fullname=$(echo "$org" | sed 's/_/ /'g)
-        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        taxon_id=$(get_taxon_id_from_tabfile "$fullname")
         abbr=$(get_abbr "$org")
         assemblies=$(get_assemblies "${data_subdir}/${org}")
         num_assemblies=$(echo "$assemblies" | wc -l)
@@ -689,10 +700,7 @@ function add_refseq_gff {
     orgs=$(get_orgs "$data_subdir")
     for org in $orgs; do
         fullname=$(echo "$org" | sed 's/_/ /'g)
-        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
-	if [ -z "$taxon_id" ]; then
-	    echo "WARNING: Taxon id for $fullname not found in taxon_ids.tab"
-	fi
+        taxon_id=$(get_taxon_id_from_tabfile "$fullname")
         abbr=$(get_abbr "$org")
         assemblies=$(get_assemblies "${data_subdir}/${org}")
         num_assemblies=$(echo "$assemblies" | wc -l)
@@ -764,7 +772,7 @@ function add_ensembl_gff {
     orgs=$(get_orgs "$data_subdir")
     for org in $orgs; do
         fullname=$(echo "$org" | sed 's/_/ /'g)
-        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        taxon_id=$(get_taxon_id_from_tabfile "$fullname")
         abbr=$(get_abbr "$org")
         # Iterate over assemblies (usually just one)
         assemblies=$(get_assemblies "${data_subdir}/${org}")
@@ -825,7 +833,7 @@ function add_custom_gene_info_source {
     orgs=$(get_orgs "$data_subdir")
     for org in $orgs; do
         fullname=$(echo "$org" | sed 's/_/ /'g)
-        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        taxon_id=$(get_taxon_id_from_tabfile "$fullname")
         abbr=$(get_abbr "$org")
 
         echo "    <source name=\"${abbr}-gene-info-${source_name,,}\" type=\"custom-gene-info\" version=\"${source_version}\">" >> $outfile
@@ -868,7 +876,7 @@ function add_cds_protein_fasta_source {
     orgs=$(get_orgs "$data_subdir")
     for org in $orgs; do
         fullname=$(echo "$org" | sed 's/_/ /'g)
-        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        taxon_id=$(get_taxon_id_from_tabfile "$fullname")
         abbr=$(get_abbr "$org")
         # Iterate over assemblies (usually just one)
         assemblies=$(get_assemblies "${data_subdir}/${org}")
@@ -942,7 +950,7 @@ function add_aliases {
     orgs=$(get_orgs "$data_subdir")
     for org in $orgs; do
         fullname=$(echo "$org" | sed 's/_/ /'g)
-        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        taxon_id=$(get_taxon_id_from_tabfile "$fullname")
         abbr=$(get_abbr "$org")
 	classname="org.intermine.model.bio.Gene"
 
@@ -980,7 +988,7 @@ function add_xrefs {
     orgs=$(get_orgs "$data_subdir")
     for org in $orgs; do
         fullname=$(echo "$org" | sed 's/_/ /'g)
-        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        taxon_id=$(get_taxon_id_from_tabfile "$fullname")
         abbr=$(get_abbr "$org")
         xref_sources=$(get_xref_sources "$data_subdir/$org")
         for xref_source in ${xref_sources}; do
@@ -1265,7 +1273,7 @@ function add_faang_gff {
     orgs=$(get_orgs "$data_subdir")
     for org in $orgs; do
         fullname=$(echo "$org" | sed 's/_/ /'g)
-        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        taxon_id=$(get_taxon_id_from_tabfile "$fullname")
         abbr=$(get_abbr "$org")
         # Iterate over assemblies (usually just one)
         assemblies=$(get_assemblies "${data_subdir}/${org}")
@@ -1299,7 +1307,7 @@ function add_qtl_gff {
     orgs=$(get_orgs "$data_subdir")
     for org in $orgs; do
         fullname=$(echo "$org" | sed 's/_/ /'g)
-        taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
+        taxon_id=$(get_taxon_id_from_tabfile "$fullname")
         abbr=$(get_abbr "$org")
         # Iterate over assemblies (usually just one)
         assemblies=$(get_assemblies "${data_subdir}/${org}")
