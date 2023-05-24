@@ -79,7 +79,7 @@ function get_taxon_id_from_tabfile {
 
     taxon_id=$(grep -i "$fullname" taxon_ids.tab | cut -f2)
     if [ -z "$taxon_id" ]; then
-        echo "WARNING: $fullname not found in taxon_ids.tab"
+        echo "WARNING: $fullname not found in taxon_ids.tab" 1>&2
     fi
 
     echo "$taxon_id"
