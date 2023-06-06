@@ -30,7 +30,7 @@ echo
 # Check for singleton clusters
 echo "Checking for singleton clusters..."
 # Should not return anything:
-has_singleton_clusters=$(awk '{print $2}' ${dirname}/* | uniq -c | sort -n | awk '{print $1}' | uniq -c | head -n 1 | grep ' 1')
+has_singleton_clusters=$(awk -F'\t' '{print $2}' ${dirname}/* | uniq -c | sort -n | awk '{print $1}' | uniq -c | head -n 1 | grep ' 1')
 if [ ! -z "$has_singleton_clusters" ]; then
    echo "WARNING: At least one file in $dirname has singleton cluster(s)" 1>&2
    ec=1
@@ -42,7 +42,7 @@ echo
 # Check for duplicates within a cluster/LCA
 echo "Checking for duplicates within a cluster and LCA..."
 # Should return 1 (i.e., all unique, no duplicates) 
-num_duplicates=$(awk '{print $2 "|" $3 "|" $7 "|" $8 }' ${dirname}/* | sort | uniq -c | awk '{print $1}' | sort -n | uniq -c | wc -l)
+num_duplicates=$(awk -F'\t' '{print $2 "|" $3 "|" $7 }' ${dirname}/* | sort | uniq -c | awk '{print $1}' | sort -n | uniq -c | wc -l)
 if [ "$num_duplicates" -ne 1 ]; then
     echo "WARNING: At least one file in $dirname contains duplicates within a cluster and LCA" 1>&2
     ec=1
