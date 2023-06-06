@@ -36,8 +36,6 @@ function get_counts {
     classes=$(cat /db/*/datasets/${sourcedir}/annotations/*/${assembly}/${subdir}/*.gff3 | grep -v "#" | cut -f 3 | sort | uniq)
     if [ -z "$classes" ]; then
         echo "WARNING: No classes found in /db/*/datasets/${sourcedir}/annotations/*/${assembly}/${subdir}/*.gff3!"
-        class_count_correct=0
-        all_counts_correct=0
     else
         echo $classes
     fi
@@ -52,7 +50,7 @@ function get_counts {
             if [ "$source" == "OGS" ]; then
                 dataset_title_part="Gene Set ($genesource)"
             fi
-            dbcount=$(psql ${dbname} -c "select count(g.id) from gene g join bioentitiesdatasets bed on bed.bioentities=g.id join dataset d on d.id=bed.datasets where g.organismid=${org_id} and g.source='${genesource}' and d.name like '%${dataset_title_part}%'" -t -A)
+            dbcount=$(psql ${dbname} -c "select count(g.id) from gene g join soterm s on s.id=g.sequenceontologytermid join bioentitiesdatasets bed on bed.bioentities=g.id join dataset d on d.id=bed.datasets where g.organismid=${org_id} and g.source='${genesource}' and d.name like '%${dataset_title_part}%' and s.name='gene'" -t -A)
         elif [[ $class == pseudo* ]]; then
             dataset_title_part="${genesource} pseudogene"
             if [ "$source" == "RefSeq-pseudogenes-transcribed" ]; then
@@ -66,9 +64,9 @@ function get_counts {
             fi
             dbcount=$(psql ${dbname} -c "select count(g.id) from ${tablename} g join bioentitiesdatasets bed on bed.bioentities=g.id join dataset d on d.id=bed.datasets where g.organismid=${org_id} and g.source='${genesource}' and d.name like '%${dataset_title_part}%'" -t -A)
         else
-            dbcount=$(psql ${dbname} -c "select count(t.id) from $tablename t where t.organismid=${org_id} and t.source='${genesource}' and t.class='org.intermine.model.bio.${tablename}'" -t -A)
+            dbcount=$(psql ${dbname} -c "select count(t.id) from $tablename t join soterm s on s.id=t.sequenceontologytermid where t.organismid=${org_id} and t.source='${genesource}' and t.class='org.intermine.model.bio.${tablename}' and s.name='${class}'" -t -A)
         fi
-        filecount=$(cat /db/*/datasets/${sourcedir}/annotations/*/${assembly}/${subdir}/*.gff3 | cut -f 3 | grep -v "#" | grep -E "^${class}" | wc -l)
+        filecount=$(cat /db/*/datasets/${sourcedir}/annotations/*/${assembly}/${subdir}/*.gff3 | cut -f 3 | grep -v "#" | grep -E "^${class}\$" | wc -l)
         if [ ! $dbcount -eq $filecount ]; then
             echo "WARNING: $dbcount ${class}s in database, but $filecount in input file!"
             class_count_correct=0
