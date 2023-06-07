@@ -116,8 +116,8 @@ function add_mine_sources {
 
     # RBHs
     # Data source directory: datasets/<source>-RBH
-    # Usage: add_rbh "<DataSource.name>"
-    add_rbh "HGD"
+    # Usage: add_rbh "<DataSource.name>" "<DataSet.title>", e.g.,
+    add_rbh "HGD" "Drosophila reciprocal best hits data set"
 
     # OrthoDB
     # Data source directory: datasets/OrthoDB

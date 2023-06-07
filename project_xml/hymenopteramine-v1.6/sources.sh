@@ -52,6 +52,7 @@ function add_mine_sources {
     add_reactome "7227"
 
     # RBHs
+    # Note: in v1.7 add data source and data set title as params
     add_rbh "HGD"
 
     # GO-Annotation

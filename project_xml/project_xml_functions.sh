@@ -1012,6 +1012,7 @@ function add_xrefs {
 
 function add_rbh {
     datasource=$1
+    dataset=$2
 
     echo "+ Adding Reciprocal Best Hits"
 
@@ -1023,6 +1024,7 @@ function add_rbh {
     if [ "$ec" -eq 0 ]; then
         echo "    <source name=\"reciprocal-best-hits\" type=\"reciprocal-best-hits\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"dataSourceName\" value=\"${datasource}\"/>" >> $outfile
+        echo "      <property name=\"dataSetTitle\" value=\"${dataset}\"/>" >> $outfile
         echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
         echo "      <property name=\"src.data.dir.includes\" value=\"*.tab\"/>" >> $outfile
         echo "    </source>" >> $outfile
