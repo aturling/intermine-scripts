@@ -414,6 +414,9 @@ function add_aquamine_experiment {
         echo "      <property name=\"src.data.dir\" location=\"${experiment_dir}\"/>" >> $outfile
         echo "    </source>" >> $outfile
     fi
+
+    echo >> $outfile
+    echo >> $outfile
 }
 
 function add_bioproject_data {
