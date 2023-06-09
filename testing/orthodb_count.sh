@@ -48,6 +48,26 @@ if [ ! -f "$outfile" ]; then
 fi
 file_count=$(grep -oE "[0-9]+" "$outfile")
 
+# Next do quick check for any null values that shouldn't be null
+echo "Checking for null fields in the database..."
+nonullfields=1
+nullcount=$(psql ${dbname} -c "select count(id) from homologue h join datasetshomologue dh on dh.homologue=h.id where dh.datasets=${dataset_id} and h.lastcommonancestor is null" -t -A)
+if [ ! $nullcount -eq 0 ]; then
+    echo "WARNING: found $nullcount lastcommonancestor fields with null value!"
+    nonullfields=0
+fi
+nullcount=$(psql ${dbname} -c "select count(id) from homologue h join datasetshomologue dh on dh.homologue=h.id where dh.datasets=${dataset_id} and h.clusterid is null" -t -A)
+if [ ! $nullcount -eq 0 ]; then
+    echo "WARNING: found $nullcount clusterid fields with null value!"
+    nonullfields=0
+fi
+if [ ! $nonullfields -eq 0 ];then
+    echo "No null fields found"
+else
+   echo "Some fields were null that should not be null, exiting early"
+   exit 1
+fi
+
 echo "Querying database for total number of OrthoDB homologues..."
 dbcount=$(psql ${dbname} -c "select count(id) from homologue h join datasetshomologue dh on dh.homologue=h.id where dh.datasets=${dataset_id}" -t -A)
 
@@ -67,7 +87,7 @@ dbcount1=$(psql ${dbname} -c "select count(distinct(h.clusterid)) from homologue
 echo "Querying database for number of OrthoDB OrthologueClusters..."
 dbcount2=$(psql ${dbname} -c"select count(oc.id) from orthologuecluster oc join datasetsorthologuecluster doc on doc.orthologuecluster = oc.id where doc.datasets=${dataset_id}" -t -A)
 if [ ! $dbcount1 -eq $dbcount2 ]; then
-    echo "WARNING: found $dbcount clusters in Homologue table, but $dbcount2 clusters in OrthologueCluster table!"
+    echo "WARNING: found $dbcount1 clusters in Homologue table, but $dbcount2 clusters in OrthologueCluster table!"
     all_counts_correct=0
 fi
 if [ ! $dbcount1 -eq $file_count ]; then
