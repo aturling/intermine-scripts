@@ -22,6 +22,12 @@ function add_mine_sources {
     # xrefs
     add_xrefs "AquaMine"
 
+    # Gene expression
+    add_gene_expression
+
+    # Experiment metadata
+    add_aquamine_experiment
+
     # PubMed
     add_pubmed "RefSeq" "Ensembl"
 

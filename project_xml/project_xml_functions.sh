@@ -401,6 +401,21 @@ function add_faang_experiment {
     fi
 }
 
+function add_aquamine_experiment {
+    echo "+ Adding AquaMine experiment metadata"
+
+    echo "    <!--Experiment metadata-->" >> $outfile
+
+    experiment_dir="${mine_dir}/datasets/experiment"
+    check_nonempty_dir "$experiment_dir"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        echo "    <source name=\"aquamine-experiment\" type=\"aquamine-experiment\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${experiment_dir}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
+}
+
 function add_bioproject_data {
     echo "+ Adding bioproject/biosample/analysis sources"
 
@@ -415,8 +430,8 @@ function add_bioproject_data {
     echo >> $outfile
 }
 
-function add_faang_expression {
-    echo "+ Adding FAANG expression"
+function add_gene_expression {
+    echo "+ Adding Gene expression"
 
     echo "    <!--Gene expression-->" >> $outfile
 
@@ -431,7 +446,7 @@ function add_faang_expression {
         # Iterate over sources
         sources=$(get_xref_sources "${data_subdir}/${org}")
         for genesource in $sources; do
-            echo "    <source name=\"${abbr}-expression-gene-${genesource,,}\" type=\"faang-expression\" version=\"${source_version}\">" >> $outfile
+            echo "    <source name=\"${abbr}-expression-gene-${genesource,,}\" type=\"gene-expression\" version=\"${source_version}\">" >> $outfile
             echo "      <property name=\"taxonId\" value=\"${taxon_id}\"/>" >> $outfile
             echo "      <property name=\"geneSource\" value=\"${genesource}\"/>" >> $outfile
             echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${genesource}\"/>" >> $outfile
@@ -1519,7 +1534,7 @@ function add_aquamine_ortho {
     #for lcafile in $lcafiles; do
     #    taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/${lcafile}  | sort -n | uniq | xargs)
     #    lca=$(echo "$lcafile" | awk -F'_' '{print $1}')
-    taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/* | sort -n | uniq | xargs)
+    taxon_ids=$(awk -F'\t' '{print $6}' ${dirname}/*.tab | sort -n | uniq | xargs)
 
     echo "    <source name=\"aquamine-ortho\" type=\"orthodb-clusters\" version=\"${source_version}\">" >> $outfile
     echo "      <property name=\"dataSourceName\" value=\"AquaMine\"/>" >> $outfile

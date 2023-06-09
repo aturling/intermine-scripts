@@ -28,8 +28,8 @@ function add_mine_sources {
     # xrefs
     add_xrefs "FAANGMine"
 
-    # FAANG expression
-    add_faang_expression
+    # Gene expression
+    add_gene_expression
 
     # PubMed
     add_pubmed "RefSeq" "Ensembl"
