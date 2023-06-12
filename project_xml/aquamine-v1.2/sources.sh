@@ -54,7 +54,6 @@ function add_mine_sources {
     add_rbh "AquaMine" "AquaMine reciprocal best hits data set"
 
     # GO-Annotation
-    add_go_annotation "UniProt" "UniProt GO annotation data set" "true"
     add_go_annotation "Ensembl" "Ensembl GO annotation data set" "true"
     add_go_annotation "AquaMine" "AquaMine GO annotation data set" "false"
 
