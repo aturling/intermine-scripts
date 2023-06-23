@@ -48,7 +48,7 @@ function add_mine_sources {
 
     # Reactome
     # Manually specify organisms by taxon id list (depends on mine)
-    add_reactome "6454 6565 6596 6687 6689 6706 6728 7227 7227 7918 7950 7955 7955 7994 7998 8010 8017 8018 8019 8022 8023 8030 8049 8128 8167 8245 8267 9606 9606 27706 29159 34816 41447 48193 59861 74940 195615 225164 417921 481459 1841481 2691554"
+    add_reactome "7227 7955 9606"
 
     # RBHs
     add_rbh "AquaMine" "AquaMine reciprocal best hits data set"
