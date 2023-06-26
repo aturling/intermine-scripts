@@ -4,6 +4,8 @@
 # faang_expression_count.sh
 #
 # Check database for correct number of expression items
+# Works for data stored in datasets/gene_expression that
+# was loaded with the "gene-expression" loader
 #######################################################
 
 section_divide="----------------------------------------------------------------"
