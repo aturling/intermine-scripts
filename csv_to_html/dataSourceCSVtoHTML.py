@@ -125,6 +125,7 @@ def formatText(text):
         "QTL Download"                    : "https://www.animalgenome.org/cgi-bin/QTLdb/index",
         "Reactome Download"               : "https://reactome.org/download/current/UniProt2Reactome_All_Levels.txt",
         "TreeFam Download"                : "http://www.treefam.org/download",
+        "UniProt FTP"                     : "https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/",
         # Maize Community datasets:
         "MaizeGDB Expression Download"   : "https://datacommons.cyverse.org/browse/iplant/home/maizegdb/maizegdb/MaizeGDB_qTeller_FPKM/B73v5_qTeller_FPKM",
         "Grotewold CAGE Tag Count Root Download" : "https://datacommons.cyverse.org/browse/iplant/home/maizegdb/maizegdb/B73v5_JBROWSE_AND_ANALYSES/B73v5_TSS",
@@ -168,6 +169,8 @@ def addDownloadLinks(text):
     if (len(text) > 23 and (text[0:23] == "https://ftp.ensembl.org")):
         text = createURL("Ensembl FTP", text, True)
     if (len(text) > 22 and (text[0:22] == "http://ftp.ensembl.org")):
+        text = createURL("Ensembl FTP", text, True)
+    if (len(text) > 36 and (text[0:36] == "https://ftp.ebi.ac.uk/ensemblgenomes")):
         text = createURL("Ensembl FTP", text, True)
     if (len(text) > 26 and (text[0:26] == "https://useast.ensembl.org")):
         text = createURL("Ensembl Download", text, True)
