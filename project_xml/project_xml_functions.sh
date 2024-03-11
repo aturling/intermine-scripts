@@ -309,48 +309,67 @@ function add_snp {
                       "part_XI" "part_XII" "part_XIII" "part_XIV" "part_XV" "part_XVI" "part_XVII" "part_XVIII" "part_XIX" "part_XX")
     numparts=${#parts[@]}
 
-    # Iterate over organisms
-    data_subdir="SNP"
-    orgs=$(get_orgs "$data_subdir")
-    for org in $orgs; do
-        abbr=$(get_abbr "$org")
-        fullname=$(echo "$org" | sed 's/_/ /'g)
-        taxon_id=$(get_taxon_id_from_tabfile "$fullname")
-        data_source=$(grep -i "$fullname" snp_sources.tab | cut -f2)
-        if [ -z "$data_source" ]; then
-            echo "WARNING: $fullname not found in snp_sources.tab"
+    # Iterate over sources
+    dirs=$(find ${mine_dir}/datasets/SNP -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
+    for dir in $dirs; do
+        genesource=""
+        data_source=""
+        if [ $dir == "Ensembl" ]; then
+            genesource="Ensembl"
+            data_source="Ensembl Variation"
+        elif [ $dir == "EnsemblPlants" ]; then
+            genesource="B73 Zm00001eb.1"
+            data_source="EnsemblPlants"
+        elif [ $dir == "EVA" ]; then
+            genesource="Ensembl"
+            data_source="European Variation Archive"
+        else
+            echo "WARNING: UNRECOGNIZED SNP SOURCE: ${dir}"
         fi
-        # Iterate over assemblies (usually just one)
-        assemblies=$(get_assemblies "${data_subdir}/${org}")
-        num_assemblies=$(echo "$assemblies" | wc -l)
-        for assembly in $assemblies; do
-            # If multiple assemblies, append assembly version to source name
-	    append_assembly=$(get_append_assembly "$assembly" "$num_assemblies")
-            # Get number of parts
-            actual_numparts=$(ls ${mine_dir}/datasets/${data_subdir}/${org}/${assembly} | wc -l)
-            if [ "$actual_numparts" -ge "$numparts" ]; then
-                echo "WARNING: More than 20 SNP parts found in ${mine_dir}/datasets/${data_subdir}/${org}/${assembly}" 1>&2
-            elif [ "$actual_numparts" -eq 0 ]; then
-                echo "WARNING: No SNP parts found in ${mine_dir}/datasets/${data_subdir}/${org}/${assembly}" 1>&2
-            fi
-            # Iterate over parts
-            for (( i=0; i<${actual_numparts}; i++ )); do
-                this_part=${parts[i]}
-                # Check that there are .vcf files first
-                files=$(ls ${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/${this_part} 2>/dev/null)
-                if [ ! -z "$files" ]; then
-                    echo "    <source name=\"${abbr}${append_assembly}-snp-variation-${this_part}\" type=\"snp-variation\" version=\"${source_version}\">" >> $outfile
-                    echo "      <property name=\"snp-variation.dataSetTitle\" value=\"Variants and Variant Effects from ${data_source}\"/>" >> $outfile
-                    echo "      <property name=\"snp-variation.dataSourceName\" value=\"${data_source}\"/>" >> $outfile
-                    echo "      <property name=\"snp-variation.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
-                    echo "      <property name=\"snp-variation.assemblyVersion\" value=\"${assembly}\"/>" >> $outfile
-                    echo "      <property name=\"snp-variation.geneSource\" value=\"${genesource}\"/>" >> $outfile
-                    echo "      <property name=\"snp-variation.includes\" value=\"*.vcf\"/>" >> $outfile
-                    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/${this_part}\"/>" >> $outfile
-                    echo "    </source>" >> $outfile
-                #else
-                #    echo "WARNING: No .vcf files found in ${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/${this_part}" 1>&2
+
+        # Iterate over organisms
+        data_subdir="SNP/$dir"
+        orgs=$(get_orgs "$data_subdir")
+        for org in $orgs; do
+            abbr=$(get_abbr "$org")
+            fullname=$(echo "$org" | sed 's/_/ /'g)
+            taxon_id=$(get_taxon_id_from_tabfile "$fullname")
+            #data_source=$(grep -i "$fullname" snp_sources.tab | cut -f2)
+            #if [ -z "$data_source" ]; then
+            #    echo "WARNING: $fullname not found in snp_sources.tab"
+            #fi
+            # Iterate over assemblies (usually just one)
+            assemblies=$(get_assemblies "${data_subdir}/${org}")
+            num_assemblies=$(echo "$assemblies" | wc -l)
+            for assembly in $assemblies; do
+                # If multiple assemblies, append assembly version to source name
+   	        append_assembly=$(get_append_assembly "$assembly" "$num_assemblies")
+                # Get number of parts
+                actual_numparts=$(ls ${mine_dir}/datasets/${data_subdir}/${org}/${assembly} | wc -l)
+                if [ "$actual_numparts" -ge "$numparts" ]; then
+                    echo "WARNING: More than 20 SNP parts found in ${mine_dir}/datasets/${data_subdir}/${org}/${assembly}" 1>&2
+                elif [ "$actual_numparts" -eq 0 ]; then
+                    echo "WARNING: No SNP parts found in ${mine_dir}/datasets/${data_subdir}/${org}/${assembly}" 1>&2
                 fi
+                # Iterate over parts
+                for (( i=0; i<${actual_numparts}; i++ )); do
+                    this_part=${parts[i]}
+                    # Check that there are .vcf files first
+                    files=$(ls ${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/${this_part} 2>/dev/null)
+                    if [ ! -z "$files" ]; then
+                        echo "    <source name=\"${abbr}${append_assembly}-snp-variation-${this_part}\" type=\"snp-variation\" version=\"${source_version}\">" >> $outfile
+                        echo "      <property name=\"snp-variation.dataSetTitle\" value=\"Variants and Variant Effects from ${data_source}\"/>" >> $outfile
+                        echo "      <property name=\"snp-variation.dataSourceName\" value=\"${data_source}\"/>" >> $outfile
+                        echo "      <property name=\"snp-variation.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
+                        echo "      <property name=\"snp-variation.assemblyVersion\" value=\"${assembly}\"/>" >> $outfile
+                        echo "      <property name=\"snp-variation.geneSource\" value=\"${genesource}\"/>" >> $outfile
+                        echo "      <property name=\"snp-variation.includes\" value=\"*.vcf\"/>" >> $outfile
+                        echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/${this_part}\"/>" >> $outfile
+                        echo "    </source>" >> $outfile
+                    #else
+                    #    echo "WARNING: No .vcf files found in ${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/${this_part}" 1>&2
+                    fi
+                done
             done
         done
     done

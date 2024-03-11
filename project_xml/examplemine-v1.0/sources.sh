@@ -7,9 +7,8 @@ function add_mine_sources {
     add_ontologies_sources
 
     # SNP
-    # Data source directories: datasets/SNP/<organism>/<assembly>/part_<roman_numeral>
-    # Usage: add_snp "<Gene.source>", e.g.,:
-    add_snp "Ensembl"
+    # Data source directories: datasets/SNP/<source>/<organism>/<assembly>/part_<roman_numeral>
+    add_snp
 
     # BioProject, BioSample, and Analysis data (FAANGMine only)
     # Data source directories: datasets/FAANG-bioproject, datasets/FAANG-biosample, datasets/FAANG-analysis
