@@ -5,7 +5,7 @@ function add_mine_sources {
     add_ontologies_sources
 
     # SNP
-    add_snp "B73 Zm00001eb.1"
+    add_snp
 
     # Genome FASTA
     add_genome_fasta
