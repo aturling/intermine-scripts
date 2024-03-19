@@ -314,15 +314,19 @@ function add_snp {
     for dir in $dirs; do
         genesource=""
         data_source=""
+        source_abbr=""
         if [ $dir == "Ensembl" ]; then
             genesource="Ensembl"
             data_source="Ensembl Variation"
+            source_abbr="ensembl"
         elif [ $dir == "EnsemblPlants" ]; then
             genesource="B73 Zm00001eb.1"
             data_source="EnsemblPlants"
+            source_abbr="ensembl"
         elif [ $dir == "EVA" ]; then
             genesource="Ensembl"
             data_source="European Variation Archive"
+            source_abbr="eva"
         else
             echo "WARNING: UNRECOGNIZED SNP SOURCE: ${dir}"
         fi
@@ -357,7 +361,7 @@ function add_snp {
                     # Check that there are .vcf files first
                     files=$(ls ${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/${this_part} 2>/dev/null)
                     if [ ! -z "$files" ]; then
-                        echo "    <source name=\"${abbr}${append_assembly}-snp-variation-${this_part}\" type=\"snp-variation\" version=\"${source_version}\">" >> $outfile
+                        echo "    <source name=\"${abbr}${append_assembly}-${source_abbr}-snp-variation-${this_part}\" type=\"snp-variation\" version=\"${source_version}\">" >> $outfile
                         echo "      <property name=\"snp-variation.dataSetTitle\" value=\"Variants and Variant Effects from ${data_source}\"/>" >> $outfile
                         echo "      <property name=\"snp-variation.dataSourceName\" value=\"${data_source}\"/>" >> $outfile
                         echo "      <property name=\"snp-variation.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
