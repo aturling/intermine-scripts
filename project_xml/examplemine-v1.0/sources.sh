@@ -41,15 +41,15 @@ function add_mine_sources {
     # Usage: add_cds_protein_fasta "<DataSource.name>" list, e.g.,
     add_cds_protein_fasta "RefSeq" "Ensembl"
 
-    # xrefs
-    # Data source directories: datasets/xref/<organism>
-    # Usage: add_xrefs "<DataSource.name>" "<DataSet.name>", e.g.,
-    add_xrefs "FAANGMine" "Gene ID Cross References (Ensembl ⇔ RefSeq) data set"
+    # xrefs - genes
+    # Data source directories: datasets/xref/gene/<organism>
+    # Usage: add_gene_xrefs "<DataSource.name>", e.g.,
+    add_gene_xrefs "MaizeMine"
 
     # aliases
     # Data source directories: datasets/alias/<organism>
-    # Usage: add_aliases "<DataSource.name>" "<DataSet.name>", e.g.,
-    add_aliases "MaizeMine" "Gene ID Aliases (B73 Zm00001eb.1 ⇔ AGPv4) data set"
+    # Usage: add_aliases "<DataSource.name>", e.g.,
+    add_aliases "MaizeMine"
 
     # Maize expression (MaizeMine only)
     # Data source directories: datasets/expression, datasets/expression/metadata

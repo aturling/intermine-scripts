@@ -20,7 +20,7 @@ function add_mine_sources {
     add_cds_protein_fasta "RefSeq" "MaizeGDB"
 
     # xrefs
-    add_xrefs "MaizeMine"
+    add_gene_xrefs "MaizeMine"
 
     # aliases
     add_aliases "MaizeMine"

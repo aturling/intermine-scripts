@@ -684,6 +684,36 @@ function add_community_gff_source {
     fi
 }
 
+function add_community_gff_source_multiple_assemblies {
+    data_subdir=$1
+    datasource=$2
+    datasettitle=$3
+    source_abbr=$4
+
+    echo "  + Adding community data set: $datasettitle"
+
+    dataset_dir="${mine_dir}/datasets/${data_subdir}"
+    check_dir "$dataset_dir"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        assemblies=$(get_assemblies "${data_subdir}")
+        num_assemblies=$(echo "$assemblies" | wc -l)
+        for assembly in $assemblies; do
+            # If multiple assemblies, append assembly version to source name
+            append_assembly=$(get_append_assembly "$assembly" "$num_assemblies")
+            gene_source=$(tail -n 1 ${mine_dir}/datasets/${data_subdir}/${assembly}/*.gff3 | cut -f2)
+            echo "    <source name=\"${source_abbr}${append_assembly}-gff\" type=\"maize-gff\" version=\"${source_version}\">" >> $outfile
+            echo "      <property name=\"gff3.taxonId\" value=\"4577\"/>" >> $outfile
+            echo "      <property name=\"gff3.dataSourceName\" value=\"${datasource}\"/>" >> $outfile
+            echo "      <property name=\"gff3.dataSetTitle\" value=\"${datasettitle}\"/>" >> $outfile
+            echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
+            echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir\" location=\"${dataset_dir}/${assembly}\"/>" >> $outfile
+            echo "    </source>" >> $outfile
+        done
+    fi
+}
+
 function add_community_qtl_source {
     data_subdir=$1
     datasource=$2
@@ -696,7 +726,6 @@ function add_community_qtl_source {
     check_nonempty_dir "$dataset_dir"
     ec=$?
     if [ "$ec" -eq 0 ]; then
-        echo "    <!--QTL GFF-->" >> $outfile
         echo "    <source name=\"${source_abbr}-qtl-gff\" type=\"qtl-gff\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"gff3.taxonId\" value=\"4577\"/>" >> $outfile
         echo "      <property name=\"gff3.dataSourceName\" value=\"${datasource}\"/>" >> $outfile
@@ -722,6 +751,7 @@ function add_community_gff {
     add_community_gff_source "$data_dir/Grotewold_shoot" "Grotewold CAGE Tag Count" "Grotewold shoot transcription start sites data set" "grotewold-shoot"
     add_community_gff_source "$data_dir/Stam_Enhancers/Husk" "Stam 2017 H3K9ac Enhancer" "Stam 2017 Husk H3K9ac Enhancers data set" "stam-husk"
     add_community_gff_source "$data_dir/Stam_Enhancers/Seedling" "Stam 2017 H3K9ac Enhancer" "Stam 2017 Seedling H3K9ac Enhancers data set" "stam-seedling"
+    add_community_gff_source_multiple_assemblies "$data_dir/NAM_ATAC-seq" "NAM_ATAC-seq" "NAM_ATAC-seq data set" "atac-seq" 
     add_community_qtl_source "$data_dir/GWAS_Atlas" "GWAS Atlas" "Curated GWAS Atlas data set" "gwas-atlas"
     add_community_qtl_source "$data_dir/Wallace_2014_GWAS" "Wallace 2014 GWAS" "Wallace GWAS data set" "wallace-gwas"
 
@@ -1017,13 +1047,14 @@ function add_aliases {
 
 function add_xrefs {
     datasource=$1
+    class_name=$2
+    data_subdir=$3
 
     echo "+ Adding xrefs"
 
     echo "    <!--xRefs-->" >> $outfile
 
     # Iterate over organisms
-    data_subdir="xref"
     orgs=$(get_orgs "$data_subdir")
     for org in $orgs; do
         fullname=$(echo "$org" | sed 's/_/ /'g)
@@ -1034,9 +1065,10 @@ function add_xrefs {
             source1=$(echo "$xref_source" | awk -F'-' '{print $1}')
             source2=$(echo "$xref_source" | awk -F'-' '{print $2}')
             # Generate the data set name to include the two sources the ids are coming from
-            dataset="Gene ID Cross References (${source1} ⇔ ${source2}) data set"
+            dataset="${class_name} ID Cross References (${source1} ⇔ ${source2}) data set"
 
-            echo "    <source name=\"${abbr}-xref\" type=\"cross-references\" version=\"${source_version}\">" >> $outfile
+            echo "    <source name=\"${abbr}-xref-${class_name,,}\" type=\"cross-references\" version=\"${source_version}\">" >> $outfile
+            echo "      <property name=\"className\" value=\"org.intermine.model.bio.${class_name}\"/>" >> $outfile
             echo "      <property name=\"taxonId\" value=\"${taxon_id}\"/>" >> $outfile
             echo "      <property name=\"dataSourceName\" value=\"${datasource}\"/>" >> $outfile
             echo "      <property name=\"dataSetTitle\" value=\"${dataset}\"/>" >> $outfile
@@ -1047,6 +1079,12 @@ function add_xrefs {
 
     echo >> $outfile
     echo >> $outfile
+}
+
+function add_gene_xrefs {
+    datasource=$1
+
+    add_xrefs $datasource "Gene" "xref/gene" 
 }
 
 function add_rbh {
