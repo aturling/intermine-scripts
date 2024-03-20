@@ -45,12 +45,11 @@ fi
 for taxon_id in $taxon_ids; do
     # Get number of homologues for this organism in database
     dbcount=$(psql ${dbname} -c "select count(h.id) from homologue h join datasetshomologue dh on dh.homologue=h.id join gene g on g.id=h.geneid join organism o on o.id=g.organismid where dh.datasets='${dataset_id}' and o.taxonid='${taxon_id}'" -t -A)
-    # Get number of homologues for this organism by counting lines of files with taxon id in filename
-    # Every valid line has "ortholog" in last column so grep on that to exclude invalid/empty lines
-    file_count=$(grep ortholog /db/*/datasets/${subdir}/*${taxon_id}* | wc -l | grep total | awk '{print $1}')
+    # Get number of homologues for this organism by counting lines of files with taxon id in filename (first before underscore)
+    # Every valid line has "ortholog" or "paralog" in last column so grep on that to exclude invalid/empty lines
+    file_count=$(grep -E '[ortholog|paralog]' /db/*/datasets/${subdir}/${taxon_id}* | wc -l | grep total | awk '{print $1}')
     if [ -z $file_count ]; then
-        # Only one file with this taxon id:
-        file_count=$(grep ortholog /db/*/datasets/${subdir}/*${taxon_id}* | wc -l)
+        file_count=$(grep -E '[ortholog|paralog]' /db/*/datasets/${subdir}/${taxon_id}* | wc -l)
     fi
     if [ $dbcount -eq $file_count ]; then
         echo "Homologue count correct for organism with taxon id $taxon_id ($file_count homologues)"
