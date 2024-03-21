@@ -23,7 +23,7 @@ fi
 all_counts_correct=1
 
 # Iterate over all organisms/assemblies
-orgs=$(find /db/*/datasets/xref -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null)
+orgs=$(find /db/*/datasets/xref/gene -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null)
 for org in $orgs; do
     org_name=$(echo "${org}" | sed 's/_/ /g')
     echo "Checking xrefs for $org_name"    
@@ -35,7 +35,7 @@ for org in $orgs; do
         continue
     fi
     # Count from files
-    file_count=$(cat /db/*/datasets/xref/${org}/*/* | wc -l)
+    file_count=$(cat /db/*/datasets/xref/gene/${org}/*/* | wc -l)
     # Count in database
     dbcount=$(psql ${dbname} -c "select count(g.id) from crossreference c join gene g on g.id=c.subjectid where organismid=${org_id} and c.targetid is not null" -t -A)
     if [ ! "$dbcount" -eq "$file_count" ]; then
