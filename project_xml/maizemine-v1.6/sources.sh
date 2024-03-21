@@ -41,7 +41,7 @@ function add_mine_sources {
     add_protein2ipr
 
     # GO annotation
-    add_go_annotation "MaizeGDB" "MaizeGDB-PANNZER GO annotation data set"
+    add_go_annotation "MaizeGDB" "MaizeGDB-PANNZER GO annotation data set" "false"
 
     # KEGG
     add_kegg
