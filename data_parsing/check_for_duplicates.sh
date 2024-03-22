@@ -4,8 +4,8 @@
 
 # Ensembl Compara / Biomart symbols and descriptions
 
-dupes_found=0
 if [[ $(find /db/*/datasets -type d -name ensembl-plant-biomart) ]]; then
+    dupes_found=0
     echo "Checking ensembl-plant-biomart symbols and descriptions..."
     tab_files=$(find /db/*/datasets/ensembl-plant-biomart -type f -name "*.tab")
     for tab_file in $tab_files; do
@@ -15,12 +15,11 @@ if [[ $(find /db/*/datasets -type d -name ensembl-plant-biomart) ]]; then
             dupes_found=1
         fi
     done
+    if [ "$dupes_found" -eq 0 ]; then
+        echo "No duplicate ids found"
+    fi
 else
     echo "Ensembl-plant-biomart data directory not found"
-fi
-
-if [ "$dupes_found" -eq 0 ]; then
-    echo "No duplicate ids found"
 fi
 
 # GFF files - IDs should be unique across gff source (dir)
