@@ -4,7 +4,20 @@
 # generate_project_xml.sh
 #
 # Generate project.xml entries from datasets directory
+#
+# Usage: 
+# Generate project.xml only:
+# ./generate_project_xml.sh
+# Generate project.xml and check data files for 
+# potential issues:
+# ./generate_project_xml.sh 1
 #######################################################
+
+check_data_format=0
+if [ $# -gt 0 ]; then
+    echo "Additionally checking data file formats"
+    check_data_format=1
+fi
 
 function add_sources {
     # Begin sources tag
@@ -81,3 +94,11 @@ add_post_processes
 
 # Add end of file
 add_footers
+
+echo
+
+# Check data formats if specified
+if [ "$check_data_format" -gt 0 ]; then
+    ../data_parsing/check_for_duplicates.sh
+    ../data_parsing/check_gffs_for_pubs.sh 
+fi
