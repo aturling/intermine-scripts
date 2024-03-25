@@ -55,6 +55,9 @@ function add_mine_sources {
     # Community gff - no Gene.source loaded
     add_community_gff
 
+    # Community TF source - no Gene.source loaded
+    add_community_tf
+
     # MaizeGDB-PanGene
     add_pangene
 

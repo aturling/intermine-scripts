@@ -741,6 +741,22 @@ function add_community_qtl_source {
     fi
 }
 
+function add_community_tf {
+    data_subdir="community_datasets/Grassius_Transcription_Factors"
+
+    echo "  + Adding community data set: Grassius Transcription Factors data set"
+
+    dataset_dir="${mine_dir}/datasets/${data_subdir}"
+    check_nonempty_dir "$dataset_dir"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        echo "    <source name=\"grassius-transcription-factors\" type=\"transcription-factors\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"taxonId\" value=\"4577\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${dataset_dir}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
+}
+
 function add_community_gff {
     echo "+ Adding Maize Community GFF"
 
