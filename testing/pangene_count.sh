@@ -20,7 +20,7 @@ echo "Database name is ${dbname}"
 echo
 
 # Get dataset id for PanGene to help simplify queries
-dataset_name="MaizeGDB-NAM-PanGene data set"
+dataset_name="MaizeGDB-NAM-Pangene data set"
 dataset_id=$(psql ${dbname} -c "select id from dataset where dataset.name='${dataset_name}'" -t -A)
 
 if [ -z $dataset_id ]; then
