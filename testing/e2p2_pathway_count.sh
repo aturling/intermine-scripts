@@ -55,7 +55,7 @@ for gene_map_file in $gene_map_files; do
     # Query the database for genes and pathways per organism (from gene.pathways collection)
     echo "Querying database for genes and pathways collections..."
     dbcount=$(psql ${dbname} -c "select count(p.identifier) from gene g join organism o on o.id=g.organismid join genespathways gp on gp.genes=g.id join pathway p on p.id=gp.pathways join datasetspathway dp on dp.pathway=p.id where dp.datasets=${dataset_id} and o.taxonid='${taxon_id}'" -t -A)
-    gene_map_count=$(grep -oE "[A-Z0-9]+-[A-Z0-9\-]+" $gene_map_file | wc -l)
+    gene_map_count=$(cut -f2 ${gene_map_file} | tr -s ' ' '\n' | wc -l)
     if [ ! $gene_map_count -eq $dbcount ]; then
         echo "WARNING: $gene_map_count genes and pathways in $gene_map_file, but $dbcount in database!"
         all_counts_correct=0
