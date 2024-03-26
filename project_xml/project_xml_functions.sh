@@ -309,22 +309,21 @@ function add_snp {
                       "part_XI" "part_XII" "part_XIII" "part_XIV" "part_XV" "part_XVI" "part_XVII" "part_XVIII" "part_XIX" "part_XX")
     numparts=${#parts[@]}
 
+    # Gene source is Ensembl, except in MaizeMine
+    genesource="Ensembl"
+    mine_basename=$(grep "webapp.path"  ~/.intermine/*.properties | tail -n 1 | awk -F'=' '{print $2}')
+    if [ "$mine_basename" == "maizemine" ]; then
+        genesource="B73 Zm00001eb.1"
+    fi
+
     # Iterate over sources
     dirs=$(find ${mine_dir}/datasets/SNP -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
     for dir in $dirs; do
-        genesource=""
-        data_source=""
-        source_abbr=""
-        if [ $dir == "Ensembl" ]; then
-            genesource="Ensembl"
-            data_source="Ensembl Variation"
-            source_abbr="ensembl"
-        elif [ $dir == "EnsemblPlants" ]; then
-            genesource="B73 Zm00001eb.1"
+        data_source="Ensembl Variation"
+        source_abbr="ensembl"
+        if [ $dir == "EnsemblPlants" ]; then
             data_source="EnsemblPlants"
-            source_abbr="ensembl"
         elif [ $dir == "EVA" ]; then
-            genesource="Ensembl"
             data_source="European Variation Archive"
             source_abbr="eva"
         else
