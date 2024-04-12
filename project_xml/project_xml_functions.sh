@@ -735,6 +735,7 @@ function add_community_qtl_source {
         echo "      <property name=\"gff3.dataSetTitle\" value=\"${datasettitle}\"/>" >> $outfile
         echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
         echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"Zm-B73-REFERENCE-NAM-5.0\"/>" >> $outfile
+        echo "      <property name=\"gff3.loadSequenceAlterations\" value=\"true\"/>" >> $outfile
         echo "      <property name=\"src.data.dir\" location=\"${dataset_dir}\"/>" >> $outfile
         echo "    </source>" >> $outfile
     fi
@@ -764,17 +765,17 @@ function add_community_gff {
 
     data_dir="community_datasets"
 
-    add_community_gff_source "$data_dir/Vollbrecht" "Vollbrecht" "Vollbrecht AcDs insertions data set" "vollbrecht"
-    add_community_gff_source "$data_dir/MaizeGDB_UniformMu" "MaizeGDB UniformMu" "MaizeGDB UniformMu insertions data set" "maizegdb-uniformmu"
-    add_community_gff_source "$data_dir/Grotewold_root" "Grotewold CAGE Tag Count" "Grotewold root transcription start sites data set" "grotewold-root"
-    add_community_gff_source "$data_dir/Grotewold_shoot" "Grotewold CAGE Tag Count" "Grotewold shoot transcription start sites data set" "grotewold-shoot"
-    add_community_gff_source "$data_dir/Stam_Enhancers/Husk" "Stam 2017 H3K9ac Enhancer" "Stam 2017 Husk H3K9ac Enhancers data set" "stam-husk"
-    add_community_gff_source "$data_dir/Stam_Enhancers/Seedling" "Stam 2017 H3K9ac Enhancer" "Stam 2017 Seedling H3K9ac Enhancers data set" "stam-seedling"
-    add_community_gff_source "$data_dir/Marcon2024_BonnMu" "Marcon2024_BonnMu" "Marcon2024_BonnMu transposable element insertion sites data set" "marcon2024-bonnmu"
-    add_community_gff_source_multiple_assemblies "$data_dir/NAM_ATAC-seq" "NAM_ATAC-seq" "NAM_ATAC-seq data set" "atac-seq" 
-    add_community_gff_source_multiple_assemblies "$data_dir/NAM_Illumina_SNP50" "NAM_Illumina_SNP50" "NAM_Illumina_SNP50 data set" "illumina-snp50"
-    add_community_qtl_source "$data_dir/GWAS_Atlas" "GWAS Atlas" "Curated GWAS Atlas data set" "gwas-atlas"
-    add_community_qtl_source "$data_dir/Wallace_2014_GWAS" "Wallace 2014 GWAS" "Wallace GWAS data set" "wallace-gwas"
+    add_community_gff_source "$data_dir/Vollbrecht" "Vollbrecht2010 Ac/Ds" "Vollbrecht2010 Ac/Ds Insertion Site data set" "vollbrecht"
+    add_community_gff_source "$data_dir/MaizeGDB_UniformMu" "MaizeGDB UniformMu" "MaizeGDB UniformMu Insertion Site data set" "maizegdb-uniformmu"
+    add_community_gff_source "$data_dir/Grotewold_root" "Grotewold CAGE Tag Count" "Grotewold Root CAGE Tag Count data set" "grotewold-root"
+    add_community_gff_source "$data_dir/Grotewold_shoot" "Grotewold CAGE Tag Count" "Grotewold Shoot CAGE Tag Count data set" "grotewold-shoot"
+    add_community_gff_source "$data_dir/Stam_Enhancers/Husk" "Stam Enhancers" "Stam Husk Enhancer Candidates data set" "stam-husk"
+    add_community_gff_source "$data_dir/Stam_Enhancers/Seedling" "Stam Enhancers" "Stam Seedling Enhancer Candidates data set" "stam-seedling"
+    add_community_gff_source "$data_dir/Marcon2024_BonnMu" "Marcon2024 BonnMu" "Marcon2024 BonnMu Insertion Site data set" "marcon2024-bonnmu"
+    add_community_gff_source_multiple_assemblies "$data_dir/NAM_ATAC-seq" "NAM ATAC-seq" "NAM ATAC-seq data set" "atac-seq" 
+    add_community_gff_source_multiple_assemblies "$data_dir/NAM_Illumina_SNP50" "NAM Illumina SNP50" "NAM Illumina SNP50 data set" "illumina-snp50"
+    add_community_qtl_source "$data_dir/GWAS_Atlas" "National Genomics Data Center" "National Genomics Data Center GWAS Atlas data set" "gwas-atlas"
+    add_community_qtl_source "$data_dir/Wallace_2014_GWAS" "Wallace2014 GWAS" "Wallace2014 GWAS data set" "wallace-gwas"
 
     echo >> $outfile
     echo >> $outfile
