@@ -52,11 +52,8 @@ function add_mine_sources {
     # MaizeGDB-E2P2-Pathway
     add_e2p2_pathway
 
-    # Community gff - no Gene.source loaded
-    add_community_gff
-
-    # Community TF source - no Gene.source loaded
-    add_community_tf
+    # Community data sets - no Gene.source loaded
+    add_community_data_sets
 
     # MaizeGDB-PanGene
     add_pangene

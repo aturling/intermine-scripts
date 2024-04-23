@@ -298,8 +298,6 @@ function add_ontologies_sources {
 }
 
 function add_snp {
-    genesource=$1
-
     echo "+ Adding SNP"
 
     echo "    <!--SNP-->" >> $outfile
@@ -309,11 +307,12 @@ function add_snp {
                       "part_XI" "part_XII" "part_XIII" "part_XIV" "part_XV" "part_XVI" "part_XVII" "part_XVIII" "part_XIX" "part_XX")
     numparts=${#parts[@]}
 
-    # Gene source is Ensembl, except in MaizeMine
-    genesource="Ensembl"
+    # Gene/SNP source is Ensembl, except in MaizeMine
+    snp_source="Ensembl"
+    gene_source="Ensembl"
     mine_basename=$(grep "webapp.path"  ~/.intermine/*.properties | tail -n 1 | awk -F'=' '{print $2}')
     if [ "$mine_basename" == "maizemine" ]; then
-        genesource="B73 Zm00001eb.1"
+        gene_source="B73 Zm00001eb.1"
     fi
 
     # Iterate over sources
@@ -325,6 +324,7 @@ function add_snp {
             data_source="EnsemblPlants"
         elif [ $dir == "EVA" ]; then
             data_source="European Variation Archive"
+            snp_source="EVA"
             source_abbr="eva"
         else
             echo "WARNING: UNRECOGNIZED SNP SOURCE: ${dir}"
@@ -365,7 +365,8 @@ function add_snp {
                         echo "      <property name=\"snp-variation.dataSourceName\" value=\"${data_source}\"/>" >> $outfile
                         echo "      <property name=\"snp-variation.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
                         echo "      <property name=\"snp-variation.assemblyVersion\" value=\"${assembly}\"/>" >> $outfile
-                        echo "      <property name=\"snp-variation.geneSource\" value=\"${genesource}\"/>" >> $outfile
+                        echo "      <property name=\"snp-variation.geneSource\" value=\"${gene_source}\"/>" >> $outfile
+                        echo "      <property name=\"snp-variation.snpSource\" value=\"${snp_source}\"/>" >> $outfile
                         echo "      <property name=\"snp-variation.includes\" value=\"*.vcf\"/>" >> $outfile
                         echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/${this_part}\"/>" >> $outfile
                         echo "    </source>" >> $outfile
@@ -472,11 +473,11 @@ function add_gene_expression {
 
         # Iterate over sources
         sources=$(get_xref_sources "${data_subdir}/${org}")
-        for genesource in $sources; do
-            echo "    <source name=\"${abbr}-expression-gene-${genesource,,}\" type=\"gene-expression\" version=\"${source_version}\">" >> $outfile
+        for gene_source in $sources; do
+            echo "    <source name=\"${abbr}-expression-gene-${gene_source,,}\" type=\"gene-expression\" version=\"${source_version}\">" >> $outfile
             echo "      <property name=\"taxonId\" value=\"${taxon_id}\"/>" >> $outfile
-            echo "      <property name=\"geneSource\" value=\"${genesource}\"/>" >> $outfile
-            echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${genesource}\"/>" >> $outfile
+            echo "      <property name=\"geneSource\" value=\"${gene_source}\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${gene_source}\"/>" >> $outfile
             echo "      <property name=\"src.data.dir.includes\" value=\"*.tab\"/>" >> $outfile
             echo "    </source>" >> $outfile
         done
@@ -735,14 +736,13 @@ function add_community_qtl_source {
         echo "      <property name=\"gff3.dataSetTitle\" value=\"${datasettitle}\"/>" >> $outfile
         echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
         echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"Zm-B73-REFERENCE-NAM-5.0\"/>" >> $outfile
-        echo "      <property name=\"gff3.loadSequenceAlterations\" value=\"true\"/>" >> $outfile
         echo "      <property name=\"src.data.dir\" location=\"${dataset_dir}\"/>" >> $outfile
         echo "    </source>" >> $outfile
     fi
 }
 
 function add_community_tf {
-    data_subdir="community_datasets/Grassius_Transcription_Factors"
+    data_subdir=$1
 
     echo "  + Adding community data set: Grassius Transcription Factors data set"
 
@@ -757,7 +757,7 @@ function add_community_tf {
     fi
 }
 
-function add_community_gff {
+function add_community_data_sets {
     echo "+ Adding Maize Community GFF"
 
     echo "    <!--Community GFF-->" >> $outfile
@@ -776,6 +776,7 @@ function add_community_gff {
     add_community_gff_source_multiple_assemblies "$data_dir/NAM_Illumina_SNP50" "NAM Illumina SNP50" "NAM Illumina SNP50 data set" "illumina-snp50"
     add_community_qtl_source "$data_dir/GWAS_Atlas" "National Genomics Data Center" "National Genomics Data Center GWAS Atlas data set" "gwas-atlas"
     add_community_qtl_source "$data_dir/Wallace_2014_GWAS" "Wallace2014 GWAS" "Wallace2014 GWAS data set" "wallace-gwas"
+    add_community_tf "$data_dir/Grassius_Transcription_Factors"
 
     echo >> $outfile
     echo >> $outfile
