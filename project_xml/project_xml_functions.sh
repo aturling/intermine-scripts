@@ -529,11 +529,11 @@ function add_genome_fasta {
         species=$(echo $org | rev | cut -d_ -f1 | rev)
         taxon_id=$(get_taxon_id_from_tabfile "$fullname")
         abbr=$(get_abbr "$org")
-        data_source=$(find ${mine_dir}/datasets/${data_subdir}/${org}/ -type f -name "*.fa" -printf "%f\n" | grep -oE ".+_genom" | sed 's/_genom//')
         # Iterate over assemblies (usually just one)
         assemblies=$(get_assemblies "${data_subdir}/${org}")
         num_assemblies=$(echo "$assemblies" | wc -l)
         for assembly in $assemblies; do
+            data_source=$(find ${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/ -type f -name "*.fa" -printf "%f\n" | sed 's/_genom.*//' | sed 's/.fa$//')
             # If multiple assemblies, append assembly version to source name
             append_assembly=$(get_append_assembly "$assembly" "$num_assemblies")
             echo "    <source name=\"${abbr}${append_assembly}-fasta\" type=\"${source_type}\" version=\"${source_version}\">" >> $outfile
