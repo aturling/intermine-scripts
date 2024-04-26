@@ -24,6 +24,8 @@ function add_mine_sources {
 
     # xrefs
     add_xrefs "HGD"
+    # For v1.7 instead use this function below:
+    #add_gene_xrefs "HGD"
 
     # aliases
     add_aliases "HGD"
