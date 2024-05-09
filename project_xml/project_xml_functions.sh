@@ -492,22 +492,31 @@ function add_maize_expression {
 
     echo "    <!--Expression-->" >> $outfile
 
-    expression_dir="${mine_dir}/datasets/expression"
-    check_nonempty_dir "$expression_dir"
+    expression_subdir="expression"
+    expression_dir="${mine_dir}/datasets/${expression_subdir}"
+    check_dir "$expression_dir"
     ec=$?
     if [ "$ec" -eq 0 ]; then
+        # metadata
         echo "    <source name=\"expression-metadata\" type=\"maize-expression-metadata\" version=\"${source_version}\">" >> $outfile
         echo "      <property name=\"taxonId\" value=\"4577\"/>" >> $outfile
         echo "      <property name=\"src.data.dir\" location=\"${expression_dir}/metadata\"/>" >> $outfile
-        echo "      <property name=\"src.data.dir.includes\" value=\"*.tab\"/>" >> $outfile
         echo "    </source>" >> $outfile
-        echo "    <source name=\"expression-gene\" type=\"maize-expression-gene\" version=\"${source_version}\">" >> $outfile
-        echo "      <property name=\"taxonId\" value=\"4577\"/>" >> $outfile
-        echo "      <property name=\"entityType\" value=\"Sample\"/>" >> $outfile
-        echo "      <property name=\"type\" value=\"mean\"/>" >> $outfile
-        echo "      <property name=\"src.data.dir\" location=\"${expression_dir}\"/>" >> $outfile
-        echo "      <property name=\"src.data.dir.includes\" value=\"*.tab\"/>" >> $outfile
-        echo "    </source>" >> $outfile
+
+        # gene expression (per assembly)
+        org="zea_mays"
+        assemblies=$(get_assemblies "${expression_subdir}/${org}")
+        num_assemblies=$(echo "$assemblies" | wc -l)
+        for assembly in $assemblies; do
+            append_assembly=$(get_append_assembly "$assembly" "$num_assemblies")
+            echo "    <source name=\"expression-gene${append_assembly}\" type=\"maize-expression-gene\" version=\"${source_version}\">" >> $outfile
+            echo "      <property name=\"taxonId\" value=\"4577\"/>" >> $outfile
+            echo "      <property name=\"entityType\" value=\"Sample\"/>" >> $outfile
+            echo "      <property name=\"type\" value=\"mean\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir\" location=\"${expression_dir}/${org}/${assembly}\"/>" >> $outfile
+            echo "      <property name=\"src.data.dir.includes\" value=\"*.tab\"/>" >> $outfile
+            echo "    </source>" >> $outfile
+        done
     fi
     echo >> $outfile
     echo >> $outfile

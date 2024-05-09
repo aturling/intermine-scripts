@@ -25,11 +25,11 @@ function add_mine_sources {
     # aliases
     add_aliases "MaizeMine"
 
-    # Maize expression
-    add_maize_expression
-
     #---Gene.source merge key line---
     add_merge_key_note
+
+    # Maize expression
+    add_maize_expression
 
     # UniProt
     add_uniprot "RefSeq" "Gramene"
