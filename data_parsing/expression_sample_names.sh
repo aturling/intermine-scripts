@@ -43,9 +43,11 @@ rm sample_names-2.txt
 # Lastly, compare the files - they should be the same!
 files_not_same=$(diff sample_names-1-sorted.txt sample_names-2-sorted.txt | wc -l)
 if [ "$files_not_same" -gt 0 ]; then
+  # see: https://stackoverflow.com/questions/1566461/how-to-count-differences-between-two-files-on-linux
+  num_diffs=$(diff -U 0 sample_names-1-sorted.txt sample_names-2-sorted.txt | grep ^@ | wc -l)
   echo "ERROR: the expression/experiment names in the data files and metadata file do not agree!"
   echo
-  echo "Number of mismatches: $files_not_same"
+  echo "Number of mismatches: $num_diffs"
   echo
   echo "Actual names that disagree:"
   diff sample_names-1-sorted.txt sample_names-2-sorted.txt
