@@ -101,4 +101,5 @@ echo
 if [ "$check_data_format" -gt 0 ]; then
     ../data_parsing/check_for_duplicates.sh
     ../data_parsing/check_gffs_for_pubs.sh 
+    ../data_parsing/expression_sample_names.sh
 fi

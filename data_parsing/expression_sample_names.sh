@@ -13,6 +13,11 @@ if [ "$mine_basename" == "maizemine" ]; then
   col_name="Sample_ID"
 fi
 
+if [[ ! $(find /db/*/datasets -type d -name "${expr_dir}") ]]; then
+  echo "Expression/experiment data directory named ${expr_dir} not found"
+  exit 0
+fi 
+
 # First get the sample names from the expression files
 # Iterate over organisms
 orgs=$(find /db/*/datasets/${expr_dir} -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | grep '_' | sort)
