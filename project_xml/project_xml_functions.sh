@@ -326,8 +326,6 @@ function add_snp {
             data_source="European Variation Archive"
             snp_source="EVA"
             source_abbr="eva"
-        else
-            echo "WARNING: UNRECOGNIZED SNP SOURCE: ${dir}"
         fi
 
         # Iterate over organisms
