@@ -265,7 +265,7 @@ function add_ontologies_sources {
         elif [ $dir == "UBERON" ]; then
             ontology_name="uber-anatomy-ontology"
             make_source=1
-        elif [ $dir == "VTO" ]; then
+        elif [ $dir == "VT" ]; then
             ontology_name="vertebrate-trait-ontology"
             make_source=1
         elif [ $dir == "PO" ]; then
