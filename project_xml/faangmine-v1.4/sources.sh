@@ -68,6 +68,10 @@ function add_mine_sources {
     # Add QTL GFF
     add_qtl_gff
 
+    # GO-Annotation 
+    add_go_annotation "Ensembl" "Ensembl Biomart GO annotation data set" "true"
+    add_go_annotation "NCBI" "NCBI GO annotation data set" "true"
+
     # Add BioGRID
     add_biogrid
 

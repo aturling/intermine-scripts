@@ -68,7 +68,6 @@ fi
 # clean up
 rm temp/mim_numbers.txt
 rm temp/pubs.txt
-rmdir temp
 
 echo
 echo "SUMMARY:"
