@@ -130,19 +130,22 @@ function add_mine_sources {
     # Data source directory: datasets/omim
     add_omim
 
-    # Add FAANG GFF
+    # FAANG GFF
     # Data source directories: datasets/FAANG-gff/<organism>/<assembly>
     add_faang_gff
 
-    # Add QTL GFF
+    # QTL GFF
     # Data source directories: datasets/QTL/<organism>/<assembly>
     add_qtl_gff
 
-    # Add BioGRID
+    # GplusE orthologs and reactions (BovineMine only)
+    add_gpluse
+
+    # BioGRID
     # Data source directory: datasets/BioGRID
     add_biogrid
 
-    # Add IntAct
+    # IntAct
     # Data source directory: datasets/IntAct
     # Manually specify organisms by taxon id list (depends on mine)
     # Usage: add_intact "<taxon id list>", e.g.,

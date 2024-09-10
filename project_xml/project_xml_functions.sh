@@ -1405,6 +1405,49 @@ function add_faang_gff {
     echo >> $outfile
 }
 
+function add_gpluse_orthologs {
+    echo "    <!--GplusE orthologs-->" >> $outfile
+    echo "    <!--Data file(s) must be sorted on column 2 before loading!-->" >> $outfile
+
+    dirname="${mine_dir}/datasets/GPLUSE/orthologs"
+    check_dir "$dirname"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        echo "    <source name=\"gpluse-orthologs\" type=\"gpluse-orthologs\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+        echo "      <property name=\"gpluseorthologs.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+        echo "      <property name=\"gpluseorthologs.homologues\" value=\"${taxon_ids}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
+function add_gpluse_reactions {
+    echo "    <!--GplusE reactions-->" >> $outfile
+
+    dirname="${mine_dir}/datasets/GPLUSE/reactions"
+    check_dir "$dirname"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        echo "    <source name=\"gpluse-reactions\" type=\"gpluse-reactions\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${dirname}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
+
+    echo >> $outfile
+    echo >> $outfile
+
+}
+
+function add_gpluse {
+    echo "+ Adding GplusE orthologs and reactions"
+
+    add_gpluse_orthologs
+    add_gpluse_reactions
+}
+
 function add_qtl_gff {
     echo "+ Adding QTL GFF"
 
