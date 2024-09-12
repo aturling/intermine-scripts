@@ -48,7 +48,7 @@ function add_mine_sources {
 
     # Reactome
     # Manually specify organisms by taxon id list (depends on mine)
-    add_reactome "9031 9606 9615 9823 9913 10090 10116"
+    add_reactome "9913 9606 9615 9823 9940 10090 10116"
 
     # OrthoDB
     add_orthodb
