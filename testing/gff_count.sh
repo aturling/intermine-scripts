@@ -96,7 +96,7 @@ fi
 
 all_counts_correct=1
 
-sources=("RefSeq" "RefSeq-pseudogenes-transcribed" "RefSeq-pseudogenes-nottranscribed" "Ensembl" "MaizeGDB" "OGS" "Genbank")
+sources=("RefSeq" "RefSeq-pseudogenes-transcribed" "RefSeq-pseudogenes-nottranscribed" "Ensembl" "Ensembl-pseudogenes" "MaizeGDB" "OGS" "Genbank")
 echo "Checking gff counts..."
 echo
 for source in "${sources[@]}" ; do
@@ -112,6 +112,9 @@ for source in "${sources[@]}" ; do
     elif [[ "$source" == "RefSeq-pseudogenes-nottranscribed" ]]; then
         sourcedir="RefSeq"
         subdir="pseudogenes_nottranscribed/"
+    elif [[ "$source" == "Ensembl-pseudogenes" ]]; then
+        sourcedir="Ensembl"
+        subdir="pseudogenes/"
     fi
     # Iterate over all organisms/assemblies
     files=$(find /db/*/datasets/${sourcedir}/annotations/*/*/${subdir} -type f -name *.gff3 2>/dev/null)
@@ -132,6 +135,8 @@ for source in "${sources[@]}" ; do
                 genesource=$(tail -n 1 /db/*/datasets/$sourcedir/annotations/${org_dir}/${assembly}/*.gff3 | cut -f2)
             elif [[ "$source" == "RefSeq-pseudogenes-transcribed" ]] || [[ "$source" == "RefSeq-pseudogenes-nottranscribed" ]]; then
                 genesource="RefSeq"
+            elif [[ "$source" == "Ensembl-pseudogenes" ]]; then
+                genesource="Ensembl"
             fi
             get_counts "$source" "$genesource" "$org_name" "$assembly" "$sourcedir" "$subdir"
         fi
