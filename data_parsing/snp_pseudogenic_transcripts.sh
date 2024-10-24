@@ -18,16 +18,16 @@ while read transcript_id; do
     for vcf_file in $vcf_files; do
         #echo "${vcf_file}:"
         if grep -q "|primary_transcript|$transcript_id" $vcf_file; then
-            echo "Running sed -i 's/|primary_transcript|${transcript_id}/pseudogenic_transcript|${transcript_id}/g' $vcf_file"
-            sed -i "s/|primary_transcript|${transcript_id}/pseudogenic_transcript|${transcript_id}/g" "$vcf_file"
+            echo "Running sed -i 's/|primary_transcript|${transcript_id}/|pseudogenic_transcript|${transcript_id}/g' $vcf_file"
+            sed -i "s/|primary_transcript|${transcript_id}/|pseudogenic_transcript|${transcript_id}/g" "$vcf_file"
         fi
         if grep -q "|transcript|$transcript_id" $vcf_file; then
-            echo "Running sed -i 's/|transcript|${transcript_id}/pseudogenic_transcript|${transcript_id}/g' $vcf_file"
-            sed -i "s/|transcript|${transcript_id}/pseudogenic_transcript|${transcript_id}/g" "$vcf_file"
+            echo "Running sed -i 's/|transcript|${transcript_id}/|pseudogenic_transcript|${transcript_id}/g' $vcf_file"
+            sed -i "s/|transcript|${transcript_id}/|pseudogenic_transcript|${transcript_id}/g" "$vcf_file"
         fi
         if grep -q "ncRNA|$transcript_id" $vcf_file; then
-            echo "Running sed -i 's/|ncRNA|${transcript_id}/pseudogenic_transcript|${transcript_id}/g' $vcf_file"
-            sed -i "s/|ncRNA|${transcript_id}/pseudogenic_transcript|${transcript_id}/g" "$vcf_file"
+            echo "Running sed -i 's/|ncRNA|${transcript_id}/|pseudogenic_transcript|${transcript_id}/g' $vcf_file"
+            sed -i "s/|ncRNA|${transcript_id}/|pseudogenic_transcript|${transcript_id}/g" "$vcf_file"
         fi
     done
 done <$1
