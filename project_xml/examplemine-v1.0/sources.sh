@@ -138,6 +138,10 @@ function add_mine_sources {
     # Data source directories: datasets/QTL/<organism>/<assembly>
     add_qtl_gff
 
+    # Candidate region GFF
+    # Data source directories: datasets/candidate_regions
+    add_candidate_region_gff
+
     # GplusE orthologs and reactions (BovineMine only)
     add_gpluse
 

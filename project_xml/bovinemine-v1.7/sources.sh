@@ -48,7 +48,8 @@ function add_mine_sources {
 
     # Reactome
     # Manually specify organisms by taxon id list (depends on mine)
-    add_reactome "9913 9606 9615 9823 9940 10090 10116"
+    # For BovineMine: B. taurus only
+    add_reactome "9913"
 
     # OrthoDB
     add_orthodb
@@ -59,8 +60,15 @@ function add_mine_sources {
     # Add QTL GFF
     add_qtl_gff
 
+    # Add candidate region GFF
+    add_candidate_region_gff
+
+    # Expression metadata
+    add_bovine_expression_metadata
+
     # Add GplusE
-    add_gpluse
+    # Not including in BovineMine 1.7
+    #add_gpluse
 
     # GO-Annotation 
     add_go_annotation "Ensembl" "Ensembl Biomart GO annotation data set" "true"
@@ -70,7 +78,7 @@ function add_mine_sources {
     add_biogrid
 
     # Add IntAct
-    add_intact "9606 9796 9823 9913 9925 9940 10090 10116"
+    add_intact "9606 9913 10090 10116"
 
     # Update data sources
     add_update_data_sources
