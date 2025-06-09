@@ -28,12 +28,13 @@ echo "Checking custom gene info gene IDs..."
 for source in $sources; do
     echo "Source: $source" 
     # Get file list
-    files=$(find /db/*/datasets/custom-gene-info/${source}/ -type f -name *.tab)
+    files=$(find /db/*/datasets/custom-gene-info/${source}/ -not -path '*/old/*' -type f -name *.tab)
     for file in $files; do
         taxon_id=$(echo "$file" | grep -oE "[0-9][0-9][0-9][0-9]+")
         # Check counts
         echo "Checking gene counts for organism with taxon ID $taxon_id..."
         file_count=$(cut -f 1 "$file" | wc -l)
+        echo "$file_count"
         # Assumes data set name is of the form "<source> genes for <species>" or similar
         dbcount=$(psql ${dbname} -c "select count(g.id) from gene g join organism o on o.id=g.organismid join bioentitiesdatasets bed on bed.bioentities=g.id join dataset d on d.id=bed.datasets where o.taxonid='${taxon_id}' and g.source='${source}' and d.name like '%genes for%';" -t -A)
         if [ $file_count -eq $dbcount ]; then

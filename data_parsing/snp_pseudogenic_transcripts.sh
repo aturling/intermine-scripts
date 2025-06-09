@@ -14,7 +14,7 @@ fi
 # Iterate over all SNP files
 while read transcript_id; do
     echo "Looking for $transcript_id"
-    vcf_files=$(find /db/*/datasets/SNP-test/Ensembl/$2 -type f -name "*.vcf")
+    vcf_files=$(find /db/*/datasets/SNP/Ensembl/$2 -type f -name "*.vcf")
     for vcf_file in $vcf_files; do
         #echo "${vcf_file}:"
         if grep -q "|primary_transcript|$transcript_id" $vcf_file; then
