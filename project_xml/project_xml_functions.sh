@@ -442,6 +442,24 @@ function add_aquamine_experiment {
     echo >> $outfile
 }
 
+function add_bovine_expression_metadata {
+    echo "+ Adding BovineMine expression metadata"
+
+    echo "    <!--Expression metadata-->" >> $outfile
+
+    expression_metadata_dir="${mine_dir}/datasets/gene-expression-metadata"
+    check_nonempty_dir "$expression_metadata_dir"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+        echo "    <source name=\"bovine-expression-metadata\" type=\"bovine-expression\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${expression_metadata_dir}\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    fi
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
 function add_bioproject_data {
     echo "+ Adding bioproject/biosample/analysis sources"
 
@@ -1446,6 +1464,31 @@ function add_gpluse {
 
     add_gpluse_orthologs
     add_gpluse_reactions
+}
+
+function add_candidate_region_gff {
+    echo "+ Adding Candidate region GFF"
+
+    echo "    <!--Candidate region GFF--> " >> $outfile
+    echo "    <!--No Gene.source so load these here (not with rest of GFFs)-->" >> $outfile
+
+    data_subdir="candidate_regions"
+    # Only using for BovineMine so can hard-code this in for now:
+    sourceName="BovineMine"
+    taxon_id="9913"
+    assembly="ARS-UCD2.0"
+
+    echo "    <source name=\"candidate-region-gff\" type=\"candidate-region-gff\" version=\"${source_version}\">" >> $outfile
+    echo "      <property name=\"gff3.taxonId\" value=\"${taxon_id}\"/>" >> $outfile
+    echo "      <property name=\"gff3.dataSourceName\" value=\"${sourceName}\"/>" >> $outfile
+    echo "      <property name=\"gff3.dataSetTitle\" value=\"Selective sweeps data set\"/>" >> $outfile
+    echo "      <property name=\"gff3.seqClsName\" value=\"Chromosome\"/>" >> $outfile
+    echo "      <property name=\"gff3.seqAssemblyVersion\" value=\"${assembly}\"/>" >> $outfile
+    echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}\"/>" >> $outfile
+    echo "    </source>" >> $outfile
+
+    echo >> $outfile
+    echo >> $outfile
 }
 
 function add_qtl_gff {
