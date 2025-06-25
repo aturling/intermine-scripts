@@ -41,7 +41,7 @@ for pubmed_file in $files; do
             echo "WARNING: organism with taxon id $taxon_id not in database!"
             continue
         fi
-        dbrow=$(psql ${dbname} -c "select g.id from gene g join entitiespublications ep on ep.entities=g.id join publication p on ep.publications=p.id where g.primaryidentifier='${gene_id}' and g.organismid=${org_id} and p.pubmedid='${pubmed_id}'" -t -A)
+        dbrow=$(psql ${dbname} -c "select g.id from sequencefeature g join entitiespublications ep on ep.entities=g.id join publication p on ep.publications=p.id where g.primaryidentifier='${gene_id}' and g.organismid=${org_id} and p.pubmedid='${pubmed_id}'" -t -A)
         if [ -z "$dbrow" ]; then
             echo "WARNING: expected gene/publication not in database!"
             all_loads_correct=0

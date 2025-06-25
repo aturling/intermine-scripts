@@ -1232,27 +1232,52 @@ function add_e2p2_pathway {
 function add_pubmed_source {
     source_name=$1
 
-    pubmed_dir="ncbi-pubmed-gene"
-    if [ "$source_name" == "Ensembl" ]; then
-        pubmed_dir="ensembl-pubmed-gene"
-    fi
-    pubmed_file=$(find ${mine_dir}/datasets/${pubmed_dir} -mindepth 1 -maxdepth 1 -type f 2>/dev/null)
-    if [ ! -z "$pubmed_file" ]; then
-        check_file "$pubmed_file"
-        ec=$?
-        if [ "$ec" -eq 0 ]; then
-            taxon_ids=$(cut -f1 ${pubmed_file} | sort -n | uniq | xargs)
 
-            echo "    <source name=\"${pubmed_dir,,}\" type=\"pubmed-gene\" version=\"${source_version}\">" >> $outfile
-            echo "      <property name=\"geneSource\" value=\"${source_name}\"/>" >> $outfile
-            echo "      <property name=\"pubmed.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
-            echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${pubmed_dir}\"/>" >> $outfile
-            echo "    </source>" >> $outfile
+    pubmed_dir_prefix="ncbi"
+    if [ "$source_name" == "Ensembl" ]; then
+        pubmed_dir_prefix="ensembl"
+    fi
+    pubmed_dir="${pubmed_dir_prefix}-pubmed-gene"
+
+    check_dir "${mine_dir}/datasets/$pubmed_dir"
+    ec=$?
+    if [ "$ec" -eq 0 ]; then
+      # Should only be one match for each
+        pubmed_gene_file=$(find ${mine_dir}/datasets/${pubmed_dir} -mindepth 1 -maxdepth 1 -type f -name "*_gene_*" -printf "%f\n" 2>/dev/null)
+        if [ ! -z "$pubmed_gene_file" ]; then
+            taxon_ids=$(cut -f1 ${mine_dir}/datasets/${pubmed_dir}/${pubmed_gene_file} | sort -n | uniq | xargs)
+            if [ ! -z "$taxon_ids" ]; then
+                echo "    <source name=\"${pubmed_dir_prefix,,}-pubmed-gene\" type=\"pubmed-gene\" version=\"${source_version}\">" >> $outfile
+                echo "      <property name=\"geneSource\" value=\"${source_name}\"/>" >> $outfile
+                echo "      <property name=\"geneType\" value=\"Gene\"/>" >> $outfile
+                echo "      <property name=\"pubmed.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+                echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${pubmed_dir}\"/>" >> $outfile
+                echo "      <property name=\"src.data.dir.includes\" value=\"${pubmed_gene_file}\"/>" >> $outfile
+                echo "    </source>" >> $outfile
+            else
+                echo "WARNING: no taxon ids found in ${mine_dir}/datasets/${pubmed_dir}/${pubmed_gene_file}" 1>&2
+            fi
         else
             echo "WARNING: no pubmed gene data file in ${pubmed_dir}" 1>&2
         fi
-    else
-        echo "WARNING: Directory ${mine_dir}/datasets/$pubmed_dir does not exist"
+
+        pubmed_pseudogene_file=$(find ${mine_dir}/datasets/${pubmed_dir} -mindepth 1 -maxdepth 1 -type f -name "*_pseudogene_*"  -printf "%f\n" 2>/dev/null)
+        if [ ! -z "$pubmed_pseudogene_file" ]; then
+            taxon_ids=$(cut -f1 ${mine_dir}/datasets/${pubmed_dir}/${pubmed_pseudogene_file} | sort -n | uniq | xargs)
+            if [ ! -z "$taxon_ids" ]; then
+                echo "    <source name=\"${pubmed_dir_prefix,,}-pubmed-pseudogene\" type=\"pubmed-gene\" version=\"${source_version}\">" >> $outfile
+                echo "      <property name=\"geneSource\" value=\"${source_name}\"/>" >> $outfile
+                echo "      <property name=\"geneType\" value=\"Pseudogene\"/>" >> $outfile
+                echo "      <property name=\"pubmed.organisms\" value=\"${taxon_ids}\"/>" >> $outfile
+                echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${pubmed_dir}\"/>" >> $outfile
+                echo "      <property name=\"src.data.dir.includes\" value=\"${pubmed_pseudogene_file}\"/>" >> $outfile
+                echo "    </source>" >> $outfile
+            else
+                echo "WARNING: no taxon ids found in ${mine_dir}/datasets/${pubmed_dir}/${pubmed_pseudogene_file}" 1>&2
+            fi
+        else
+            echo "WARNING: no pubmed pseudogene data file in ${pubmed_dir}" 1>&2
+        fi
     fi
 }
 
