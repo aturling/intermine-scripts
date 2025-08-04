@@ -43,12 +43,12 @@ function get_orgs {
     local data_subdir=$1
 
     local data_dir=${mine_dir}/datasets/${data_subdir}
-    local num_orgs=$(find ${data_dir} -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l)
+    local num_orgs=$(find ${data_dir} -mindepth 1 -maxdepth 1 -type d -not -path "*/old" 2>/dev/null | wc -l)
     if [ $num_orgs -eq 0 ]; then
         echo "WARNING: $data_subdir does not exist or is empty" 1>&2
         return 1
     fi
-    find ${data_dir} -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort
+    find ${data_dir} -mindepth 1 -maxdepth 1 -type d -not -path "*/old" -printf "%f\n" | sort
 }
 
 # Get assemblies in org subdirectory
