@@ -503,6 +503,29 @@ function add_gene_expression {
     echo >> $outfile
 }
 
+function add_bovine_gene_expression {
+    echo "+ Adding Bovine gene expression"
+
+    echo "    <!--Bovine gene expression-->" >> $outfile
+
+    # Iterate over organisms
+    data_subdir="gene_expression"
+
+    # Iterate over sources
+    sources=$(get_xref_sources "${data_subdir}/${org}")
+    for gene_source in $sources; do
+        echo "    <source name=\"btau-expression-gene-${gene_source,,}\" type=\"bovine-gene-expression\" version=\"${source_version}\">" >> $outfile
+        echo "      <property name=\"taxonId\" value=\"9913\"/>" >> $outfile
+        echo "      <property name=\"geneSource\" value=\"${gene_source}\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/bos_taurus/${gene_source}\"/>" >> $outfile
+        echo "      <property name=\"src.data.dir.includes\" value=\"*.tab\"/>" >> $outfile
+        echo "    </source>" >> $outfile
+    done
+
+    echo >> $outfile
+    echo >> $outfile
+}
+
 function add_maize_expression {
     echo "+ Adding Maize expression"
 
@@ -1499,7 +1522,7 @@ function add_candidate_region_gff {
 
     data_subdir="candidate_regions"
     # Only using for BovineMine so can hard-code this in for now:
-    sourceName="BovineMine"
+    sourceName="BGD"
     taxon_id="9913"
     assembly="ARS-UCD2.0"
 

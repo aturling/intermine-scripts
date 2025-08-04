@@ -26,7 +26,7 @@ function add_mine_sources {
     add_gene_xrefs "BovineMine"
 
     # Gene expression
-    add_gene_expression
+    add_bovine_gene_expression
 
     # PubMed
     add_pubmed "RefSeq" "Ensembl"
@@ -75,10 +75,12 @@ function add_mine_sources {
     add_go_annotation "NCBI" "NCBI GO annotation data set" "true"
 
     # Add BioGRID
-    add_biogrid
+    # Not including in BovineMine 1.7
+    #add_biogrid
 
     # Add IntAct
-    add_intact "9606 9913 10090 10116"
+    # Not including in BovineMine 1.7
+    #add_intact "9606 9913 10090 10116"
 
     # Update data sources
     add_update_data_sources
