@@ -17,7 +17,7 @@ all_counts_correct=1
 
 echo "Checking FAANG gff counts..."
 # Iterate over all organisms/assemblies
-orgs=$(find /db/*/datasets/FAANG-gff -maxdepth 1 -mindepth 1 -type d | awk -F'/' '{print $(NF)}' | sort)
+orgs=$(find /db/*/datasets/FAANG-gff -maxdepth 1 -mindepth 1 -not -path '*/old*' -type d | awk -F'/' '{print $(NF)}' | sort)
 for org in $orgs; do
     org_name=$(echo "${org}" | sed 's/_/ /g')
 
