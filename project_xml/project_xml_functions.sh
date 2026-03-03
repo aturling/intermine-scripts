@@ -315,6 +315,12 @@ function add_snp {
         gene_source="B73 Zm00001eb.1"
     fi
 
+    # Only compute overlaps in BovineMine
+    do_not_compute_overlaps=1
+    if [ "$mine_basename" == "bovinemine" ]; then
+        do_not_compute_overlaps=0
+    fi
+
     # Iterate over sources
     dirs=$(find ${mine_dir}/datasets/SNP -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
     for dir in $dirs; do
@@ -365,6 +371,9 @@ function add_snp {
                         echo "      <property name=\"snp-variation.assemblyVersion\" value=\"${assembly}\"/>" >> $outfile
                         echo "      <property name=\"snp-variation.geneSource\" value=\"${gene_source}\"/>" >> $outfile
                         echo "      <property name=\"snp-variation.snpSource\" value=\"${snp_source}\"/>" >> $outfile
+                        if [ "$do_not_compute_overlaps" -eq 1 ]; then
+                            echo "      <property name=\"snp-variation.doNotComputeOverlaps\" value=\"Y\"/>" >> $outfile
+                        fi
                         echo "      <property name=\"snp-variation.includes\" value=\"*.vcf\"/>" >> $outfile
                         echo "      <property name=\"src.data.dir\" location=\"${mine_dir}/datasets/${data_subdir}/${org}/${assembly}/${this_part}\"/>" >> $outfile
                         echo "    </source>" >> $outfile

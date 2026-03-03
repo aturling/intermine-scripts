@@ -4,6 +4,10 @@ function add_mine_sources {
     # Ontologies
     add_ontologies_sources
 
+    # Adding QTL here due to errors:
+    # Add QTL GFF
+    add_qtl_gff
+
     # SNP
     add_snp
 
@@ -51,7 +55,8 @@ function add_mine_sources {
 
     # Reactome
     # Manually specify organisms by taxon id list (depends on mine)
-    add_reactome "9031 9606 9615 9823 9913 10090 10116"
+    #add_reactome "9031 9606 9615 9823 9913 10090 10116"
+    add_reactome "9031 9606 9823 9913 10090 10116"
 
     # OrthoDB
     add_orthodb
@@ -66,7 +71,7 @@ function add_mine_sources {
     add_faang_gff
 
     # Add QTL GFF
-    add_qtl_gff
+    #add_qtl_gff
 
     # GO-Annotation 
     add_go_annotation "Ensembl" "Ensembl Biomart GO annotation data set" "true"
