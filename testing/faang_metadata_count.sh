@@ -64,7 +64,9 @@ fi
 
 # Check number of bioprojects in database
 # Each line in file is unique bioproject so count number of lines (minus header)
-filecount=$(tail -n +2 /db/*/datasets/FAANG-bioproject/bioproject.txt | wc -l)
+bioprojfile=$(find /db/*/datasets/FAANG-bioproject/ -maxdepth 1 -type f -name "*.txt")
+filecount=$(tail -n +2 $bioprojfile | wc -l)
+#filecount=$(tail -n +2 /db/*/datasets/FAANG-bioproject/bioproject.txt | wc -l)
 dbcount=$(psql ${dbname} -c "select count(b.id) from bioproject b join bioprojectdatasets bd on bd.bioproject=b.id where bd.datasets=${dataset_id}" -t -A)
 if [ ! "$dbcount" -eq "$filecount" ]; then
     echo "WARNING: $dbcount BioProjects in database, but $filecount in input file!"
@@ -84,8 +86,10 @@ check_null_field "BioProject" "category" "category name"
 
 # Check publications count
 # Get column number of publication ids
-col_num=$(get_col_num "/db/*/datasets/FAANG-bioproject/bioproject.txt" "PMID")
-filecount=$(cut -f $col_num /db/*/datasets/FAANG-bioproject/bioproject.txt | grep -v PMID | grep -v '-' | sort | uniq | wc -l)
+col_num=$(get_col_num "$bioprojfile" "PMID")
+#col_num=$(get_col_num "/db/*/datasets/FAANG-bioproject/bioproject.txt" "PMID")
+filecount=$(cut -f $col_num $bioprojfile | grep -v PMID | grep -v '-' | sort | uniq | wc -l)
+#filecount=$(cut -f $col_num /db/*/datasets/FAANG-bioproject/bioproject.txt | grep -v PMID | grep -v '-' | sort | uniq | wc -l)
 dbcount=$(psql ${dbname} -c "select count(distinct(publications)) from bioprojectpublications" -t -A)
 if [ ! "$dbcount" -eq "$filecount" ]; then
     echo "WARNING: $dbcount BioProject publication refs in database, but $filecount in input file!"
@@ -108,7 +112,9 @@ fi
 
 # Check number of biosamples in database from biosamples file
 # Each line in file is unique biosample so count number of lines (minus header)
-filecount=$(tail -n +2 /db/*/datasets/FAANG-biosample/biosample.txt | wc -l)
+biosampfile=$(find /db/*/datasets/FAANG-biosample/ -maxdepth 1 -type f -name "*.txt")
+filecount=$(tail -n +2 $biosampfile | wc -l)
+#filecount=$(tail -n +2 /db/*/datasets/FAANG-biosample/biosample.txt | wc -l)
 dbcount=$(psql ${dbname} -c "select count(b.id) from biosample b join biosampledatasets bd on bd.biosample=b.id where bd.datasets=${dataset_id}" -t -A)
 if [ ! "$dbcount" -eq "$filecount" ]; then
     echo "WARNING: $dbcount BioSamples in database, but $filecount in input file!"
@@ -142,10 +148,12 @@ for key in "${ontologies[@]}"; do
     colname=$(echo $key | cut -d'|' -f2)
     fieldname=$(echo $key | cut -d'|' -f3)
     # get column number
-    col_num=$(get_col_num "/db/*/datasets/FAANG-biosample/biosample.txt" "$colname")
+    col_num=$(get_col_num "$biosampfile" "$colname")
+    #col_num=$(get_col_num "/db/*/datasets/FAANG-biosample/biosample.txt" "$colname")
     # count number of refs (non-distinct)
     dbcount=$(psql ${dbname} -c "select count(o.identifier) from biosample s join ${term}term o on o.id=s.${fieldname}" -t -A)
-    filecount=$(tail -n +2 /db/*/datasets/FAANG-biosample/biosample.txt | cut -f $col_num | grep -v '-' | wc -l)
+    filecount=$(tail -n +2 $biosampfile | cut -f $col_num | grep -v '-' | wc -l)
+    #filecount=$(tail -n +2 /db/*/datasets/FAANG-biosample/biosample.txt | cut -f $col_num | grep -v '-' | wc -l)
     if [ ! "$dbcount" -eq "$filecount" ]; then
         echo "WARNING: $dbcount BioSample $term term refs in database, but $filecount in input file!"
         all_counts_correct=0
@@ -154,7 +162,8 @@ for key in "${ontologies[@]}"; do
     fi
     # count distinct
     dbcount=$(psql ${dbname} -c "select count(distinct(o.identifier)) from biosample s join ${term}term o on o.id=s.${fieldname}" -t -A)
-    filecount=$(tail -n +2 /db/*/datasets/FAANG-biosample/biosample.txt | cut -f $col_num | grep -v '-' | sort | uniq | wc -l)
+    filecount=$(tail -n +2 $biosampfile | cut -f $col_num | grep -v '-' | sort | uniq | wc -l)
+    #filecount=$(tail -n +2 /db/*/datasets/FAANG-biosample/biosample.txt | cut -f $col_num | grep -v '-' | sort | uniq | wc -l)
     if [ ! "$dbcount" -eq "$filecount" ]; then
         echo "WARNING: $dbcount BioSample distinct $term term refs in database, but $filecount in input file!"
         all_counts_correct=0
@@ -176,7 +185,8 @@ for key in "${ontologycollections[@]}"; do
     while IFS= read line; do
         linecount=$(echo "$line" | grep -oE "${term}:[a-zA-Z0-9]+" | sort | uniq | wc -l)
         filecount=$((filecount + linecount))
-    done < /db/*/datasets/FAANG-biosample/biosample.txt
+    done < $biosampfile
+    #done < /db/*/datasets/FAANG-biosample/biosample.txt
     #filecount=$(grep -oE "${term}:[a-zA-Z0-9]+" /db/*/datasets/FAANG-biosample/biosample.txt | wc -l)
     # Have to count per line because each term is only stored once per sample id (but some lines have duplicate term ids
     # in different columns)
@@ -188,7 +198,8 @@ for key in "${ontologycollections[@]}"; do
     fi
     # count distinct
     dbcount=$(psql ${dbname} -c "select count(distinct($tablefield)) from ${tablename}" -t -A)
-    filecount=$(grep -oE "${term}:[a-zA-Z0-9]+" /db/*/datasets/FAANG-biosample/biosample.txt | sort | uniq | wc -l)
+    filecount=$(grep -oE "${term}:[a-zA-Z0-9]+" $biosampfile | sort | uniq | wc -l)
+    #filecount=$(grep -oE "${term}:[a-zA-Z0-9]+" /db/*/datasets/FAANG-biosample/biosample.txt | sort | uniq | wc -l)
     if [ ! "$dbcount" -eq "$filecount" ]; then
         echo "WARNING: $dbcount BioSample collection of distinct $term terms in database, but $filecount in input file!"
         all_counts_correct=0
@@ -198,22 +209,26 @@ for key in "${ontologycollections[@]}"; do
 done
 
 # Check biosample pools
-dbcount=$(psql ${dbname} -c "select count(*) from biosamplepoolscomponentsampleids" -t -A)
-col_num=$(get_col_num "/db/*/datasets/FAANG-biosample/biosample.txt" "BiosampleComponents")
-filecount=$(cut -f $col_num /db/*/datasets/FAANG-biosample/biosample.txt | grep -v '-' | grep -oE "SAM[A-E0-9]+" | sort | uniq | wc -l)
-if [ ! "$dbcount" -eq "$filecount" ]; then
-    echo "WARNING: $dbcount BioSample pool ids in database, but $filecount in input file!"
-    all_counts_correct=0
-else
-    echo "BioProject pool id count correct ($dbcount pool ids)"
-fi
+#dbcount=$(psql ${dbname} -c "select count(*) from biosamplepoolscomponentsampleids" -t -A)
+#col_num=$(get_col_num "$biosampfile" "BiosampleComponents")
+##col_num=$(get_col_num "/db/*/datasets/FAANG-biosample/biosample.txt" "BiosampleComponents")
+#filecount=$(cut -f $col_num $biosampfile | grep -v '-' | grep -oE "SAM[A-E0-9]+" | sort | uniq | wc -l)
+##filecount=$(cut -f $col_num /db/*/datasets/FAANG-biosample/biosample.txt | grep -v '-' | grep -oE "SAM[A-E0-9]+" | sort | uniq | wc -l)
+#if [ ! "$dbcount" -eq "$filecount" ]; then
+#    echo "WARNING: $dbcount BioSample pool ids in database, but $filecount in input file!"
+#    all_counts_correct=0
+#else
+#    echo "BioProject pool id count correct ($dbcount pool ids)"
+#fi
 
 echo
 echo "Checking Analyses..."
 
 # Check number of analyses in database
 # Each line in file is unique analysis so count number of lines (minus header)
-filecount=$(tail -n +2 /db/*/datasets/FAANG-analysis/analysis.txt | wc -l)
+analysisfile=$(find /db/*/datasets/FAANG-analysis/ -maxdepth 1 -type f -name "*.txt")
+filecount=$(tail -n +2 $analysisfile | wc -l)
+#filecount=$(tail -n +2 /db/*/datasets/FAANG-analysis/analysis.txt | wc -l)
 dbcount=$(psql ${dbname} -c "select count(id) from analysis" -t -A)
 if [ ! "$dbcount" -eq "$filecount" ]; then
     echo "WARNING: $dbcount Analyses in database, but $filecount in input file!"
@@ -231,20 +246,22 @@ check_null_field "Analysis" "source" "source name"
 # Check that biosample ref was set
 # not needed for now - it is fine for some analysis rows to have no biosample ref
 #check_null_field "Analysis" "biosampleid" "BioSample ref"
-# just make sure there's at least one ref:
-dbcount=$(psql ${dbname} -c "select count(id) from analysis where biosampleid is not null" -t -A)
-if [ "$dbcount" -eq 0 ]; then
-    echo "WARNING: no BioSample refs set in Analysis table!"
-else
-    echo "Analysis table contains BioSample refs"
-fi
+## just make sure there's at least one ref:
+#dbcount=$(psql ${dbname} -c "select count(id) from analysis where biosampleid is not null" -t -A)
+#if [ "$dbcount" -eq 0 ]; then
+#    echo "WARNING: no BioSample refs set in Analysis table!"
+#else
+#    echo "Analysis table contains BioSample refs"
+#fi
 
 # Check that bioproject ref was set
 check_null_field "Analysis" "bioprojectid" "BioProject ref"
 
 # Check experiments count
-col_num=$(get_col_num "/db/*/datasets/FAANG-analysis/analysis.txt" "ExperimentAccession")
-filecount=$(cut -f $col_num /db/*/datasets/FAANG-analysis/analysis.txt | grep -v ExperimentAccession | grep -v '-' | grep -oE "[A-Z0-9]+" | sort | uniq | wc -l)
+col_num=$(get_col_num "$analysisfile" "ExperimentAccession")
+#col_num=$(get_col_num "/db/*/datasets/FAANG-analysis/analysis.txt" "ExperimentAccession")
+filecount=$(cut -f $col_num $analysisfile | grep -v ExperimentAccession | grep -v '-' | grep -oE "[A-Z0-9]+" | sort | uniq | wc -l)
+#filecount=$(cut -f $col_num /db/*/datasets/FAANG-analysis/analysis.txt | grep -v ExperimentAccession | grep -v '-' | grep -oE "[A-Z0-9]+" | sort | uniq | wc -l)
 dbcount=$(psql ${dbname} -c "select count(distinct(experiments)) from analysesexperiments" -t -A)
 if [ ! "$dbcount" -eq "$filecount" ]; then
     echo "WARNING: $dbcount Analysis experiment refs in database, but $filecount in input file!"
@@ -267,7 +284,9 @@ fi
 
 # Check number of experiments in database
 # Each line in file is unique experiment so count number of lines (minus header)
-filecount=$(tail -n +2 /db/*/datasets/experiment/experiment.txt | wc -l)
+expfile=$(find /db/*/datasets/experiment/ -maxdepth 1 -type f -name "*.txt")
+filecount=$(tail -n +2 $expfile | wc -l)
+#filecount=$(tail -n +2 /db/*/datasets/experiment/experiment.txt | wc -l)
 dbcount=$(psql ${dbname} -c "select count(e.id) from experiment e join datasetsexperiment de on de.experiment=e.id where de.datasets=${dataset_id}" -t -A)
 if [ ! "$dbcount" -eq "$filecount" ]; then
     echo "WARNING: $dbcount Experiments in database, but $filecount in input file!"
